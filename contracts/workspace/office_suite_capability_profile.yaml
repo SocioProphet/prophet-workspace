@@ -6,6 +6,7 @@ owners:
   sourceos_repo: SociOS-Linux/source-os
   memory_repo: SocioProphet/memory-mesh
   desktop_search_repo: SocioProphet/lampstand
+  ontology_repo: SocioProphet/ontogenesis
 capability_families:
   - docs
   - sheets
@@ -17,6 +18,7 @@ capability_families:
   - workflow_agents
   - memory_recall
   - search
+  - ontology_alignment
 capability_map:
   docs:
     local_editor: libreoffice
@@ -60,17 +62,24 @@ capability_map:
     local_desktop_search: required
     cloud_workspace_search: required
     indexed_office_discovery: required
+  ontology_alignment:
+    office_semantic_units: required
+    jsonld_boundary: required
+    external_schema_mapping: required
+    provenance_alignment: target
 cross_repo_bindings:
   sourceos:
     - office desktop profile
     - font and mime integration
     - local parity smoke tests
     - lampstand desktop handoff
+    - local semantic extraction handoff
   platform:
     - office cloud runtime
     - wopi host
     - document and ai action schemas
     - foggraph indexing and orchestration
+    - ontology-aware extraction and mapping
   workspace:
     - product semantics
     - user/admin surface expectations
@@ -83,3 +92,7 @@ cross_repo_bindings:
     - local desktop file discovery
     - inspectable local office search health
     - local search handoff into office surfaces
+  ontogenesis:
+    - office vocabulary alignment
+    - jsonld and graph boundary surfaces
+    - provenance-aware semantic mapping
