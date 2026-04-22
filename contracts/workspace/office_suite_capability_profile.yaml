@@ -1,0 +1,63 @@
+profile_id: workspace-office-profile-v1
+status: draft
+owners:
+  domain_repo: SocioProphet/prophet-workspace
+  runtime_repo: SocioProphet/prophet-platform
+  sourceos_repo: SociOS-Linux/source-os
+capability_families:
+  - docs
+  - sheets
+  - slides
+  - files
+  - collaboration
+  - migration
+  - ai_assistance
+  - workflow_agents
+capability_map:
+  docs:
+    local_editor: libreoffice
+    cloud_editor: collabora
+    ai_surface: required
+  sheets:
+    local_editor: libreoffice
+    cloud_editor: collabora
+    ai_surface: required
+  slides:
+    local_editor: libreoffice
+    cloud_editor: collabora
+    ai_surface: required
+  files:
+    local_editor: sourceos-shell
+    cloud_editor: fogstack-drive
+    ai_surface: required
+  collaboration:
+    comments: required
+    suggestions: required
+    versions: required
+    sharing: required
+  migration:
+    microsoft_office_scan: required
+    google_workspace_scan: required
+    parity_scoring: required
+  ai_assistance:
+    grounded_rewrite: required
+    summarize: required
+    spreadsheet_formula_help: required
+    deck_generation: target
+  workflow_agents:
+    starters: target
+    steps: target
+    approvals: target
+cross_repo_bindings:
+  sourceos:
+    - office desktop profile
+    - font and mime integration
+    - local parity smoke tests
+  platform:
+    - office cloud runtime
+    - wopi host
+    - document and ai action schemas
+  workspace:
+    - product semantics
+    - user/admin surface expectations
+    - capability parity contract
