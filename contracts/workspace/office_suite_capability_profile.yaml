@@ -4,6 +4,8 @@ owners:
   domain_repo: SocioProphet/prophet-workspace
   runtime_repo: SocioProphet/prophet-platform
   sourceos_repo: SociOS-Linux/source-os
+  memory_repo: SocioProphet/memory-mesh
+  desktop_search_repo: SocioProphet/lampstand
 capability_families:
   - docs
   - sheets
@@ -13,6 +15,8 @@ capability_families:
   - migration
   - ai_assistance
   - workflow_agents
+  - memory_recall
+  - search
 capability_map:
   docs:
     local_editor: libreoffice
@@ -48,16 +52,34 @@ capability_map:
     starters: target
     steps: target
     approvals: target
+  memory_recall:
+    recall_before_action: required
+    writeback_after_action: required
+    user_project_memory: target
+  search:
+    local_desktop_search: required
+    cloud_workspace_search: required
+    indexed_office_discovery: required
 cross_repo_bindings:
   sourceos:
     - office desktop profile
     - font and mime integration
     - local parity smoke tests
+    - lampstand desktop handoff
   platform:
     - office cloud runtime
     - wopi host
     - document and ai action schemas
+    - foggraph indexing and orchestration
   workspace:
     - product semantics
     - user/admin surface expectations
     - capability parity contract
+  memory_mesh:
+    - recall-before-action
+    - writeback-after-action
+    - memory policy and retention hooks
+  lampstand:
+    - local desktop file discovery
+    - inspectable local office search health
+    - local search handoff into office surfaces
