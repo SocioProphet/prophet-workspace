@@ -40,6 +40,8 @@ Those belong in `SocioProphet/prophet-platform` and `SociOS-Linux/source-os`.
    - spreadsheet analysis
    - deck generation and summarization
    - workflow agents and no-code flows
+   - memory-backed recall and project/user continuity
+   - desktop and cloud search integration
 
 3. Product policy and control
    - sharing rules
@@ -56,6 +58,7 @@ Those belong in `SocioProphet/prophet-platform` and `SociOS-Linux/source-os`.
 - office document records and AI action receipts
 - office context extraction, indexing, and orchestration services
 - cloud editing, preview, conversion, and workflow runtime
+- memory-mesh integration for recall-before-action and writeback-after-action flows
 
 ### With `source-os`
 
@@ -64,6 +67,23 @@ Those belong in `SocioProphet/prophet-platform` and `SociOS-Linux/source-os`.
 - local extraction and smoke tests
 - MIME, font, and template integration
 - local-first office shell behavior
+- Lampstand-backed desktop file and document discovery
+- local memory-mesh hooks where policy allows desktop recall and writeback
+
+### With `memory-mesh`
+
+`SocioProphet/memory-mesh` should provide the canonical memory runtime for:
+- user and project memory
+- recall-before-draft / recall-before-rewrite flows
+- writeback-after-action and writeback-after-receipt flows
+- configurable storage and retrieval policies for office agents
+
+### With `lampstand`
+
+`SocioProphet/lampstand` should provide the canonical desktop indexing and search runtime for:
+- local office file discovery
+- desktop search handoff into SourceOS office surfaces
+- inspectable local health / stats / indexing state for office documents
 
 ## Product capability families
 
@@ -74,6 +94,8 @@ Those belong in `SocioProphet/prophet-platform` and `SociOS-Linux/source-os`.
 - collaboration parity
 - migration and parity scoring
 - AI assistance and workflow parity
+- memory and recall parity
+- local and cloud search parity
 
 ## Immediate next step
 
@@ -83,3 +105,5 @@ The first implementation slice should define:
 - workspace flow record model
 - SourceOS desktop office profile
 - FogStack / platform WOPI and cloud office runtime profile
+- memory-mesh binding expectations for office AI
+- lampstand binding expectations for local office search
