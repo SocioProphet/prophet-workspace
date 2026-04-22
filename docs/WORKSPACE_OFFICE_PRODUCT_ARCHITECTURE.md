@@ -42,6 +42,7 @@ Those belong in `SocioProphet/prophet-platform` and `SociOS-Linux/source-os`.
    - workflow agents and no-code flows
    - memory-backed recall and project/user continuity
    - desktop and cloud search integration
+   - ontology-aware document and workspace understanding
 
 3. Product policy and control
    - sharing rules
@@ -59,6 +60,7 @@ Those belong in `SocioProphet/prophet-platform` and `SociOS-Linux/source-os`.
 - office context extraction, indexing, and orchestration services
 - cloud editing, preview, conversion, and workflow runtime
 - memory-mesh integration for recall-before-action and writeback-after-action flows
+- ontogenesis-aware semantic alignment surfaces for extracted document and workspace context
 
 ### With `source-os`
 
@@ -69,6 +71,7 @@ Those belong in `SocioProphet/prophet-platform` and `SociOS-Linux/source-os`.
 - local-first office shell behavior
 - Lampstand-backed desktop file and document discovery
 - local memory-mesh hooks where policy allows desktop recall and writeback
+- local metadata and semantic extraction handoff into ontogenesis-aligned structures
 
 ### With `memory-mesh`
 
@@ -85,6 +88,15 @@ Those belong in `SocioProphet/prophet-platform` and `SociOS-Linux/source-os`.
 - desktop search handoff into SourceOS office surfaces
 - inspectable local health / stats / indexing state for office documents
 
+### With `ontogenesis`
+
+`SocioProphet/ontogenesis` should provide the canonical ontology and alignment framework for:
+- office document semantic unit typing and normalization
+- mappings between ODF, OOXML, Google Workspace exports, and local product vocabulary
+- JSON-LD context and graph boundary surfaces for office/workspace records
+- provenance-aware alignment of document, comment, suggestion, task, and workflow entities
+- gradual semantic normalization rather than pretending all external office vocabularies match cleanly
+
 ## Product capability families
 
 - writer/docs parity
@@ -96,6 +108,7 @@ Those belong in `SocioProphet/prophet-platform` and `SociOS-Linux/source-os`.
 - AI assistance and workflow parity
 - memory and recall parity
 - local and cloud search parity
+- ontology and alignment parity
 
 ## Immediate next step
 
@@ -107,3 +120,4 @@ The first implementation slice should define:
 - FogStack / platform WOPI and cloud office runtime profile
 - memory-mesh binding expectations for office AI
 - lampstand binding expectations for local office search
+- ontogenesis binding expectations for semantic alignment and graph boundaries
