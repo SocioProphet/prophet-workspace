@@ -76,6 +76,18 @@ Use for:
 - desktop search handoff
 - SourceOS office shell launch/search behavior
 
+### `SocioProphet/sherlock-search`
+
+Role:
+- higher-level search and discovery layer
+- cross-source query planning, result fusion, and ranking
+- product-level discovery semantics across local, cloud, and memory sources
+
+Use for:
+- federating Lampstand, platform indexes, and memory retrieval
+- office/workspace discovery UX beyond one local indexer
+- search orchestration across documents, files, tasks, chat, mail, and projects
+
 ### `SocioProphet/ontogenesis`
 
 Role:
