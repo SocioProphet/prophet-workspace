@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.dev/prophet-workspace/workspace-action-receipt.v1.schema.json",
+  "title": "WorkspaceActionReceipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "apiVersion": {"const": "workspace.socioprophet.dev/v1"},
+    "kind": {"const": "WorkspaceActionReceipt"},
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actionId", "createdAt"],
+      "properties": {
+        "actionId": {"type": "string", "pattern": "^workspace-action:[a-z0-9][a-z0-9:._/@-]{1,160}$"},
+        "createdAt": {"type": "string", "format": "date-time"},
+        "labels": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["actorId", "surface", "actionType", "inputSourceIds", "policyRef", "evidenceCorrelationId"],
+      "properties": {
+        "actorId": {"type": "string", "minLength": 1},
+        "surface": {"enum": ["mail", "calendar", "contacts", "drive", "docs", "sheets", "slides", "chat", "meeting", "admin", "audit", "policy", "search"]},
+        "actionType": {"enum": ["bind-source", "summarize", "compare", "extract", "query", "analyze", "visualize", "draft", "publish", "share", "export", "sync", "audit"]},
+        "inputSourceIds": {"type": "array", "items": {"type": "string", "pattern": "^workspace-source:[a-z0-9][a-z0-9:._/@-]{1,160}$"}, "minItems": 1, "uniqueItems": true},
+        "outputArtifactIds": {"type": "array", "items": {"type": "string"}, "uniqueItems": true},
+        "runtimeAssetId": {"type": "string"},
+        "notebookSessionId": {"type": "string"},
+        "policyRef": {"type": "string", "minLength": 1},
+        "evidenceCorrelationId": {"type": "string", "minLength": 1},
+        "outputDigest": {"type": "string", "pattern": "^sha256:[a-fA-F0-9]{64}$"},
+        "publicationRef": {"type": "string"},
+        "shareScope": {"enum": ["private", "project", "group", "organization", "public"]}
+      }
+    }
+  }
+}
