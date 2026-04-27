@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.dev/prophet-workspace/workspace-source.v1.schema.json",
+  "title": "WorkspaceSource v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "apiVersion": {"const": "workspace.socioprophet.dev/v1"},
+    "kind": {"const": "WorkspaceSource"},
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceId", "name", "createdAt"],
+      "properties": {
+        "sourceId": {"type": "string", "pattern": "^workspace-source:[a-z0-9][a-z0-9:._/@-]{1,160}$"},
+        "name": {"type": "string", "minLength": 1},
+        "createdAt": {"type": "string", "format": "date-time"},
+        "labels": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["surface", "ownerScope", "projectScope", "backendRef", "policyRef", "evidenceCorrelationId"],
+      "properties": {
+        "surface": {"enum": ["mail", "calendar", "contacts", "drive", "docs", "sheets", "slides", "chat", "meeting", "admin", "audit", "policy", "search"]},
+        "sourceType": {"enum": ["message", "thread", "event", "contact", "file", "document", "spreadsheet", "presentation", "chat-thread", "meeting-artifact", "audit-record", "policy-record", "search-result"]},
+        "ownerScope": {"type": "string", "minLength": 1},
+        "projectScope": {"type": "string", "minLength": 1},
+        "backendRef": {"type": "string", "minLength": 1},
+        "versionRef": {"type": "string"},
+        "contentDigest": {"type": "string", "pattern": "^sha256:[a-fA-F0-9]{64}$"},
+        "modifiedAt": {"type": "string", "format": "date-time"},
+        "policyRef": {"type": "string", "minLength": 1},
+        "retentionPolicyRef": {"type": "string"},
+        "evidenceCorrelationId": {"type": "string", "minLength": 1},
+        "sourceUri": {"type": "string"},
+        "tags": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+      }
+    }
+  }
+}
