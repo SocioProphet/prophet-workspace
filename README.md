@@ -30,6 +30,22 @@ The target is an open, governable alternative to the practical core of a modern 
 - Policy, audit, and receipts as first-class concerns
 - Explicit deployment split: product/domain here, cluster runtime in `prophet-platform`
 
+## Professional Workrooms
+
+Professional Workrooms are the first Professional Intelligence OS workspace contract surface.
+
+Contract and example:
+- `contracts/workspace/professional-workroom.schema.json`
+- `contracts/workspace/professional-workroom.v0.1.example.json`
+
+Validate locally:
+
+```bash
+python3 tools/validate_professional_workrooms.py
+```
+
+The workflow `.github/workflows/professional-workrooms.yml` runs this validation when the workroom contract, example, validator, or workflow changes.
+
 ## Repository map
 
 - `contracts/workspace/` — capability contracts by surface

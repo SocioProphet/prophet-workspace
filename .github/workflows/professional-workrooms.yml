@@ -1,0 +1,35 @@
+name: Professional Workrooms
+
+on:
+  pull_request:
+    paths:
+      - 'contracts/workspace/professional-workroom.schema.json'
+      - 'contracts/workspace/professional-workroom.v0.1.example.json'
+      - 'tools/validate_professional_workrooms.py'
+      - '.github/workflows/professional-workrooms.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'contracts/workspace/professional-workroom.schema.json'
+      - 'contracts/workspace/professional-workroom.v0.1.example.json'
+      - 'tools/validate_professional_workrooms.py'
+      - '.github/workflows/professional-workrooms.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-professional-workrooms:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Validate Professional Workrooms
+        run: python3 tools/validate_professional_workrooms.py

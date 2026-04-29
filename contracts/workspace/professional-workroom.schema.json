@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.io/schemas/workspace/professional-workroom.schema.json",
+  "title": "ProfessionalWorkroom",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "workroomId", "workroomType", "title", "status", "contextRefs", "evidenceRefs", "tasks"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "workroomId": { "type": "string" },
+    "workroomType": { "type": "string", "enum": ["client", "matter", "asset", "project", "initiative", "demo"] },
+    "title": { "type": "string" },
+    "status": { "type": "string", "enum": ["draft", "active", "review", "closed", "archived"] },
+    "tenantId": { "type": "string" },
+    "playbookId": { "type": "string" },
+    "contextRefs": { "type": "array", "items": { "type": "string" } },
+    "policyRefs": { "type": "array", "items": { "type": "string" } },
+    "obligationRefs": { "type": "array", "items": { "type": "string" } },
+    "agentRunRefs": { "type": "array", "items": { "type": "string" } },
+    "evidenceRefs": { "type": "array", "items": { "type": "string" } },
+    "adoptionEventRefs": { "type": "array", "items": { "type": "string" } },
+    "tasks": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["taskId", "title", "status"],
+        "properties": {
+          "taskId": { "type": "string" },
+          "title": { "type": "string" },
+          "status": { "type": "string", "enum": ["todo", "doing", "review", "done"] },
+          "owner": { "type": "string" },
+          "evidenceRef": { "type": "string" }
+        }
+      }
+    },
+    "labels": { "type": "object", "additionalProperties": { "type": "string" } }
+  }
+}

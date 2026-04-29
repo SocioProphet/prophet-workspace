@@ -1,0 +1,42 @@
+{
+  "schemaVersion": "v0.1",
+  "workroomId": "workroom-demo-0001",
+  "workroomType": "demo",
+  "title": "Professional Intelligence Demo Workroom",
+  "status": "review",
+  "tenantId": "tenant-demo",
+  "playbookId": "client-opportunity-review",
+  "contextRefs": [
+    "context-pack://pi-demo-0001",
+    "entity://organization/org-demo-0001"
+  ],
+  "policyRefs": [
+    "policy-decision://policy-demo-ai-use/decision-0001"
+  ],
+  "obligationRefs": [
+    "obligation://obl-demo-0001"
+  ],
+  "agentRunRefs": [
+    "agentplane://runs/pi-demo-0001"
+  ],
+  "evidenceRefs": [
+    "evidence://conflict-demo-0001",
+    "evidence://adoption/adopt-0001"
+  ],
+  "adoptionEventRefs": [
+    "adoption://adopt-0001"
+  ],
+  "tasks": [
+    {
+      "taskId": "task-demo-0001",
+      "title": "Review generated opportunity packet",
+      "status": "review",
+      "owner": "policy-reviewer",
+      "evidenceRef": "evidence://conflict-demo-0001"
+    }
+  ],
+  "labels": {
+    "program": "professional-intelligence-os",
+    "gate": "gate-3"
+  }
+}
