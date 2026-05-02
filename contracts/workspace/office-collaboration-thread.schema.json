@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.dev/contracts/workspace/office-collaboration-thread.schema.json",
+  "title": "OfficeCollaborationThread",
+  "type": "object",
+  "required": ["thread_id", "artifact_ref", "thread_type", "status"],
+  "properties": {
+    "thread_id": {"type": "string"},
+    "artifact_ref": {"type": "string"},
+    "semantic_unit_ref": {"type": "string"},
+    "thread_type": {
+      "type": "string",
+      "enum": ["COMMENT", "REVIEW", "DISCUSSION"]
+    },
+    "status": {
+      "type": "string",
+      "enum": ["OPEN", "RESOLVED", "CLOSED"]
+    },
+    "participant_refs": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "version_ref": {"type": "string"},
+    "receipt_ref": {"type": "string"}
+  },
+  "additionalProperties": false
+}
