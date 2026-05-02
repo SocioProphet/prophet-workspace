@@ -17,6 +17,11 @@
     "policyRefs": { "type": "array", "items": { "type": "string" } },
     "obligationRefs": { "type": "array", "items": { "type": "string" } },
     "agentRunRefs": { "type": "array", "items": { "type": "string" } },
+    "officeArtifactRefs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Workspace-bound office artifacts such as documents, spreadsheets, slide decks, PDFs, mail drafts, calendar items, task lists, notes, and media assets."
+    },
     "evidenceRefs": { "type": "array", "items": { "type": "string" } },
     "adoptionEventRefs": { "type": "array", "items": { "type": "string" } },
     "tasks": {
@@ -30,6 +35,10 @@
           "title": { "type": "string" },
           "status": { "type": "string", "enum": ["todo", "doing", "review", "done"] },
           "owner": { "type": "string" },
+          "officeArtifactRef": {
+            "type": "string",
+            "description": "Optional OfficeArtifact associated with this task."
+          },
           "evidenceRef": { "type": "string" }
         }
       }

@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "v0.1",
+  "artifactId": "office-artifact-demo-0001",
+  "workroomId": "workroom-demo-0001",
+  "artifactType": "slide-deck",
+  "title": "Professional Intelligence Demo Briefing Deck",
+  "status": "review",
+  "format": "pptx",
+  "storageRef": "sourceos-office://workroom-demo-0001/output/professional-intelligence-demo-briefing.pptx",
+  "sourceRefs": [
+    "context-pack://pi-demo-0001",
+    "agentplane://runs/pi-demo-0001"
+  ],
+  "derivedRefs": [
+    "sourceos-office://workroom-demo-0001/output/professional-intelligence-demo-briefing.pdf"
+  ],
+  "backend": {
+    "engine": "libreoffice",
+    "mode": "local-headless",
+    "versionRef": "urn:srcos:office-backend:libreoffice-local-default"
+  },
+  "agentRunRefs": [
+    "agentplane://runs/pi-demo-0001"
+  ],
+  "policyRefs": [
+    "policy-decision://policy-demo-ai-use/decision-0001"
+  ],
+  "evidenceRefs": [
+    "evidence://office-artifact/demo-0001",
+    "agentplane://evidence/agent-machine-mounts/m2-demo"
+  ],
+  "review": {
+    "required": true,
+    "reviewer": "policy-reviewer",
+    "decisionRef": "policy-decision://office-review/demo-0001",
+    "notes": "Generated deck is pending human review before external sharing."
+  },
+  "labels": {
+    "surface": "slides",
+    "workroom": "professional-intelligence-demo",
+    "backend": "libreoffice-local"
+  }
+}
