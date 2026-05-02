@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.dev/contracts/workspace/office-suggestion.schema.json",
+  "title": "OfficeSuggestion",
+  "type": "object",
+  "required": ["suggestion_id", "artifact_ref", "status"],
+  "properties": {
+    "suggestion_id": {"type": "string"},
+    "artifact_ref": {"type": "string"},
+    "semantic_unit_ref": {"type": "string"},
+    "before_ref": {"type": "string"},
+    "after_ref": {"type": "string"},
+    "proposer_ref": {"type": "string"},
+    "status": {
+      "type": "string",
+      "enum": ["PROPOSED", "ACCEPTED", "REJECTED"]
+    },
+    "version_ref": {"type": "string"},
+    "receipt_ref": {"type": "string"}
+  },
+  "additionalProperties": false
+}
