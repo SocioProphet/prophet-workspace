@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Validate Professional Workroom contracts and examples.
+"""Validate Professional Workroom and Office Artifact contracts/examples.
 
 This validator uses only the Python standard library and supports the JSON Schema
-subset used by `contracts/workspace/professional-workroom.schema.json`.
+subset used by the workspace contracts in `contracts/workspace/`.
 """
 
 from __future__ import annotations
@@ -13,8 +13,16 @@ from pathlib import Path
 from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
-SCHEMA = ROOT / "contracts/workspace/professional-workroom.schema.json"
-EXAMPLE = ROOT / "contracts/workspace/professional-workroom.v0.1.example.json"
+CONTRACT_PAIRS = [
+    (
+        ROOT / "contracts/workspace/professional-workroom.schema.json",
+        ROOT / "contracts/workspace/professional-workroom.v0.1.example.json",
+    ),
+    (
+        ROOT / "contracts/workspace/office-artifact.schema.json",
+        ROOT / "contracts/workspace/office-artifact.v0.1.example.json",
+    ),
+]
 
 
 class ValidationError(Exception):
@@ -98,17 +106,23 @@ def validate(schema: dict[str, Any], value: Any, path: str = "$") -> None:
                 validate(item_schema, item, f"{path}[{index}]")
 
 
+def validate_pair(schema_path: Path, example_path: Path) -> None:
+    schema = load_json(schema_path)
+    example = load_json(example_path)
+    validate(schema, example)
+    print(f"ok: {example_path.relative_to(ROOT)} validates against {schema_path.relative_to(ROOT)}")
+
+
 def main() -> int:
     try:
-        schema = load_json(SCHEMA)
-        example = load_json(EXAMPLE)
-        validate(schema, example)
+        for schema_path, example_path in CONTRACT_PAIRS:
+            validate_pair(schema_path, example_path)
     except ValidationError as exc:
         print(f"ERR: {exc}", file=sys.stderr)
         return 2
 
-    print(f"ok: {EXAMPLE.relative_to(ROOT)} validates against {SCHEMA.relative_to(ROOT)}")
     print("Professional Workroom validation passed")
+    print("Office Artifact validation passed")
     return 0
 
 
