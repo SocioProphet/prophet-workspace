@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.io/schemas/workspace/office-artifact.schema.json",
+  "title": "OfficeArtifact",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "artifactId",
+    "workroomId",
+    "artifactType",
+    "title",
+    "status",
+    "format",
+    "storageRef",
+    "policyRefs",
+    "evidenceRefs"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "artifactId": { "type": "string" },
+    "workroomId": { "type": "string" },
+    "artifactType": {
+      "type": "string",
+      "enum": ["document", "spreadsheet", "slide-deck", "pdf", "mail-draft", "calendar-item", "task-list", "note", "media-asset"]
+    },
+    "title": { "type": "string" },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "generated", "review", "approved", "sent", "archived"]
+    },
+    "format": {
+      "type": "string",
+      "enum": ["docx", "odt", "md", "pdf", "xlsx", "ods", "csv", "pptx", "odp", "eml", "ics", "json", "txt", "png", "jpg", "wav", "m4a"]
+    },
+    "storageRef": {
+      "type": "string",
+      "description": "Stable artifact/storage reference. May point to local SourceOS Office output, WebDAV/WOPI, object storage, or an evidence-backed content ref."
+    },
+    "sourceRefs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "derivedRefs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "backend": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "engine": {
+          "type": "string",
+          "enum": ["libreoffice", "collabora", "onlyoffice", "microsoft-graph", "google-workspace", "sourceos-native", "manual"]
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["local-headless", "browser-collab", "remote-api", "manual-upload", "native"]
+        },
+        "versionRef": { "type": "string" }
+      }
+    },
+    "agentRunRefs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "policyRefs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "evidenceRefs": {
+      "type": "array",
+      "items": { "type": "string" }
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "required": { "type": "boolean" },
+        "reviewer": { "type": "string" },
+        "decisionRef": { "type": "string" },
+        "notes": { "type": "string" }
+      }
+    },
+    "labels": {
+      "type": "object",
+      "additionalProperties": { "type": "string" }
+    }
+  }
+}
