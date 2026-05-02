@@ -46,6 +46,26 @@ python3 tools/validate_professional_workrooms.py
 
 The workflow `.github/workflows/professional-workrooms.yml` runs this validation when the workroom contract, example, validator, or workflow changes.
 
+## Office Plane
+
+The Office Plane is the workspace capability layer for workroom-bound documents, spreadsheets, slide decks, PDFs, mail drafts, calendar items, task lists, notes, and media assets.
+
+It is backend-abstract:
+- LibreOffice is the local-first SourceOS default for headless generation, render, inspect, and conversion.
+- Collabora is the browser-collaboration backend for LibreOffice-compatible editing and WOPI-style integration.
+- ONLYOFFICE is an optional document-builder/editor backend for DOCX/XLSX/PPTX-heavy flows.
+- Microsoft Graph / Office 365 and Google Workspace are external compatibility adapters, not the core authority.
+- SourceOS-native document surfaces remain a future backend.
+
+Contracts and example:
+- `contracts/workspace/office-artifact.schema.json`
+- `contracts/workspace/office-artifact.v0.1.example.json`
+
+Architecture:
+- `docs/office-plane.md`
+
+`ProfessionalWorkroom` now supports `officeArtifactRefs` at the workroom level and `officeArtifactRef` at the task level so generated decks, reports, spreadsheets, PDFs, and mail drafts remain attached to workroom context, policy, agent runs, and evidence.
+
 ## Repository map
 
 - `contracts/workspace/` — capability contracts by surface
