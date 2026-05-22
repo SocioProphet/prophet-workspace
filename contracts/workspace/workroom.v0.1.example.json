@@ -1,0 +1,35 @@
+{
+  "schemaVersion": "v0.1",
+  "workroomId": "workroom-demo-0001",
+  "workroomKind": "professional",
+  "title": "Professional Intelligence Demo Workroom",
+  "status": "review",
+  "tenantId": "tenant-demo",
+  "ownerRef": "user://mdheller",
+  "profileRef": "professional-workroom://workroom-demo-0001",
+  "contextRefs": [
+    "context-pack://pi-demo-0001",
+    "entity://organization/org-demo-0001"
+  ],
+  "policyRefs": [
+    "policy-decision://policy-demo-ai-use/decision-0001"
+  ],
+  "obligationRefs": [
+    "obligation://obl-demo-0001"
+  ],
+  "agentRunRefs": [
+    "agentplane://runs/pi-demo-0001"
+  ],
+  "artifactRefs": [
+    "sourceos-office://workroom-demo-0001/artifacts/office-artifact-demo-0001"
+  ],
+  "evidenceRefs": [
+    "evidence://conflict-demo-0001",
+    "evidence://adoption/adopt-0001",
+    "evidence://office-artifact/demo-0001"
+  ],
+  "labels": {
+    "program": "professional-intelligence-os",
+    "gate": "gate-3"
+  }
+}
