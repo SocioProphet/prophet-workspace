@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.io/schemas/workspace/context-fabric/share-grant.schema.json",
+  "title": "ShareGrant",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "shareGrantId", "workroomId", "projectionId", "mode", "recipientRefs", "permissions", "constraints", "status", "policyRefs", "evidenceRefs"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "shareGrantId": { "type": "string" },
+    "workroomId": { "type": "string" },
+    "projectionId": { "type": "string" },
+    "mode": { "type": "string", "enum": ["private", "recipient-bound", "org-scoped", "public-link", "artifact-only", "receipt-only"] },
+    "recipientRefs": { "type": "array", "items": { "type": "string" } },
+    "permissions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["view", "fork", "reshare", "download"],
+      "properties": {
+        "view": { "type": "boolean" },
+        "fork": { "type": "boolean" },
+        "reshare": { "type": "boolean" },
+        "download": { "type": "boolean" }
+      }
+    },
+    "constraints": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "expiresAt": { "type": ["string", "null"] },
+        "maxViews": { "type": ["integer", "null"], "minimum": 0 },
+        "requireAuth": { "type": "boolean" },
+        "noIndex": { "type": "boolean" }
+      }
+    },
+    "status": { "type": "string", "enum": ["draft", "active", "revoked", "expired", "archived"] },
+    "policyRefs": { "type": "array", "items": { "type": "string" } },
+    "evidenceRefs": { "type": "array", "items": { "type": "string" } },
+    "labels": { "type": "object", "additionalProperties": { "type": "string" } }
+  }
+}
