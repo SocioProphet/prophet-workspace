@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.io/schemas/workspace/context-fabric/recall-candidate.schema.json",
+  "title": "RecallCandidate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "recallCandidateId", "workroomId", "contextGraphId", "summary", "sourceNodeRefs", "scope", "confidence", "reviewState", "policyRefs", "evidenceRefs"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "recallCandidateId": { "type": "string" },
+    "workroomId": { "type": "string" },
+    "contextGraphId": { "type": "string" },
+    "summary": { "type": "string" },
+    "sourceNodeRefs": { "type": "array", "items": { "type": "string" } },
+    "scope": { "type": "string", "enum": ["user", "workroom", "tenant", "project", "organization"] },
+    "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+    "reviewState": { "type": "string", "enum": ["pending", "approved", "rejected", "superseded"] },
+    "promotionRef": { "type": ["string", "null"] },
+    "policyRefs": { "type": "array", "items": { "type": "string" } },
+    "evidenceRefs": { "type": "array", "items": { "type": "string" } },
+    "labels": { "type": "object", "additionalProperties": { "type": "string" } }
+  }
+}
