@@ -1,5 +1,6 @@
 {
   "schemaVersion": "v0.1",
+  "baseWorkroomRef": "workroom://workroom-demo-0001",
   "workroomId": "workroom-demo-0001",
   "workroomType": "demo",
   "title": "Professional Intelligence Demo Workroom",
