@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.io/schemas/workspace/context-fabric/provider-projection.schema.json",
+  "title": "ProviderProjection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "projectionId", "workroomId", "contextGraphId", "targetProvider", "purpose", "includedNodeRefs", "withheldRefs", "policyRefs", "membraneDecisionRef", "evidenceRefs", "receiptRefs"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "projectionId": { "type": "string" },
+    "workroomId": { "type": "string" },
+    "contextGraphId": { "type": "string" },
+    "targetProvider": { "type": "string" },
+    "purpose": { "type": "string" },
+    "includedNodeRefs": { "type": "array", "items": { "type": "string" } },
+    "withheldRefs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["ref", "reason"],
+        "properties": {
+          "ref": { "type": "string" },
+          "reason": { "type": "string" }
+        }
+      }
+    },
+    "redactionRefs": { "type": "array", "items": { "type": "string" } },
+    "policyRefs": { "type": "array", "items": { "type": "string" } },
+    "membraneDecisionRef": { "type": "string" },
+    "evidenceRefs": { "type": "array", "items": { "type": "string" } },
+    "receiptRefs": { "type": "array", "items": { "type": "string" } },
+    "labels": { "type": "object", "additionalProperties": { "type": "string" } }
+  }
+}

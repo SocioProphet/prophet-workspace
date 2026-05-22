@@ -3,16 +3,24 @@ name: Professional Workrooms
 on:
   pull_request:
     paths:
+      - 'contracts/workspace/workroom.schema.json'
+      - 'contracts/workspace/workroom.v0.1.example.json'
       - 'contracts/workspace/professional-workroom.schema.json'
       - 'contracts/workspace/professional-workroom.v0.1.example.json'
+      - 'contracts/workspace/office-artifact.schema.json'
+      - 'contracts/workspace/office-artifact.v0.1.example.json'
       - 'tools/validate_professional_workrooms.py'
       - '.github/workflows/professional-workrooms.yml'
   push:
     branches:
       - main
     paths:
+      - 'contracts/workspace/workroom.schema.json'
+      - 'contracts/workspace/workroom.v0.1.example.json'
       - 'contracts/workspace/professional-workroom.schema.json'
       - 'contracts/workspace/professional-workroom.v0.1.example.json'
+      - 'contracts/workspace/office-artifact.schema.json'
+      - 'contracts/workspace/office-artifact.v0.1.example.json'
       - 'tools/validate_professional_workrooms.py'
       - '.github/workflows/professional-workrooms.yml'
 
@@ -31,5 +39,5 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Validate Professional Workrooms
+      - name: Validate Workrooms and Office Artifacts
         run: python3 tools/validate_professional_workrooms.py

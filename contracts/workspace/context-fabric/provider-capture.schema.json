@@ -1,0 +1,21 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.io/schemas/workspace/context-fabric/provider-capture.schema.json",
+  "title": "ProviderCapture",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "providerCaptureId", "workroomId", "contextGraphId", "provider", "captureMode", "sourceRef", "policyRefs", "evidenceRefs", "receiptRefs"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "providerCaptureId": { "type": "string" },
+    "workroomId": { "type": "string" },
+    "contextGraphId": { "type": "string" },
+    "provider": { "type": "string" },
+    "captureMode": { "type": "string" },
+    "sourceRef": { "type": "string" },
+    "policyRefs": { "type": "array", "items": { "type": "string" } },
+    "evidenceRefs": { "type": "array", "items": { "type": "string" } },
+    "receiptRefs": { "type": "array", "items": { "type": "string" } },
+    "labels": { "type": "object", "additionalProperties": { "type": "string" } }
+  }
+}

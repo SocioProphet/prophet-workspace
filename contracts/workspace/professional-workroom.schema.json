@@ -4,9 +4,13 @@
   "title": "ProfessionalWorkroom",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "workroomId", "workroomType", "title", "status", "contextRefs", "evidenceRefs", "tasks"],
+  "required": ["schemaVersion", "baseWorkroomRef", "workroomId", "workroomType", "title", "status", "contextRefs", "evidenceRefs", "tasks"],
   "properties": {
     "schemaVersion": { "const": "v0.1" },
+    "baseWorkroomRef": {
+      "type": "string",
+      "description": "Reference to the base Workroom container that this ProfessionalWorkroom profiles."
+    },
     "workroomId": { "type": "string" },
     "workroomType": { "type": "string", "enum": ["client", "matter", "asset", "project", "initiative", "demo"] },
     "title": { "type": "string" },
@@ -22,6 +26,17 @@
       "items": { "type": "string" },
       "description": "Workspace-bound office artifacts such as documents, spreadsheets, slide decks, PDFs, mail drafts, calendar items, task lists, notes, and media assets."
     },
+    "contextGraphRefs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Workspace Context Fabric graph refs bound to this workroom."
+    },
+    "providerCaptureRefs": { "type": "array", "items": { "type": "string" } },
+    "providerProjectionRefs": { "type": "array", "items": { "type": "string" } },
+    "shareGrantRefs": { "type": "array", "items": { "type": "string" } },
+    "recallCandidateRefs": { "type": "array", "items": { "type": "string" } },
+    "runtimeBindingRefs": { "type": "array", "items": { "type": "string" } },
+    "semanticReceiptRefs": { "type": "array", "items": { "type": "string" } },
     "evidenceRefs": { "type": "array", "items": { "type": "string" } },
     "adoptionEventRefs": { "type": "array", "items": { "type": "string" } },
     "tasks": {
@@ -39,6 +54,8 @@
             "type": "string",
             "description": "Optional OfficeArtifact associated with this task."
           },
+          "contextGraphRef": { "type": "string" },
+          "providerProjectionRef": { "type": "string" },
           "evidenceRef": { "type": "string" }
         }
       }

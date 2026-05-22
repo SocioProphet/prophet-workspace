@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.io/schemas/workspace/workroom.schema.json",
+  "title": "Workroom",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "workroomId", "workroomKind", "title", "status", "contextRefs", "policyRefs", "evidenceRefs"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "workroomId": { "type": "string" },
+    "workroomKind": { "type": "string", "enum": ["general", "professional", "personal", "control-room", "project", "demo"] },
+    "title": { "type": "string" },
+    "status": { "type": "string", "enum": ["draft", "active", "review", "closed", "archived"] },
+    "tenantId": { "type": "string" },
+    "ownerRef": { "type": "string" },
+    "profileRef": { "type": "string" },
+    "contextRefs": { "type": "array", "items": { "type": "string" } },
+    "policyRefs": { "type": "array", "items": { "type": "string" } },
+    "obligationRefs": { "type": "array", "items": { "type": "string" } },
+    "agentRunRefs": { "type": "array", "items": { "type": "string" } },
+    "artifactRefs": { "type": "array", "items": { "type": "string" } },
+    "evidenceRefs": { "type": "array", "items": { "type": "string" } },
+    "labels": { "type": "object", "additionalProperties": { "type": "string" } }
+  }
+}

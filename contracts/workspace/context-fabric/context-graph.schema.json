@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.io/schemas/workspace/context-fabric/context-graph.schema.json",
+  "title": "ContextGraph",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "contextGraphId", "workroomId", "title", "status", "nodeRefs", "edgeRefs", "sourceRefs", "artifactRefs", "policyRefs", "evidenceRefs", "receiptRefs"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "contextGraphId": { "type": "string" },
+    "workroomId": { "type": "string" },
+    "title": { "type": "string" },
+    "status": { "type": "string", "enum": ["draft", "active", "review", "sealed", "archived"] },
+    "nodeRefs": { "type": "array", "items": { "type": "string" } },
+    "edgeRefs": { "type": "array", "items": { "type": "string" } },
+    "sourceRefs": { "type": "array", "items": { "type": "string" } },
+    "artifactRefs": { "type": "array", "items": { "type": "string" } },
+    "policyRefs": { "type": "array", "items": { "type": "string" } },
+    "evidenceRefs": { "type": "array", "items": { "type": "string" } },
+    "receiptRefs": { "type": "array", "items": { "type": "string" } },
+    "labels": { "type": "object", "additionalProperties": { "type": "string" } }
+  }
+}

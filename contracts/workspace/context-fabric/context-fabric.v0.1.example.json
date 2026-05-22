@@ -1,0 +1,82 @@
+{
+  "contextGraph": {
+    "schemaVersion": "v0.1",
+    "contextGraphId": "ctxgraph-demo-0001",
+    "workroomId": "workroom-demo-0001",
+    "title": "Workspace context fabric demo graph",
+    "status": "active",
+    "nodeRefs": ["ctxnode-demo-0001", "ctxnode-demo-0002"],
+    "edgeRefs": ["ctxedge-demo-0001"],
+    "sourceRefs": ["provider-capture-demo-0001"],
+    "artifactRefs": ["sourceos-office://workroom-demo-0001/artifacts/office-artifact-demo-0001"],
+    "policyRefs": ["policy-decision://policy-demo-ai-use/decision-0001"],
+    "evidenceRefs": ["evidence://context-fabric/demo-0001"],
+    "receiptRefs": ["receipt://context-fabric/demo-0001"]
+  },
+  "providerCapture": {
+    "schemaVersion": "v0.1",
+    "providerCaptureId": "provider-capture-demo-0001",
+    "workroomId": "workroom-demo-0001",
+    "contextGraphId": "ctxgraph-demo-0001",
+    "provider": "demo-provider",
+    "captureMode": "shared-link",
+    "sourceRef": "source://context-fabric/demo-thread",
+    "policyRefs": ["policy-decision://policy-demo-ai-use/decision-0001"],
+    "evidenceRefs": ["evidence://context-fabric/provider-capture/demo-0001"],
+    "receiptRefs": ["receipt://context-fabric/provider-capture/demo-0001"]
+  },
+  "providerProjection": {
+    "schemaVersion": "v0.1",
+    "projectionId": "projection-demo-0001",
+    "workroomId": "workroom-demo-0001",
+    "contextGraphId": "ctxgraph-demo-0001",
+    "targetProvider": "demo-target",
+    "purpose": "continue-analysis",
+    "includedNodeRefs": ["ctxnode-demo-0001", "ctxnode-demo-0002"],
+    "withheldRefs": [],
+    "redactionRefs": [],
+    "policyRefs": ["policy-decision://policy-demo-ai-use/decision-0001"],
+    "membraneDecisionRef": "membrane://context-fabric/projection-demo-0001",
+    "evidenceRefs": ["evidence://context-fabric/projection/demo-0001"],
+    "receiptRefs": ["receipt://context-fabric/projection/demo-0001"]
+  },
+  "shareGrant": {
+    "schemaVersion": "v0.1",
+    "shareGrantId": "share-grant-demo-0001",
+    "workroomId": "workroom-demo-0001",
+    "projectionId": "projection-demo-0001",
+    "mode": "recipient-bound",
+    "recipientRefs": ["recipient://demo-reviewer"],
+    "permissions": {"view": true, "fork": false, "reshare": false, "download": false},
+    "constraints": {"expiresAt": null, "maxViews": 10, "requireAuth": true, "noIndex": true},
+    "status": "draft",
+    "policyRefs": ["policy-decision://policy-demo-ai-use/decision-0001"],
+    "evidenceRefs": ["evidence://context-fabric/share-grant/demo-0001"]
+  },
+  "recallCandidate": {
+    "schemaVersion": "v0.1",
+    "recallCandidateId": "recall-candidate-demo-0001",
+    "workroomId": "workroom-demo-0001",
+    "contextGraphId": "ctxgraph-demo-0001",
+    "summary": "Workspace context should remain workroom-bound before promotion.",
+    "sourceNodeRefs": ["ctxnode-demo-0002"],
+    "scope": "workroom",
+    "confidence": 0.91,
+    "reviewState": "pending",
+    "promotionRef": null,
+    "policyRefs": ["policy-decision://policy-demo-ai-use/decision-0001"],
+    "evidenceRefs": ["evidence://context-fabric/recall/demo-0001"]
+  },
+  "runtimeBinding": {
+    "schemaVersion": "v0.1",
+    "bindingId": "runtime-binding-demo-0001",
+    "workroomId": "workroom-demo-0001",
+    "contextGraphId": "ctxgraph-demo-0001",
+    "agent": {"agentRefs": ["agent-registry://agents/context-fabric-reviewer"], "sessionRefs": ["urn:srcos:session:context-fabric-demo-0001"], "registryRefs": ["agent-registry://grants/context-fabric-demo-0001"]},
+    "recall": {"contextPackRefs": ["memory-mesh://context-packs/pi-demo-0001"], "recallCandidateRefs": ["recall-candidate-demo-0001"], "proposalRefs": [], "writebackMode": "review-only"},
+    "execution": {"bundleRefs": ["agentplane://bundles/context-fabric-demo-0001"], "runRefs": ["agentplane://runs/pi-demo-0001"], "replayRefs": ["agentplane://replay/pi-demo-0001"]},
+    "provider": {"captureRefs": ["provider-capture-demo-0001"], "projectionRefs": ["projection-demo-0001"], "shareGrantRefs": ["share-grant-demo-0001"]},
+    "policy": {"policyRefs": ["policy-decision://policy-demo-ai-use/decision-0001"], "decisionRefs": ["policy-decision://policy-demo-ai-use/decision-0001"], "membraneDecisionRefs": ["membrane://context-fabric/projection-demo-0001"]},
+    "evidence": {"eventEnvelopeRefs": ["event://context-fabric/demo-0001"], "evidenceReceiptRefs": ["evidence://context-fabric/demo-0001"], "semanticReceiptRefs": ["receipt://context-fabric/demo-0001"]}
+  }
+}

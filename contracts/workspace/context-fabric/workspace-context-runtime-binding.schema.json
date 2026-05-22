@@ -1,0 +1,75 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.io/schemas/workspace/context-fabric/workspace-context-runtime-binding.schema.json",
+  "title": "WorkspaceContextRuntimeBinding",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "bindingId", "workroomId", "contextGraphId", "agent", "recall", "execution", "provider", "policy", "evidence"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "bindingId": { "type": "string" },
+    "workroomId": { "type": "string" },
+    "contextGraphId": { "type": "string" },
+    "agent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["agentRefs", "sessionRefs", "registryRefs"],
+      "properties": {
+        "agentRefs": { "type": "array", "items": { "type": "string" } },
+        "sessionRefs": { "type": "array", "items": { "type": "string" } },
+        "registryRefs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "recall": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contextPackRefs", "recallCandidateRefs", "writebackMode"],
+      "properties": {
+        "contextPackRefs": { "type": "array", "items": { "type": "string" } },
+        "recallCandidateRefs": { "type": "array", "items": { "type": "string" } },
+        "proposalRefs": { "type": "array", "items": { "type": "string" } },
+        "writebackMode": { "type": "string", "enum": ["disabled", "review-only", "approved-writeback"] }
+      }
+    },
+    "execution": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["bundleRefs", "runRefs", "replayRefs"],
+      "properties": {
+        "bundleRefs": { "type": "array", "items": { "type": "string" } },
+        "runRefs": { "type": "array", "items": { "type": "string" } },
+        "replayRefs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "provider": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["captureRefs", "projectionRefs", "shareGrantRefs"],
+      "properties": {
+        "captureRefs": { "type": "array", "items": { "type": "string" } },
+        "projectionRefs": { "type": "array", "items": { "type": "string" } },
+        "shareGrantRefs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "policy": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["policyRefs", "decisionRefs", "membraneDecisionRefs"],
+      "properties": {
+        "policyRefs": { "type": "array", "items": { "type": "string" } },
+        "decisionRefs": { "type": "array", "items": { "type": "string" } },
+        "membraneDecisionRefs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["eventEnvelopeRefs", "evidenceReceiptRefs", "semanticReceiptRefs"],
+      "properties": {
+        "eventEnvelopeRefs": { "type": "array", "items": { "type": "string" } },
+        "evidenceReceiptRefs": { "type": "array", "items": { "type": "string" } },
+        "semanticReceiptRefs": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}
