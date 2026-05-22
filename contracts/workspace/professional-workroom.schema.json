@@ -4,9 +4,13 @@
   "title": "ProfessionalWorkroom",
   "type": "object",
   "additionalProperties": false,
-  "required": ["schemaVersion", "workroomId", "workroomType", "title", "status", "contextRefs", "evidenceRefs", "tasks"],
+  "required": ["schemaVersion", "baseWorkroomRef", "workroomId", "workroomType", "title", "status", "contextRefs", "evidenceRefs", "tasks"],
   "properties": {
     "schemaVersion": { "const": "v0.1" },
+    "baseWorkroomRef": {
+      "type": "string",
+      "description": "Reference to the base Workroom container that this ProfessionalWorkroom profiles."
+    },
     "workroomId": { "type": "string" },
     "workroomType": { "type": "string", "enum": ["client", "matter", "asset", "project", "initiative", "demo"] },
     "title": { "type": "string" },
