@@ -1,0 +1,33 @@
+name: Workspace Context Fabric
+
+on:
+  pull_request:
+    paths:
+      - 'contracts/workspace/context-fabric/**'
+      - 'tools/validate_context_fabric.py'
+      - '.github/workflows/context-fabric.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'contracts/workspace/context-fabric/**'
+      - 'tools/validate_context_fabric.py'
+      - '.github/workflows/context-fabric.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-context-fabric:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Validate Workspace Context Fabric
+        run: python3 tools/validate_context_fabric.py
