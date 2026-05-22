@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Professional Workroom and Office Artifact contracts/examples.
+"""Validate Workroom, Professional Workroom, and Office Artifact contracts/examples.
 
 This validator uses only the Python standard library and supports the JSON Schema
 subset used by the workspace contracts in `contracts/workspace/`.
@@ -14,6 +14,10 @@ from typing import Any
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT_PAIRS = [
+    (
+        ROOT / "contracts/workspace/workroom.schema.json",
+        ROOT / "contracts/workspace/workroom.v0.1.example.json",
+    ),
     (
         ROOT / "contracts/workspace/professional-workroom.schema.json",
         ROOT / "contracts/workspace/professional-workroom.v0.1.example.json",
@@ -106,21 +110,35 @@ def validate(schema: dict[str, Any], value: Any, path: str = "$") -> None:
                 validate(item_schema, item, f"{path}[{index}]")
 
 
-def validate_pair(schema_path: Path, example_path: Path) -> None:
+def validate_pair(schema_path: Path, example_path: Path) -> Any:
     schema = load_json(schema_path)
     example = load_json(example_path)
     validate(schema, example)
     print(f"ok: {example_path.relative_to(ROOT)} validates against {schema_path.relative_to(ROOT)}")
+    return example
+
+
+def validate_workroom_profile_binding(workroom: dict[str, Any], professional: dict[str, Any]) -> None:
+    expected_ref = f"workroom://{workroom['workroomId']}"
+    if professional["baseWorkroomRef"] != expected_ref:
+        raise ValidationError(
+            f"ProfessionalWorkroom.baseWorkroomRef expected {expected_ref!r}, got {professional['baseWorkroomRef']!r}"
+        )
+    if professional["workroomId"] != workroom["workroomId"]:
+        raise ValidationError("ProfessionalWorkroom.workroomId must match base Workroom.workroomId")
 
 
 def main() -> int:
     try:
+        examples = []
         for schema_path, example_path in CONTRACT_PAIRS:
-            validate_pair(schema_path, example_path)
+            examples.append(validate_pair(schema_path, example_path))
+        validate_workroom_profile_binding(examples[0], examples[1])
     except ValidationError as exc:
         print(f"ERR: {exc}", file=sys.stderr)
         return 2
 
+    print("Workroom validation passed")
     print("Professional Workroom validation passed")
     print("Office Artifact validation passed")
     return 0
