@@ -9,6 +9,10 @@ on:
       - 'contracts/workspace/professional-workroom.v0.1.example.json'
       - 'contracts/workspace/office-artifact.schema.json'
       - 'contracts/workspace/office-artifact.v0.1.example.json'
+      - 'contracts/workspace/channel-substrate.schema.json'
+      - 'contracts/workspace/channel-substrate.v0.1.example.json'
+      - 'contracts/workspace/interface-crossing.schema.json'
+      - 'contracts/workspace/interface-crossing.v0.1.example.json'
       - 'tools/validate_professional_workrooms.py'
       - '.github/workflows/professional-workrooms.yml'
   push:
@@ -21,6 +25,10 @@ on:
       - 'contracts/workspace/professional-workroom.v0.1.example.json'
       - 'contracts/workspace/office-artifact.schema.json'
       - 'contracts/workspace/office-artifact.v0.1.example.json'
+      - 'contracts/workspace/channel-substrate.schema.json'
+      - 'contracts/workspace/channel-substrate.v0.1.example.json'
+      - 'contracts/workspace/interface-crossing.schema.json'
+      - 'contracts/workspace/interface-crossing.v0.1.example.json'
       - 'tools/validate_professional_workrooms.py'
       - '.github/workflows/professional-workrooms.yml'
 
@@ -39,5 +47,5 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Validate Workrooms and Office Artifacts
+      - name: Validate Workrooms, Office Artifacts, and Channel Contracts
         run: python3 tools/validate_professional_workrooms.py
