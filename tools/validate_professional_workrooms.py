@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Workroom, Professional Workroom, and Office Artifact contracts/examples.
+"""Validate Workroom, Professional Workroom, Office Artifact, and workspace channel contracts/examples.
 
 This validator uses only the Python standard library and supports the JSON Schema
 subset used by the workspace contracts in `contracts/workspace/`.
@@ -25,6 +25,14 @@ CONTRACT_PAIRS = [
     (
         ROOT / "contracts/workspace/office-artifact.schema.json",
         ROOT / "contracts/workspace/office-artifact.v0.1.example.json",
+    ),
+    (
+        ROOT / "contracts/workspace/channel-substrate.schema.json",
+        ROOT / "contracts/workspace/channel-substrate.v0.1.example.json",
+    ),
+    (
+        ROOT / "contracts/workspace/interface-crossing.schema.json",
+        ROOT / "contracts/workspace/interface-crossing.v0.1.example.json",
     ),
 ]
 
@@ -128,12 +136,39 @@ def validate_workroom_profile_binding(workroom: dict[str, Any], professional: di
         raise ValidationError("ProfessionalWorkroom.workroomId must match base Workroom.workroomId")
 
 
+def validate_channel_binding(professional: dict[str, Any], office_artifact: dict[str, Any], channel: dict[str, Any], crossing: dict[str, Any]) -> None:
+    if channel["workroomId"] != professional["workroomId"]:
+        raise ValidationError("WorkspaceChannelSubstrate.workroomId must match ProfessionalWorkroom.workroomId")
+    if crossing["workroomId"] != professional["workroomId"]:
+        raise ValidationError("WorkspaceInterfaceCrossing.workroomId must match ProfessionalWorkroom.workroomId")
+    if channel.get("officeArtifactRef") not in professional.get("officeArtifactRefs", []):
+        raise ValidationError("WorkspaceChannelSubstrate.officeArtifactRef must be attached to ProfessionalWorkroom.officeArtifactRefs")
+    if channel.get("officeArtifactRef") != office_artifact["storageRef"]:
+        raise ValidationError("WorkspaceChannelSubstrate.officeArtifactRef must match OfficeArtifact.storageRef")
+    if crossing["fromChannelRef"] != channel["channelId"]:
+        raise ValidationError("WorkspaceInterfaceCrossing.fromChannelRef must reference the WorkspaceChannelSubstrate example")
+    if crossing.get("officeArtifactRef") != channel.get("officeArtifactRef"):
+        raise ValidationError("WorkspaceInterfaceCrossing.officeArtifactRef must match the channel officeArtifactRef")
+    if crossing["review"]["required"] is not True or crossing["review"]["status"] != "pending":
+        raise ValidationError("WorkspaceInterfaceCrossing review must remain required and pending in the example")
+    for key, value in channel["authority"].items():
+        if value is not False:
+            raise ValidationError(f"WorkspaceChannelSubstrate.authority.{key} must be false")
+    for key, value in channel["runtimeBoundary"].items():
+        if value is not False:
+            raise ValidationError(f"WorkspaceChannelSubstrate.runtimeBoundary.{key} must be false")
+    for key, value in crossing["runtimeBoundary"].items():
+        if value is not False:
+            raise ValidationError(f"WorkspaceInterfaceCrossing.runtimeBoundary.{key} must be false")
+
+
 def main() -> int:
     try:
         examples = []
         for schema_path, example_path in CONTRACT_PAIRS:
             examples.append(validate_pair(schema_path, example_path))
         validate_workroom_profile_binding(examples[0], examples[1])
+        validate_channel_binding(examples[1], examples[2], examples[3], examples[4])
     except ValidationError as exc:
         print(f"ERR: {exc}", file=sys.stderr)
         return 2
@@ -141,6 +176,8 @@ def main() -> int:
     print("Workroom validation passed")
     print("Professional Workroom validation passed")
     print("Office Artifact validation passed")
+    print("Workspace channel substrate validation passed")
+    print("Workspace interface crossing validation passed")
     return 0
 
 
