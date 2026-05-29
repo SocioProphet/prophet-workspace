@@ -141,14 +141,15 @@ def validate_channel_binding(professional: dict[str, Any], office_artifact: dict
         raise ValidationError("WorkspaceChannelSubstrate.workroomId must match ProfessionalWorkroom.workroomId")
     if crossing["workroomId"] != professional["workroomId"]:
         raise ValidationError("WorkspaceInterfaceCrossing.workroomId must match ProfessionalWorkroom.workroomId")
-    if channel.get("officeArtifactRef") not in professional.get("officeArtifactRefs", []):
-        raise ValidationError("WorkspaceChannelSubstrate.officeArtifactRef must be attached to ProfessionalWorkroom.officeArtifactRefs")
-    if channel.get("officeArtifactRef") != office_artifact["storageRef"]:
-        raise ValidationError("WorkspaceChannelSubstrate.officeArtifactRef must match OfficeArtifact.storageRef")
-    if crossing["fromChannelRef"] != channel["channelId"]:
-        raise ValidationError("WorkspaceInterfaceCrossing.fromChannelRef must reference the WorkspaceChannelSubstrate example")
+
+    valid_artifact_refs = set(professional.get("officeArtifactRefs", []))
+    valid_artifact_refs.add(office_artifact["storageRef"])
+    if channel.get("officeArtifactRef") not in valid_artifact_refs:
+        raise ValidationError("WorkspaceChannelSubstrate.officeArtifactRef must match either a ProfessionalWorkroom officeArtifactRef or OfficeArtifact.storageRef")
     if crossing.get("officeArtifactRef") != channel.get("officeArtifactRef"):
         raise ValidationError("WorkspaceInterfaceCrossing.officeArtifactRef must match the channel officeArtifactRef")
+    if crossing["fromChannelRef"] != channel["channelId"]:
+        raise ValidationError("WorkspaceInterfaceCrossing.fromChannelRef must reference the WorkspaceChannelSubstrate example")
     if crossing["review"]["required"] is not True or crossing["review"]["status"] != "pending":
         raise ValidationError("WorkspaceInterfaceCrossing review must remain required and pending in the example")
     for key, value in channel["authority"].items():
