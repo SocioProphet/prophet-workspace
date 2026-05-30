@@ -13,6 +13,8 @@ on:
       - 'contracts/workspace/channel-substrate.v0.1.example.json'
       - 'contracts/workspace/interface-crossing.schema.json'
       - 'contracts/workspace/interface-crossing.v0.1.example.json'
+      - 'docs/professional-workrooms.md'
+      - 'docs/workroom-substrate-alignment-v0.md'
       - 'tools/validate_professional_workrooms.py'
       - '.github/workflows/professional-workrooms.yml'
   push:
@@ -29,6 +31,8 @@ on:
       - 'contracts/workspace/channel-substrate.v0.1.example.json'
       - 'contracts/workspace/interface-crossing.schema.json'
       - 'contracts/workspace/interface-crossing.v0.1.example.json'
+      - 'docs/professional-workrooms.md'
+      - 'docs/workroom-substrate-alignment-v0.md'
       - 'tools/validate_professional_workrooms.py'
       - '.github/workflows/professional-workrooms.yml'
 
