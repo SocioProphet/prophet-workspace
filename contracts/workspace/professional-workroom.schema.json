@@ -19,8 +19,38 @@
     "playbookId": { "type": "string" },
     "contextRefs": { "type": "array", "items": { "type": "string" } },
     "policyRefs": { "type": "array", "items": { "type": "string" } },
+    "policyDecisionRefs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Policy or guardrail decision refs explicitly admitting, denying, quarantining, or requiring review for workroom operations."
+    },
     "obligationRefs": { "type": "array", "items": { "type": "string" } },
     "agentRunRefs": { "type": "array", "items": { "type": "string" } },
+    "topicPackRefs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Slash-topic topic-pack or membrane refs scoping search, knowledge, policy posture, source admission, and display behavior."
+    },
+    "memoryScopeRefs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Refs describing governed memory/retrieval scope, representation strata, recall bounds, and writeback boundaries."
+    },
+    "privacyDecisionRefs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "DoNotLearn / DoNotLink privacy decision refs for learning, linking, memory, transcript, topic, or graph operations."
+    },
+    "audioReviewRefs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Speechlab audio review refs for audio events, transcript artifacts, review sections, corrections, and audio review receipts."
+    },
+    "learningReceiptRefs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Systems-learning-loops or model-governance-ledger receipts recording lessons, memory decisions, teaching-object promotion, or adoption feedback."
+    },
     "officeArtifactRefs": {
       "type": "array",
       "items": { "type": "string" },
@@ -54,6 +84,11 @@
             "type": "string",
             "description": "Optional OfficeArtifact associated with this task."
           },
+          "topicPackRef": { "type": "string" },
+          "memoryScopeRef": { "type": "string" },
+          "privacyDecisionRef": { "type": "string" },
+          "audioReviewRef": { "type": "string" },
+          "learningReceiptRef": { "type": "string" },
           "contextGraphRef": { "type": "string" },
           "providerProjectionRef": { "type": "string" },
           "evidenceRef": { "type": "string" }
