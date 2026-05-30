@@ -36,6 +36,26 @@ CONTRACT_PAIRS = [
     ),
 ]
 
+RECOVERED_SUBSTRATE_REF_FIELDS = [
+    "policyDecisionRefs",
+    "topicPackRefs",
+    "memoryScopeRefs",
+    "privacyDecisionRefs",
+    "audioReviewRefs",
+    "learningReceiptRefs",
+    "semanticReceiptRefs",
+]
+
+TASK_TO_TOP_LEVEL_REF_FIELDS = {
+    "topicPackRef": "topicPackRefs",
+    "memoryScopeRef": "memoryScopeRefs",
+    "privacyDecisionRef": "privacyDecisionRefs",
+    "audioReviewRef": "audioReviewRefs",
+    "learningReceiptRef": "learningReceiptRefs",
+    "officeArtifactRef": "officeArtifactRefs",
+    "evidenceRef": "evidenceRefs",
+}
+
 
 class ValidationError(Exception):
     pass
@@ -136,6 +156,34 @@ def validate_workroom_profile_binding(workroom: dict[str, Any], professional: di
         raise ValidationError("ProfessionalWorkroom.workroomId must match base Workroom.workroomId")
 
 
+def validate_recovered_substrate_refs(professional: dict[str, Any]) -> None:
+    """Ensure the canonical example exercises recovered substrate alignment refs.
+
+    The schema keeps these fields optional so existing workrooms can migrate
+    gradually. The example should still demonstrate them and task-level refs
+    should resolve to the corresponding workroom-level collections.
+    """
+    for field in RECOVERED_SUBSTRATE_REF_FIELDS:
+        refs = professional.get(field)
+        if not isinstance(refs, list) or not refs:
+            raise ValidationError(f"ProfessionalWorkroom example must include non-empty {field}")
+        if not all(isinstance(ref, str) and ref for ref in refs):
+            raise ValidationError(f"ProfessionalWorkroom.{field} must contain non-empty string refs")
+
+    for task in professional.get("tasks", []):
+        if not isinstance(task, dict):
+            continue
+        for task_field, top_level_field in TASK_TO_TOP_LEVEL_REF_FIELDS.items():
+            if task_field not in task:
+                continue
+            top_level_refs = set(professional.get(top_level_field, []))
+            if task[task_field] not in top_level_refs:
+                raise ValidationError(
+                    f"ProfessionalWorkroom task {task.get('taskId', '<unknown>')} {task_field} "
+                    f"must reference a value in top-level {top_level_field}"
+                )
+
+
 def validate_channel_binding(professional: dict[str, Any], office_artifact: dict[str, Any], channel: dict[str, Any], crossing: dict[str, Any]) -> None:
     if channel["workroomId"] != professional["workroomId"]:
         raise ValidationError("WorkspaceChannelSubstrate.workroomId must match ProfessionalWorkroom.workroomId")
@@ -169,6 +217,7 @@ def main() -> int:
         for schema_path, example_path in CONTRACT_PAIRS:
             examples.append(validate_pair(schema_path, example_path))
         validate_workroom_profile_binding(examples[0], examples[1])
+        validate_recovered_substrate_refs(examples[1])
         validate_channel_binding(examples[1], examples[2], examples[3], examples[4])
     except ValidationError as exc:
         print(f"ERR: {exc}", file=sys.stderr)
@@ -176,6 +225,7 @@ def main() -> int:
 
     print("Workroom validation passed")
     print("Professional Workroom validation passed")
+    print("Recovered substrate reference validation passed")
     print("Office Artifact validation passed")
     print("Workspace channel substrate validation passed")
     print("Workspace interface crossing validation passed")
