@@ -38,6 +38,12 @@ Contract and example:
 - `contracts/workspace/professional-workroom.schema.json`
 - `contracts/workspace/professional-workroom.v0.1.example.json`
 
+Architecture:
+- `docs/professional-workrooms.md`
+- `docs/workroom-substrate-alignment-v0.md`
+
+`docs/workroom-substrate-alignment-v0.md` maps Professional Workrooms to recovered authority surfaces for privacy, governed memory strata, slash-topic membranes, audio-first review, agent execution, model governance, estate-ledger state, and institutional-learning receipts.
+
 Validate locally:
 
 ```bash
@@ -65,6 +71,8 @@ Architecture:
 - `docs/office-plane.md`
 
 `ProfessionalWorkroom` now supports `officeArtifactRefs` at the workroom level and `officeArtifactRef` at the task level so generated decks, reports, spreadsheets, PDFs, and mail drafts remain attached to workroom context, policy, agent runs, and evidence.
+
+The Professional Workroom contract also supports optional recovered-substrate refs for policy decisions, topic packs, memory scopes, privacy decisions, audio review artifacts, learning receipts, semantic receipts, and adoption events.
 
 ## Repository map
 
