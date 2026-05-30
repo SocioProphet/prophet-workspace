@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.io/schemas/workspace/channel-substrate.schema.json",
+  "title": "WorkspaceChannelSubstrate",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "channelId",
+    "workroomId",
+    "channelType",
+    "title",
+    "status",
+    "trustAffordance",
+    "auditability",
+    "interpretationRisk",
+    "policyRefs",
+    "evidenceRefs",
+    "authority",
+    "runtimeBoundary"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "channelId": { "type": "string" },
+    "workroomId": { "type": "string" },
+    "channelType": {
+      "type": "string",
+      "enum": ["mail", "calendar", "contacts", "file-storage", "document", "spreadsheet", "slide-deck", "pdf", "chat", "room", "meeting", "task-list", "note", "admin", "audit", "policy", "search", "workroom", "office-artifact", "external-adapter"]
+    },
+    "title": { "type": "string" },
+    "status": { "type": "string", "enum": ["draft", "active", "review", "archived"] },
+    "officeArtifactRef": { "type": "string" },
+    "providerRef": { "type": "string" },
+    "trustAffordance": { "type": "string", "enum": ["low", "medium", "high", "inherited", "unknown"] },
+    "auditability": { "type": "string", "enum": ["none", "partial", "full", "synthetic", "unknown"] },
+    "interpretationRisk": { "type": "string", "enum": ["low", "medium", "high", "unknown"] },
+    "policyRefs": { "type": "array", "items": { "type": "string" } },
+    "evidenceRefs": { "type": "array", "items": { "type": "string" } },
+    "authority": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["canAuthorizeAction", "canPromoteClaim", "canWriteMemory", "canPublishReport"],
+      "properties": {
+        "canAuthorizeAction": { "const": false },
+        "canPromoteClaim": { "const": false },
+        "canWriteMemory": { "const": false },
+        "canPublishReport": { "const": false }
+      }
+    },
+    "runtimeBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["liveExecutionAllowed", "externalDeliveryAllowed", "credentialAccessAllowed", "stateMutationAllowed"],
+      "properties": {
+        "liveExecutionAllowed": { "const": false },
+        "externalDeliveryAllowed": { "const": false },
+        "credentialAccessAllowed": { "const": false },
+        "stateMutationAllowed": { "const": false }
+      }
+    },
+    "labels": { "type": "object", "additionalProperties": { "type": "string" } }
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "v0.1",
+  "channelId": "workspace-channel://workroom-demo-0001/office-artifact-demo-0001",
+  "workroomId": "workroom-demo-0001",
+  "channelType": "office-artifact",
+  "title": "Generated opportunity packet review channel",
+  "status": "review",
+  "officeArtifactRef": "sourceos-office://workroom-demo-0001/artifacts/office-artifact-demo-0001",
+  "providerRef": "provider://sourceos-office/local-headless",
+  "trustAffordance": "inherited",
+  "auditability": "synthetic",
+  "interpretationRisk": "high",
+  "policyRefs": [
+    "policy-decision://policy-demo-ai-use/decision-0001",
+    "policy://workspace/no-channel-as-authority"
+  ],
+  "evidenceRefs": [
+    "evidence://office-artifact/demo-0001",
+    "evidence://conflict-demo-0001"
+  ],
+  "authority": {
+    "canAuthorizeAction": false,
+    "canPromoteClaim": false,
+    "canWriteMemory": false,
+    "canPublishReport": false
+  },
+  "runtimeBoundary": {
+    "liveExecutionAllowed": false,
+    "externalDeliveryAllowed": false,
+    "credentialAccessAllowed": false,
+    "stateMutationAllowed": false
+  },
+  "labels": {
+    "program": "professional-intelligence-os",
+    "scenarioRole": "channel-substrate"
+  }
+}

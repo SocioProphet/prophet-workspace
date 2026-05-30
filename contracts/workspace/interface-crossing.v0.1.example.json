@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "v0.1",
+  "crossingId": "workspace-crossing://workroom-demo-0001/office-artifact-to-review-0001",
+  "workroomId": "workroom-demo-0001",
+  "title": "Generated packet becomes review evidence",
+  "status": "review",
+  "fromChannelRef": "workspace-channel://workroom-demo-0001/office-artifact-demo-0001",
+  "toChannelRef": "workspace-channel://workroom-demo-0001/operator-review",
+  "transformedObject": "Generated opportunity packet is summarized into reviewer-facing evidence context.",
+  "officeArtifactRef": "sourceos-office://workroom-demo-0001/artifacts/office-artifact-demo-0001",
+  "adversarialScenarioRef": "adversarial-scenario:workspace-transduction-001",
+  "authorityChange": "none",
+  "evidenceChange": "summarized",
+  "failureMode": "Reviewer treats generated packet or summary as authority, claim promotion, durable memory, or publication permission.",
+  "review": {
+    "required": true,
+    "status": "pending",
+    "reviewerRef": "human://policy-reviewer",
+    "decisionRef": null,
+    "notes": "Review before any claim promotion, publication, or memory writeback."
+  },
+  "policyRefs": [
+    "policy://workspace/no-channel-as-authority",
+    "policy://workspace/no-summary-as-source-evidence"
+  ],
+  "evidenceRefs": [
+    "evidence://office-artifact/demo-0001",
+    "evidence://conflict-demo-0001"
+  ],
+  "runtimeBoundary": {
+    "authorizesAction": false,
+    "promotesClaim": false,
+    "writesMemory": false,
+    "publishesReport": false,
+    "executesTool": false
+  },
+  "labels": {
+    "program": "professional-intelligence-os",
+    "scenarioRole": "interface-crossing"
+  }
+}

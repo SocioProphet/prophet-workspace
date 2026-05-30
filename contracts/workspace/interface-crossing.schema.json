@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.io/schemas/workspace/interface-crossing.schema.json",
+  "title": "WorkspaceInterfaceCrossing",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "crossingId",
+    "workroomId",
+    "title",
+    "status",
+    "fromChannelRef",
+    "toChannelRef",
+    "transformedObject",
+    "authorityChange",
+    "evidenceChange",
+    "failureMode",
+    "review",
+    "policyRefs",
+    "evidenceRefs",
+    "runtimeBoundary"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "crossingId": { "type": "string" },
+    "workroomId": { "type": "string" },
+    "title": { "type": "string" },
+    "status": { "type": "string", "enum": ["draft", "active", "review", "archived"] },
+    "fromChannelRef": { "type": "string" },
+    "toChannelRef": { "type": "string" },
+    "transformedObject": { "type": "string" },
+    "officeArtifactRef": { "type": "string" },
+    "adversarialScenarioRef": { "type": "string" },
+    "authorityChange": { "type": "string", "enum": ["none", "inferred", "expanded", "reduced", "ambiguous"] },
+    "evidenceChange": { "type": "string", "enum": ["none", "summarized", "redacted", "reclassified", "lost", "ambiguous"] },
+    "failureMode": { "type": "string" },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["required", "status", "reviewerRef", "decisionRef"],
+      "properties": {
+        "required": { "const": true },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected", "superseded"] },
+        "reviewerRef": { "type": "string" },
+        "decisionRef": { "type": ["string", "null"] },
+        "notes": { "type": "string" }
+      }
+    },
+    "policyRefs": { "type": "array", "items": { "type": "string" } },
+    "evidenceRefs": { "type": "array", "items": { "type": "string" } },
+    "runtimeBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["authorizesAction", "promotesClaim", "writesMemory", "publishesReport", "executesTool"],
+      "properties": {
+        "authorizesAction": { "const": false },
+        "promotesClaim": { "const": false },
+        "writesMemory": { "const": false },
+        "publishesReport": { "const": false },
+        "executesTool": { "const": false }
+      }
+    },
+    "labels": { "type": "object", "additionalProperties": { "type": "string" } }
+  }
+}
