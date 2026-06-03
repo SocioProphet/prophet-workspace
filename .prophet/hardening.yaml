@@ -1,0 +1,48 @@
+schema_version: effective-authority/v0.1
+repo: SocioProphet/prophet-workspace
+zone: B
+owner: Prophet Workspace authority-console lane
+maturity: draft
+
+authority_classes:
+  - active_authority_console
+  - user_review_surface
+  - connector_review_surface
+  - agent_workspace
+observation_channels:
+  - filesystem
+  - memory_store
+  - cloud_document
+  - semantic_index
+control_channels:
+  - websocket
+  - mcp
+  - cloud_connector
+  - agent_to_agent
+egress_classes:
+  - metadata
+  - policy
+  - tool_input
+  - tool_output
+  - file_content
+background_workers:
+  - workspace_sync
+runtime_subjects:
+  - native_process
+  - browser_view
+  - agent_worker
+connector_surfaces:
+  - github
+  - google_drive
+  - gmail
+  - model_provider
+policy_sources:
+  - user_grant
+  - signed_config
+  - org_policy
+  - runtime_contract
+ledger_sinks:
+  - model-governance-ledger
+  - policy-fabric
+ci_validators:
+  - effective-authority-ci
