@@ -1,0 +1,55 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.io/schemas/workspace/exodus-workroom-bridge.schema.json",
+  "title": "ExodusWorkroomBridge",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "bridgeId",
+    "workroomRef",
+    "exodusRunRef",
+    "tenantId",
+    "demoBoundary",
+    "providerTopologyRefs",
+    "assetCensusRefs",
+    "exportLedgerRefs",
+    "scoreRefs",
+    "blockerRefs",
+    "recommendationRefs",
+    "budgetProposalRef",
+    "officeArtifactRefs",
+    "evidenceRefs"
+  ],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "bridgeId": { "type": "string" },
+    "workroomRef": { "type": "string" },
+    "exodusRunRef": { "type": "string" },
+    "tenantId": { "type": "string" },
+    "demoBoundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["synthetic", "liveCredentialsRequired", "destructiveActionsAllowed", "providerSideWritesAllowed"],
+      "properties": {
+        "synthetic": { "const": true },
+        "liveCredentialsRequired": { "const": false },
+        "destructiveActionsAllowed": { "const": false },
+        "providerSideWritesAllowed": { "const": false },
+        "notes": { "type": "string" }
+      }
+    },
+    "providerTopologyRefs": { "type": "array", "items": { "type": "string" } },
+    "accountRootRefs": { "type": "array", "items": { "type": "string" } },
+    "assetCensusRefs": { "type": "array", "items": { "type": "string" } },
+    "exportLedgerRefs": { "type": "array", "items": { "type": "string" } },
+    "scoreRefs": { "type": "array", "items": { "type": "string" } },
+    "blockerRefs": { "type": "array", "items": { "type": "string" } },
+    "recommendationRefs": { "type": "array", "items": { "type": "string" } },
+    "budgetProposalRef": { "type": "string" },
+    "officeArtifactRefs": { "type": "array", "items": { "type": "string" } },
+    "evidenceRefs": { "type": "array", "items": { "type": "string" } },
+    "policyRefs": { "type": "array", "items": { "type": "string" } },
+    "controlPlaneRefs": { "type": "array", "items": { "type": "string" } }
+  }
+}
