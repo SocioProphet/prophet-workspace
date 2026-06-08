@@ -1,0 +1,76 @@
+{
+  "schemaVersion": "v0.1",
+  "bridgeId": "exodus-workroom-bridge-demo-0001",
+  "workroomRef": "workroom://exodus-demo-workroom-0001",
+  "exodusRunRef": "exodus://runs/exodus-run-synthetic-tenant-a-001",
+  "tenantId": "synthetic-tenant-a",
+  "demoBoundary": {
+    "synthetic": true,
+    "liveCredentialsRequired": false,
+    "destructiveActionsAllowed": false,
+    "providerSideWritesAllowed": false,
+    "notes": "References the Exodus synthetic tenant fixture merged in SocioProphet/exodus PR #18."
+  },
+  "providerTopologyRefs": [
+    "exodus://provider-topology/provider.apple",
+    "exodus://provider-topology/provider.google",
+    "exodus://provider-topology/provider.microsoft"
+  ],
+  "accountRootRefs": [
+    "exodus://accounts/acct.apple.primary",
+    "exodus://accounts/acct.google.workspace",
+    "exodus://accounts/acct.microsoft.work"
+  ],
+  "assetCensusRefs": [
+    "exodus://asset-census/assets.apple.icloud-drive.docs",
+    "exodus://asset-census/assets.apple.photos.library",
+    "exodus://asset-census/assets.google.gmail",
+    "exodus://asset-census/assets.google.drive.docs",
+    "exodus://asset-census/assets.microsoft.sharepoint.office",
+    "exodus://asset-census/assets.microsoft.teams.chat"
+  ],
+  "exportLedgerRefs": [
+    "exodus://evidence/ev.apple.icloud-drive.inventory.v1",
+    "exodus://evidence/ev.google.takeout.manifest.v1",
+    "exodus://evidence/ev.google.drive.exportability.v1",
+    "exodus://evidence/ev.microsoft.graph.delta.snapshot.v1",
+    "exodus://evidence/ev.microsoft.teams.export.blocker.v1"
+  ],
+  "scoreRefs": [
+    "exodus://scores/eri",
+    "exodus://scores/pcs/provider.apple",
+    "exodus://scores/pcs/provider.google",
+    "exodus://scores/pcs/provider.microsoft"
+  ],
+  "blockerRefs": [
+    "exodus://blockers/blocker.apple.photos.partial-export",
+    "exodus://blockers/blocker.google.docs.conversion",
+    "exodus://blockers/blocker.microsoft.teams.chat-export"
+  ],
+  "recommendationRefs": [
+    "exodus://recommendations/rec.establish-open-mail-archive",
+    "exodus://recommendations/rec.office-doc-conversion-pilot",
+    "exodus://recommendations/rec.chat-retention-policy-review"
+  ],
+  "budgetProposalRef": "exodus://budget/budget.synthetic-tenant-a.phase-2.v1",
+  "officeArtifactRefs": [
+    "sourceos-office://exodus-demo-workroom-0001/artifacts/exodus-readiness-report-0001",
+    "sourceos-office://exodus-demo-workroom-0001/artifacts/exodus-export-ledger-0001",
+    "sourceos-office://exodus-demo-workroom-0001/artifacts/exodus-budget-proposal-0001"
+  ],
+  "evidenceRefs": [
+    "exodus://evidence/ev.apple.icloud-drive.inventory.v1",
+    "exodus://evidence/ev.google.takeout.manifest.v1",
+    "exodus://evidence/ev.google.drive.exportability.v1",
+    "exodus://evidence/ev.microsoft.graph.delta.snapshot.v1",
+    "exodus://evidence/ev.microsoft.teams.export.blocker.v1"
+  ],
+  "policyRefs": [
+    "policy://exodus/demo/no-live-credentials-v0",
+    "policy://exodus/demo/no-destructive-actions-v0"
+  ],
+  "controlPlaneRefs": [
+    "sociosphere://issues/478",
+    "sociosphere://reports/workspace-control-plane-context-integration.md"
+  ]
+}
