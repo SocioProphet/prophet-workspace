@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Validate Workroom, Professional Workroom, Office Artifact, and workspace channel contracts/examples.
+"""Validate Workroom, Professional Workroom, Office Artifact, workspace channel, and Exodus workroom bridge contracts/examples.
 
 This validator uses only the Python standard library and supports the JSON Schema
 subset used by the workspace contracts in `contracts/workspace/`.
@@ -33,6 +33,14 @@ CONTRACT_PAIRS = [
     (
         ROOT / "contracts/workspace/interface-crossing.schema.json",
         ROOT / "contracts/workspace/interface-crossing.v0.1.example.json",
+    ),
+    (
+        ROOT / "contracts/workspace/professional-workroom.schema.json",
+        ROOT / "contracts/workspace/exodus-migration-workroom.v0.1.example.json",
+    ),
+    (
+        ROOT / "contracts/workspace/exodus-workroom-bridge.schema.json",
+        ROOT / "contracts/workspace/exodus-workroom-bridge.v0.1.example.json",
     ),
 ]
 
@@ -211,6 +219,49 @@ def validate_channel_binding(professional: dict[str, Any], office_artifact: dict
             raise ValidationError(f"WorkspaceInterfaceCrossing.runtimeBoundary.{key} must be false")
 
 
+def validate_exodus_bridge(exodus_workroom: dict[str, Any], bridge: dict[str, Any]) -> None:
+    if bridge["workroomRef"] != f"workroom://{exodus_workroom['workroomId']}":
+        raise ValidationError("ExodusWorkroomBridge.workroomRef must reference the Exodus ProfessionalWorkroom")
+    if bridge["tenantId"] != exodus_workroom.get("tenantId"):
+        raise ValidationError("ExodusWorkroomBridge.tenantId must match Exodus ProfessionalWorkroom.tenantId")
+    if bridge["exodusRunRef"] not in exodus_workroom.get("contextRefs", []):
+        raise ValidationError("ExodusWorkroomBridge.exodusRunRef must appear in ProfessionalWorkroom.contextRefs")
+
+    boundary = bridge["demoBoundary"]
+    if boundary["synthetic"] is not True:
+        raise ValidationError("ExodusWorkroomBridge demoBoundary.synthetic must be true")
+    if boundary["liveCredentialsRequired"] is not False:
+        raise ValidationError("ExodusWorkroomBridge must not require live credentials")
+    if boundary["destructiveActionsAllowed"] is not False:
+        raise ValidationError("ExodusWorkroomBridge must not allow destructive actions")
+    if boundary["providerSideWritesAllowed"] is not False:
+        raise ValidationError("ExodusWorkroomBridge must not allow provider-side writes")
+
+    for ref in bridge.get("providerTopologyRefs", []):
+        if ref not in exodus_workroom.get("providerCaptureRefs", []):
+            raise ValidationError(f"provider topology ref {ref!r} must appear in ProfessionalWorkroom.providerCaptureRefs")
+    for ref in bridge.get("assetCensusRefs", []):
+        if ref not in exodus_workroom.get("providerProjectionRefs", []) and ref not in exodus_workroom.get("evidenceRefs", []):
+            # The workroom only carries representative asset projections at top level.
+            # Full census remains in the bridge.
+            continue
+    for ref in bridge.get("officeArtifactRefs", []):
+        if ref not in exodus_workroom.get("officeArtifactRefs", []):
+            raise ValidationError(f"office artifact ref {ref!r} must appear in ProfessionalWorkroom.officeArtifactRefs")
+    for ref in bridge.get("evidenceRefs", []):
+        if ref not in exodus_workroom.get("evidenceRefs", []):
+            raise ValidationError(f"evidence ref {ref!r} must appear in ProfessionalWorkroom.evidenceRefs")
+
+    if not bridge.get("scoreRefs"):
+        raise ValidationError("ExodusWorkroomBridge.scoreRefs must be non-empty")
+    if not bridge.get("blockerRefs"):
+        raise ValidationError("ExodusWorkroomBridge.blockerRefs must be non-empty")
+    if not bridge.get("recommendationRefs"):
+        raise ValidationError("ExodusWorkroomBridge.recommendationRefs must be non-empty")
+    if not bridge.get("budgetProposalRef"):
+        raise ValidationError("ExodusWorkroomBridge.budgetProposalRef must be non-empty")
+
+
 def main() -> int:
     try:
         examples = []
@@ -219,6 +270,8 @@ def main() -> int:
         validate_workroom_profile_binding(examples[0], examples[1])
         validate_recovered_substrate_refs(examples[1])
         validate_channel_binding(examples[1], examples[2], examples[3], examples[4])
+        validate_recovered_substrate_refs(examples[5])
+        validate_exodus_bridge(examples[5], examples[6])
     except ValidationError as exc:
         print(f"ERR: {exc}", file=sys.stderr)
         return 2
@@ -229,6 +282,7 @@ def main() -> int:
     print("Office Artifact validation passed")
     print("Workspace channel substrate validation passed")
     print("Workspace interface crossing validation passed")
+    print("Exodus workroom bridge validation passed")
     return 0
 
 
