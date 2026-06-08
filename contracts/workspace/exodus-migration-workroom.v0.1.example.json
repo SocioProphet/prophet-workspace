@@ -1,0 +1,116 @@
+{
+  "schemaVersion": "v0.1",
+  "baseWorkroomRef": "workroom://exodus-demo-workroom-0001",
+  "workroomId": "exodus-demo-workroom-0001",
+  "workroomType": "demo",
+  "title": "Exodus Migration Workroom — Synthetic Tenant A",
+  "status": "review",
+  "tenantId": "synthetic-tenant-a",
+  "playbookId": "exodus-migration-workroom-demo-v0",
+  "contextRefs": [
+    "exodus://runs/exodus-run-synthetic-tenant-a-001",
+    "exodus://tenant/synthetic-tenant-a",
+    "sociosphere://issues/478"
+  ],
+  "policyRefs": [
+    "policy://exodus/demo/no-live-credentials-v0",
+    "policy://exodus/demo/no-destructive-actions-v0"
+  ],
+  "policyDecisionRefs": [
+    "policy-decision://exodus-demo/synthetic-boundary/decision-0001"
+  ],
+  "obligationRefs": [
+    "obligation://exodus-demo/no-provider-side-writes"
+  ],
+  "agentRunRefs": [
+    "agentplane://runs/exodus-demo-synthetic-validation-0001"
+  ],
+  "topicPackRefs": [
+    "slash-topic://cell/exodus-migration-workroom-demo@v0"
+  ],
+  "memoryScopeRefs": [
+    "ontogenesis://governed-memory/scope/exodus-demo-workroom-0001"
+  ],
+  "privacyDecisionRefs": [
+    "privacy-decision://do-not-learn/exodus-demo-workroom-0001/decision-0001",
+    "privacy-decision://do-not-link/exodus-demo-workroom-0001/decision-0001"
+  ],
+  "audioReviewRefs": [
+    "speechlab://audio-review/exodus-demo-workroom-0001/review-0001"
+  ],
+  "learningReceiptRefs": [
+    "learning-receipt://systems-learning-loops/exodus-demo-workroom-0001/demo-0001"
+  ],
+  "officeArtifactRefs": [
+    "sourceos-office://exodus-demo-workroom-0001/artifacts/exodus-readiness-report-0001",
+    "sourceos-office://exodus-demo-workroom-0001/artifacts/exodus-export-ledger-0001",
+    "sourceos-office://exodus-demo-workroom-0001/artifacts/exodus-budget-proposal-0001"
+  ],
+  "contextGraphRefs": [
+    "sociosphere://graphs/exodus-demo-workroom-0001"
+  ],
+  "providerCaptureRefs": [
+    "exodus://provider-topology/provider.apple",
+    "exodus://provider-topology/provider.google",
+    "exodus://provider-topology/provider.microsoft"
+  ],
+  "providerProjectionRefs": [
+    "exodus://asset-census/assets.apple.icloud-drive.docs",
+    "exodus://asset-census/assets.google.drive.docs",
+    "exodus://asset-census/assets.microsoft.sharepoint.office"
+  ],
+  "shareGrantRefs": [],
+  "recallCandidateRefs": [
+    "exodus://recommendations/rec.establish-open-mail-archive",
+    "exodus://recommendations/rec.office-doc-conversion-pilot"
+  ],
+  "runtimeBindingRefs": [
+    "exodus://demo-boundary/synthetic-offline-no-provider-writes"
+  ],
+  "semanticReceiptRefs": [
+    "receipt://semantic/exodus-demo-workroom-0001/exodus-run-synthetic-tenant-a-001"
+  ],
+  "evidenceRefs": [
+    "exodus://evidence/ev.apple.icloud-drive.inventory.v1",
+    "exodus://evidence/ev.google.takeout.manifest.v1",
+    "exodus://evidence/ev.google.drive.exportability.v1",
+    "exodus://evidence/ev.microsoft.graph.delta.snapshot.v1",
+    "exodus://evidence/ev.microsoft.teams.export.blocker.v1"
+  ],
+  "adoptionEventRefs": [
+    "adoption://exodus-demo-workroom-0001/demo-lane-accepted"
+  ],
+  "tasks": [
+    {
+      "taskId": "task-exodus-demo-0001",
+      "title": "Review Exodus ERI and PCS score explanations",
+      "status": "review",
+      "owner": "policy-reviewer",
+      "officeArtifactRef": "sourceos-office://exodus-demo-workroom-0001/artifacts/exodus-readiness-report-0001",
+      "topicPackRef": "slash-topic://cell/exodus-migration-workroom-demo@v0",
+      "memoryScopeRef": "ontogenesis://governed-memory/scope/exodus-demo-workroom-0001",
+      "privacyDecisionRef": "privacy-decision://do-not-learn/exodus-demo-workroom-0001/decision-0001",
+      "audioReviewRef": "speechlab://audio-review/exodus-demo-workroom-0001/review-0001",
+      "learningReceiptRef": "learning-receipt://systems-learning-loops/exodus-demo-workroom-0001/demo-0001",
+      "contextGraphRef": "sociosphere://graphs/exodus-demo-workroom-0001",
+      "providerProjectionRef": "exodus://asset-census/assets.google.drive.docs",
+      "evidenceRef": "exodus://evidence/ev.google.drive.exportability.v1"
+    },
+    {
+      "taskId": "task-exodus-demo-0002",
+      "title": "Review Phase 2 budget proposal waves",
+      "status": "review",
+      "owner": "migration-planner",
+      "officeArtifactRef": "sourceos-office://exodus-demo-workroom-0001/artifacts/exodus-budget-proposal-0001",
+      "topicPackRef": "slash-topic://cell/exodus-migration-workroom-demo@v0",
+      "memoryScopeRef": "ontogenesis://governed-memory/scope/exodus-demo-workroom-0001",
+      "privacyDecisionRef": "privacy-decision://do-not-link/exodus-demo-workroom-0001/decision-0001",
+      "evidenceRef": "exodus://evidence/ev.microsoft.graph.delta.snapshot.v1"
+    }
+  ],
+  "labels": {
+    "program": "exodus",
+    "demo": "migration-workroom-v0",
+    "boundary": "synthetic-offline"
+  }
+}
