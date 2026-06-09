@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.ai/prophet-workspace/tasks/task-list.schema.v0.1.json",
+  "title": "TaskList",
+  "description": "A named collection of tasks. The container for organizing tasks by project, area, or context. Can be personal, shared, or workroom-scoped.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "listId", "accountRef", "name", "listClass"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "listId": { "type": "string" },
+    "accountRef": { "type": "string" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+
+    "listClass": {
+      "enum": ["personal", "shared", "workroom", "inbox"],
+      "description": "inbox=default catch-all list. personal=private to owner. shared=multi-user. workroom=scoped to a professional workroom."
+    },
+
+    "isPrimary": { "type": "boolean", "default": false },
+    "isHidden": { "type": "boolean", "default": false },
+    "color": { "type": "string" },
+    "sortOrder": { "type": "string", "enum": ["manual", "due_date", "priority", "created_at"], "default": "manual" },
+
+    "memberRefs": {
+      "type": "array",
+      "items": { "type": "string", "description": "email or contactRef with access" },
+      "default": []
+    },
+    "shareMode": { "enum": ["private", "shared_view", "shared_edit"], "default": "private" },
+
+    "taskCount": { "type": "integer", "minimum": 0, "default": 0 },
+    "completedCount": { "type": "integer", "minimum": 0, "default": 0 },
+
+    "workroomRef": { "type": "string" },
+    "externalId": { "type": "string", "description": "ID in upstream adapter (Google Task list ID)" },
+
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "policyRefs": { "type": "array", "items": { "type": "string" }, "default": [] }
+  }
+}

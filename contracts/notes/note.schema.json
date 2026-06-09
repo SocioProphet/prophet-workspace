@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.ai/prophet-workspace/notes/note.schema.v0.1.json",
+  "title": "Note",
+  "description": "A freeform note. Covers quick captures, research notes, meeting notes, and clipped content. Notes are first-class workspace artifacts — linkable to mail threads, events, tasks, docs, and workrooms. Extends the office-artifact model for the lightweight end of the content spectrum.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "noteId", "accountRef", "title", "status", "createdAt"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "noteId": { "type": "string" },
+    "accountRef": { "type": "string" },
+
+    "title": { "type": "string" },
+    "bodyText": { "type": "string", "description": "Plain text body" },
+    "bodyHtml": { "type": "string", "description": "Rich text body (optional)" },
+
+    "noteType": {
+      "enum": ["freeform", "checklist", "meeting_notes", "clip", "voice_transcript"],
+      "default": "freeform",
+      "description": "freeform=open text. checklist=tickable items. meeting_notes=linked to a calendar event. clip=captured from another surface. voice_transcript=transcribed audio."
+    },
+
+    "checklistItems": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/checklistItem" },
+      "description": "For noteType=checklist",
+      "default": []
+    },
+
+    "status": { "enum": ["active", "archived", "trashed"] },
+    "isPinned": { "type": "boolean", "default": false },
+    "color": { "type": "string", "description": "Display color label" },
+
+    "labels": { "type": "array", "items": { "type": "string" }, "default": [] },
+
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["attachmentId", "mimeType"],
+        "properties": {
+          "attachmentId": { "type": "string" },
+          "filename": { "type": "string" },
+          "mimeType": { "type": "string" },
+          "storageRef": { "type": "string" },
+          "driveFileRef": { "type": "string" }
+        }
+      },
+      "default": []
+    },
+
+    "reminder": { "type": "string", "format": "date-time" },
+
+    "collaborators": {
+      "type": "array",
+      "items": { "type": "string", "description": "email or contactRef" },
+      "default": []
+    },
+    "shareMode": {
+      "enum": ["private", "shared_view", "shared_edit"],
+      "default": "private"
+    },
+
+    "sourceRef": { "type": "string", "description": "What this note was clipped or generated from (messageId, eventId, docRef, URL)" },
+    "sourceType": { "enum": ["mail", "calendar_event", "doc", "url", "voice", "manual"] },
+
+    "eventRef": { "type": "string", "description": "Calendar event if noteType=meeting_notes" },
+    "mailThreadRefs": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "taskRefs": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "workroomRef": { "type": "string" },
+    "driveFileRef": { "type": "string", "description": "If synced to Drive as a doc" },
+
+    "aiSummary": { "type": "string" },
+    "memoryRef": { "type": "string" },
+
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "policyRefs": { "type": "array", "items": { "type": "string" }, "default": [] }
+  },
+
+  "$defs": {
+    "checklistItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["itemId", "text"],
+      "properties": {
+        "itemId": { "type": "string" },
+        "text": { "type": "string" },
+        "isChecked": { "type": "boolean", "default": false },
+        "checkedAt": { "type": "string", "format": "date-time" },
+        "taskRef": { "type": "string", "description": "If this item was promoted to a full Task" }
+      }
+    }
+  }
+}

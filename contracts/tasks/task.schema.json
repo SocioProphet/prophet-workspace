@@ -1,0 +1,77 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.ai/prophet-workspace/tasks/task.schema.v0.1.json",
+  "title": "Task",
+  "description": "A unit of work. Tasks are first-class workspace objects — they can be created manually, generated from mail/docs/notes by AI, or promoted from checklist items. Every AI-created task emits a TaskActionReceipt. Tasks are assignable, due-dateable, and linkable to any workspace surface.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "taskId", "accountRef", "title", "status", "createdAt"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "taskId": { "type": "string" },
+    "accountRef": { "type": "string" },
+    "listRef": { "type": "string", "description": "Ref to TaskList this task belongs to" },
+
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+
+    "status": {
+      "enum": ["todo", "in_progress", "blocked", "done", "cancelled"],
+      "default": "todo"
+    },
+    "priority": {
+      "enum": ["urgent", "high", "normal", "low"],
+      "default": "normal"
+    },
+
+    "assigneeRef": { "type": "string", "description": "email or contactRef" },
+    "createdByRef": { "type": "string" },
+
+    "dueAt": { "type": "string", "format": "date-time" },
+    "startAt": { "type": "string", "format": "date-time" },
+    "completedAt": { "type": "string", "format": "date-time" },
+    "snoozedUntil": { "type": "string", "format": "date-time" },
+    "remindAt": { "type": "string", "format": "date-time" },
+
+    "subtasks": {
+      "type": "array",
+      "items": { "type": "string", "description": "taskId of subtask" },
+      "default": []
+    },
+    "parentTaskRef": { "type": "string", "description": "taskId of parent if this is a subtask" },
+
+    "labels": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "estimatedMinutes": { "type": "integer", "minimum": 0 },
+
+    "sourceType": {
+      "enum": ["manual", "mail", "doc", "note", "calendar_event", "ai_suggested", "workroom"],
+      "default": "manual",
+      "description": "How this task was created"
+    },
+    "sourceRef": { "type": "string", "description": "messageId, noteId, eventId, or docRef that originated this task" },
+    "actionReceiptRef": { "type": "string", "description": "MailTriageReceipt or equivalent that created this task" },
+
+    "mailThreadRefs": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "noteRefs": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "docRefs": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "eventRef": { "type": "string" },
+    "workroomRef": { "type": "string" },
+
+    "aiContext": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "extractedFrom": { "type": "string", "description": "Snippet of source text this task was derived from" },
+        "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "modelRef": { "type": "string" },
+        "generatedAt": { "type": "string", "format": "date-time" }
+      }
+    },
+    "memoryRef": { "type": "string" },
+
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "policyRefs": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "evidenceRefs": { "type": "array", "items": { "type": "string" }, "default": [] }
+  }
+}
