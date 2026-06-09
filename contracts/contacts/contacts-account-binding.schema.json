@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.ai/prophet-workspace/contacts/contacts-account-binding.schema.v0.1.json",
+  "title": "ContactsAccountBinding",
+  "description": "Binds a contacts backend to a workspace identity. Adapter-agnostic: Google Contacts, Exchange/EWS, CardDAV, iCloud Contacts.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "bindingId", "workspaceUserId", "adapterType", "syncState"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "bindingId": { "type": "string" },
+    "workspaceUserId": { "type": "string" },
+    "displayName": { "type": "string" },
+    "adapterType": {
+      "enum": ["google_contacts", "exchange_ews", "carddav", "icloud", "microsoft_365", "custom"]
+    },
+    "oauthRef": { "type": "string" },
+    "carddavConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "addressBookUrl": { "type": "string" },
+        "credentialVaultRef": { "type": "string" }
+      }
+    },
+    "syncState": { "enum": ["active", "paused", "error", "pending_auth", "disconnected"] },
+    "lastSyncAt": { "type": "string", "format": "date-time" },
+    "syncErrorMessage": { "type": "string" },
+    "totalContactsSynced": { "type": "integer", "minimum": 0, "default": 0 },
+    "isPrimary": { "type": "boolean", "default": false },
+    "policyRefs": { "type": "array", "items": { "type": "string" }, "default": [] }
+  }
+}

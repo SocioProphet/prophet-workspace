@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.ai/prophet-workspace/contacts/contact.schema.v0.1.json",
+  "title": "Contact",
+  "description": "A contact record representing an individual person or organization. Contacts are identity nodes — they are not topics. They appear in the CSKG as individuals with edges to artifacts, messages, events, and workrooms. A contact can be a person, an org, or a resource (room, equipment).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "contactId", "accountRef", "contactClass", "displayName"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "contactId": { "type": "string" },
+    "accountRef": { "type": "string" },
+
+    "contactClass": {
+      "enum": ["person", "organization", "resource"],
+      "description": "person=individual human. organization=company or institution (also an individual, not a topic). resource=room or equipment."
+    },
+
+    "displayName": { "type": "string" },
+    "givenName": { "type": "string" },
+    "familyName": { "type": "string" },
+    "middleName": { "type": "string" },
+    "prefix": { "type": "string", "description": "Dr., Mr., Ms., Prof." },
+    "suffix": { "type": "string" },
+    "nickname": { "type": "string" },
+    "birthday": { "type": "string", "description": "ISO date, year optional (--MM-DD format allowed)" },
+
+    "organizationRef": { "type": "string", "description": "contactId of org this person belongs to" },
+    "jobTitle": { "type": "string" },
+    "department": { "type": "string" },
+
+    "emails": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/labeledValue" },
+      "default": []
+    },
+    "phones": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/labeledValue" },
+      "default": []
+    },
+    "addresses": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/postalAddress" },
+      "default": []
+    },
+    "urls": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/labeledValue" },
+      "default": []
+    },
+    "socialProfiles": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/socialProfile" },
+      "default": []
+    },
+    "instantMessaging": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/labeledValue" },
+      "default": []
+    },
+
+    "notes": { "type": "string" },
+    "labels": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "groupRefs": { "type": "array", "items": { "type": "string" }, "description": "ContactGroup IDs this contact belongs to", "default": [] },
+
+    "photo": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "storageRef": { "type": "string" },
+        "url": { "type": "string" }
+      }
+    },
+
+    "sourceAdapter": { "type": "string", "description": "adapterType of ContactAccountBinding this was synced from" },
+    "externalId": { "type": "string", "description": "ID in the upstream adapter (Google contact resourceName, vCard UID)" },
+    "externalEtag": { "type": "string", "description": "Upstream ETag for sync conflict detection" },
+
+    "screenerDecision": {
+      "enum": ["none", "allowed", "blocked"],
+      "default": "none",
+      "description": "If this contact has a mail screener decision, mirrored here for quick lookup."
+    },
+
+    "workroomRefs": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "csKgNodeRef": { "type": "string", "description": "CSKG node ID for this individual in the knowledge graph" },
+
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "policyRefs": { "type": "array", "items": { "type": "string" }, "default": [] }
+  },
+
+  "$defs": {
+    "labeledValue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value"],
+      "properties": {
+        "value": { "type": "string" },
+        "label": {
+          "enum": ["work", "personal", "home", "other", "main", "mobile", "fax"],
+          "default": "other"
+        },
+        "isPrimary": { "type": "boolean", "default": false }
+      }
+    },
+    "postalAddress": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "label": { "enum": ["work", "home", "other"], "default": "other" },
+        "street": { "type": "string" },
+        "city": { "type": "string" },
+        "region": { "type": "string" },
+        "postalCode": { "type": "string" },
+        "country": { "type": "string" },
+        "countryCode": { "type": "string" },
+        "isPrimary": { "type": "boolean", "default": false }
+      }
+    },
+    "socialProfile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["platform", "handle"],
+      "properties": {
+        "platform": { "enum": ["linkedin", "twitter", "github", "mastodon", "bluesky", "instagram", "facebook", "other"] },
+        "handle": { "type": "string" },
+        "url": { "type": "string" }
+      }
+    }
+  }
+}

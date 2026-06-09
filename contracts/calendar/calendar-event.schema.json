@@ -1,0 +1,187 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.ai/prophet-workspace/calendar/calendar-event.schema.v0.1.json",
+  "title": "CalendarEvent",
+  "description": "A calendar event. Covers one-time events, recurring series, all-day events, and out-of-office blocks. Invite/RSVP state is first-class. AI briefing and memory recall are first-class for the Prophet intelligence layer.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "eventId", "calendarRef", "title", "start", "end", "status", "organizerRef"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "eventId": { "type": "string" },
+    "calendarRef": { "type": "string" },
+    "externalEventId": { "type": "string", "description": "UID in upstream adapter (iCal UID, Google event ID)" },
+    "seriesId": { "type": "string", "description": "Set for recurring event instances" },
+
+    "title": { "type": "string" },
+    "description": { "type": "string" },
+    "location": { "$ref": "#/$defs/location" },
+    "conferencing": { "$ref": "#/$defs/conferencing" },
+
+    "start": { "$ref": "#/$defs/eventTime" },
+    "end": { "$ref": "#/$defs/eventTime" },
+    "isAllDay": { "type": "boolean", "default": false },
+
+    "status": {
+      "enum": ["confirmed", "tentative", "cancelled"]
+    },
+    "visibility": {
+      "enum": ["default", "public", "private", "confidential"],
+      "default": "default"
+    },
+    "showAs": {
+      "enum": ["busy", "free", "out_of_office", "working_elsewhere", "tentative"],
+      "default": "busy"
+    },
+
+    "organizerRef": { "type": "string", "description": "email or contactRef of organizer" },
+    "attendees": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/attendee" },
+      "default": []
+    },
+    "resources": {
+      "type": "array",
+      "items": { "type": "string", "description": "calendarRef of room/equipment resources booked" },
+      "default": []
+    },
+
+    "recurrence": { "$ref": "#/$defs/recurrence" },
+    "isRecurringInstance": { "type": "boolean", "default": false },
+    "originalStart": { "$ref": "#/$defs/eventTime", "description": "Original start for modified recurring instances" },
+
+    "attachments": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/eventAttachment" },
+      "default": []
+    },
+    "labels": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "reminders": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/reminder" },
+      "default": []
+    },
+
+    "aiBriefing": { "$ref": "#/$defs/aiBriefing" },
+    "memoryRef": { "type": "string", "description": "memory-mesh context recalled before the event" },
+    "workroomRef": { "type": "string" },
+    "mailThreadRefs": { "type": "array", "items": { "type": "string" }, "description": "Related mail threads" },
+
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" },
+    "policyRefs": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "evidenceRefs": { "type": "array", "items": { "type": "string" }, "default": [] }
+  },
+
+  "$defs": {
+    "eventTime": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dateTime"],
+      "properties": {
+        "dateTime": { "type": "string", "description": "ISO 8601 datetime or date string for all-day events" },
+        "timeZone": { "type": "string" }
+      }
+    },
+    "location": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "displayName": { "type": "string" },
+        "address": { "type": "string" },
+        "coordinates": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "lat": { "type": "number" },
+            "lng": { "type": "number" }
+          }
+        },
+        "roomRef": { "type": "string", "description": "calendarRef if this is a bookable room resource" }
+      }
+    },
+    "conferencing": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "provider": { "enum": ["google_meet", "zoom", "teams", "webex", "custom"] },
+        "joinUrl": { "type": "string" },
+        "dialIn": { "type": "string" },
+        "meetingId": { "type": "string" },
+        "passcode": { "type": "string" }
+      }
+    },
+    "attendee": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["email"],
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "name": { "type": "string" },
+        "contactRef": { "type": "string" },
+        "responseStatus": {
+          "enum": ["needs_action", "accepted", "declined", "tentative"],
+          "default": "needs_action"
+        },
+        "isOrganizer": { "type": "boolean", "default": false },
+        "isOptional": { "type": "boolean", "default": false },
+        "isSelf": { "type": "boolean", "default": false },
+        "comment": { "type": "string" }
+      }
+    },
+    "recurrence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "rrule": { "type": "string", "description": "RFC 5545 RRULE string, e.g. FREQ=WEEKLY;BYDAY=MO" },
+        "exdates": { "type": "array", "items": { "type": "string" }, "description": "Excluded dates (RFC 5545 EXDATE)" },
+        "until": { "type": "string", "format": "date-time" },
+        "count": { "type": "integer", "minimum": 1 }
+      }
+    },
+    "reminder": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "minutesBefore"],
+      "properties": {
+        "method": { "enum": ["notification", "email", "sms"] },
+        "minutesBefore": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "eventAttachment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["title"],
+      "properties": {
+        "title": { "type": "string" },
+        "storageRef": { "type": "string" },
+        "driveFileRef": { "type": "string" },
+        "mimeType": { "type": "string" }
+      }
+    },
+    "aiBriefing": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "summary": { "type": "string", "description": "Pre-meeting briefing: who, what, context" },
+        "agendaSuggestion": { "type": "string" },
+        "relatedDocRefs": { "type": "array", "items": { "type": "string" } },
+        "relatedThreadRefs": { "type": "array", "items": { "type": "string" } },
+        "attendeeContext": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "contactRef": { "type": "string" },
+              "lastInteraction": { "type": "string", "format": "date-time" },
+              "contextNote": { "type": "string" }
+            }
+          }
+        },
+        "generatedAt": { "type": "string", "format": "date-time" },
+        "modelRef": { "type": "string" }
+      }
+    }
+  }
+}

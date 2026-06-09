@@ -1,0 +1,33 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.ai/prophet-workspace/calendar/calendar-account-binding.schema.v0.1.json",
+  "title": "CalendarAccountBinding",
+  "description": "Binds a calendar backend to a workspace identity. Adapter-agnostic: Google Calendar, Exchange/EWS, CalDAV, iCloud. Credentials via vault ref only.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "bindingId", "workspaceUserId", "adapterType", "syncState"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "bindingId": { "type": "string" },
+    "workspaceUserId": { "type": "string" },
+    "displayName": { "type": "string" },
+    "adapterType": {
+      "enum": ["google_calendar", "exchange_ews", "caldav", "icloud", "microsoft_365", "custom"]
+    },
+    "oauthRef": { "type": "string" },
+    "caldavConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "principalUrl": { "type": "string" },
+        "credentialVaultRef": { "type": "string" }
+      }
+    },
+    "syncState": { "enum": ["active", "paused", "error", "pending_auth", "disconnected"] },
+    "lastSyncAt": { "type": "string", "format": "date-time" },
+    "syncErrorMessage": { "type": "string" },
+    "defaultTimeZone": { "type": "string" },
+    "calendarRefs": { "type": "array", "items": { "type": "string" }, "description": "Calendar IDs synced from this binding" },
+    "policyRefs": { "type": "array", "items": { "type": "string" }, "default": [] }
+  }
+}

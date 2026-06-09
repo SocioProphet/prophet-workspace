@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.ai/prophet-workspace/calendar/calendar.schema.v0.1.json",
+  "title": "Calendar",
+  "description": "A named calendar owned by a workspace user or resource. Multiple calendars per account (personal, work, shared team, room resources). The container for events.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "calendarId", "accountRef", "name", "calendarClass", "accessRole"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "calendarId": { "type": "string" },
+    "accountRef": { "type": "string" },
+    "name": { "type": "string" },
+    "description": { "type": "string" },
+    "color": { "type": "string" },
+    "timeZone": { "type": "string", "description": "IANA timezone, e.g. America/New_York" },
+    "calendarClass": {
+      "enum": ["personal", "shared", "team", "room_resource", "equipment_resource", "external", "birthday", "holiday"],
+      "description": "personal=owner's primary. shared=multi-user read/write. room_resource=bookable room. equipment_resource=bookable equipment."
+    },
+    "accessRole": {
+      "enum": ["owner", "writer", "reader", "free_busy_reader"],
+      "description": "This user's access level to this calendar."
+    },
+    "isVisible": { "type": "boolean", "default": true },
+    "isPrimary": { "type": "boolean", "default": false },
+    "adapterRef": { "type": "string", "description": "Ref to CalendarAccountBinding that syncs this calendar" },
+    "externalCalendarId": { "type": "string", "description": "ID in the upstream adapter (Google, Exchange, CalDAV)" },
+    "sharingPolicy": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "publicVisibility": { "enum": ["private", "show_free_busy_only", "show_all"] },
+        "shareWithDomain": { "type": "boolean", "default": false },
+        "sharedWithRefs": { "type": "array", "items": { "type": "string" } }
+      }
+    },
+    "workroomRef": { "type": "string" },
+    "policyRefs": { "type": "array", "items": { "type": "string" }, "default": [] }
+  }
+}

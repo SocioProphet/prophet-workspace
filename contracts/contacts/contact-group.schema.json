@@ -1,0 +1,27 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.ai/prophet-workspace/contacts/contact-group.schema.v0.1.json",
+  "title": "ContactGroup",
+  "description": "A named group of contacts. Groups are semantic collections — they can be system-managed (Coworkers, Friends) or user-defined. Groups are not topics; they are collections of individuals.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "groupId", "accountRef", "name", "groupClass"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "groupId": { "type": "string" },
+    "accountRef": { "type": "string" },
+    "name": { "type": "string" },
+    "groupClass": {
+      "enum": ["system", "user", "workroom", "distribution_list"],
+      "description": "system=auto-managed (Coworkers, Starred). user=manually created. workroom=synced from a professional workroom. distribution_list=mail distribution alias."
+    },
+    "description": { "type": "string" },
+    "contactRefs": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "memberCount": { "type": "integer", "minimum": 0, "default": 0 },
+    "isHidden": { "type": "boolean", "default": false },
+    "externalId": { "type": "string" },
+    "workroomRef": { "type": "string" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  }
+}
