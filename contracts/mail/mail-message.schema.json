@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.ai/prophet-workspace/mail/mail-message.schema.v0.1.json",
+  "title": "MailMessage",
+  "description": "Canonical message record. Transport-agnostic — works over SMTP/IMAP, Exchange, or any future backend. Labels are semantic tags, not folders. Routing decisions (inbox slot, screener state, triage) are first-class fields, not inbox side-effects.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "messageId", "accountRef", "threadId", "from", "to", "subject", "receivedAt", "routingState", "inboxSlot"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "messageId": { "type": "string", "description": "Globally unique message ID (RFC 5322 Message-ID or internal UUID)" },
+    "accountRef": { "type": "string", "description": "Ref to MailAccountBinding that received this message" },
+    "threadId": { "type": "string", "description": "Conversation thread grouping key" },
+    "from": { "$ref": "#/$defs/address" },
+    "to": { "type": "array", "items": { "$ref": "#/$defs/address" }, "minItems": 1 },
+    "cc": { "type": "array", "items": { "$ref": "#/$defs/address" }, "default": [] },
+    "bcc": { "type": "array", "items": { "$ref": "#/$defs/address" }, "default": [] },
+    "replyTo": { "$ref": "#/$defs/address" },
+    "subject": { "type": "string" },
+    "bodyText": { "type": "string", "description": "Plain text body" },
+    "bodyHtml": { "type": "string", "description": "HTML body (optional)" },
+    "attachments": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/attachment" },
+      "default": []
+    },
+    "receivedAt": { "type": "string", "format": "date-time" },
+    "sentAt": { "type": "string", "format": "date-time" },
+
+    "routingState": {
+      "enum": [
+        "screener_pending",
+        "screener_blocked",
+        "imbox",
+        "feed",
+        "paper_trail",
+        "set_aside",
+        "reply_later",
+        "snoozed",
+        "archived",
+        "trash",
+        "sent",
+        "draft"
+      ],
+      "description": "Where the message lives in the routing model. imbox=earned inbox (Hey!-style). feed=newsletters/subscriptions. paper_trail=receipts/confirmations. screener_pending=new sender awaiting approval."
+    },
+
+    "inboxSlot": {
+      "enum": ["primary", "feed", "paper_trail", "screener", "sent", "draft", "archive", "trash"],
+      "description": "The rendered slot in the UI. Derived from routingState but stable for UI rendering."
+    },
+
+    "screenerState": {
+      "enum": ["not_required", "pending", "allowed", "blocked"],
+      "default": "not_required"
+    },
+
+    "labels": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Semantic tag refs. Labels are not folders — a message can have many. Refs to MailLabel records.",
+      "default": []
+    },
+
+    "isRead": { "type": "boolean", "default": false },
+    "isStarred": { "type": "boolean", "default": false },
+    "importance": {
+      "enum": ["high", "normal", "low"],
+      "default": "normal"
+    },
+
+    "snoozeUntil": { "type": "string", "format": "date-time" },
+    "remindAt": { "type": "string", "format": "date-time" },
+
+    "aiTriage": { "$ref": "#/$defs/aiTriage" },
+    "memoryRef": { "type": "string", "description": "Ref to memory-mesh context recalled before composing a reply" },
+    "workroomRef": { "type": "string", "description": "Workroom this message is associated with" },
+
+    "policyRefs": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "evidenceRefs": { "type": "array", "items": { "type": "string" }, "default": [] }
+  },
+
+  "$defs": {
+    "address": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["email"],
+      "properties": {
+        "email": { "type": "string", "format": "email" },
+        "name": { "type": "string" },
+        "contactRef": { "type": "string", "description": "Ref to Contacts record if resolved" }
+      }
+    },
+    "attachment": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["attachmentId", "filename", "mimeType", "sizeBytes"],
+      "properties": {
+        "attachmentId": { "type": "string" },
+        "filename": { "type": "string" },
+        "mimeType": { "type": "string" },
+        "sizeBytes": { "type": "integer" },
+        "storageRef": { "type": "string" },
+        "driveFileRef": { "type": "string", "description": "If saved to Drive, the Drive file ID" }
+      }
+    },
+    "aiTriage": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "summary": { "type": "string", "description": "One-sentence AI summary of the message" },
+        "suggestedReply": { "type": "string" },
+        "suggestedRoutingState": { "enum": ["imbox", "feed", "paper_trail", "archive"] },
+        "suggestedLabels": { "type": "array", "items": { "type": "string" } },
+        "topicVector": { "type": "object", "description": "22-dim TriTRPC topic scores if computed" },
+        "triageConfidence": { "type": "number", "minimum": 0, "maximum": 1 },
+        "triageModelRef": { "type": "string" },
+        "generatedAt": { "type": "string", "format": "date-time" }
+      }
+    }
+  }
+}

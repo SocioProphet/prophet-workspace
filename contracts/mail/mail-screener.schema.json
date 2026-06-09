@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.ai/prophet-workspace/mail/mail-screener.schema.v0.1.json",
+  "title": "MailScreener",
+  "description": "Sender screening model (Hey!-style). New senders go to screener_pending before reaching the imbox. The user decides once per sender — allow routes all future mail from that sender to the appropriate slot; block routes to screener_blocked permanently. The screener is the trust boundary for the inbox.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "screenerId", "accountRef", "senderEmail", "decision", "decidedAt"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "screenerId": { "type": "string" },
+    "accountRef": { "type": "string" },
+    "senderEmail": { "type": "string", "format": "email" },
+    "senderDomain": { "type": "string" },
+    "senderName": { "type": "string" },
+    "contactRef": { "type": "string" },
+
+    "decision": {
+      "enum": ["pending", "allowed", "blocked", "allowed_as_feed", "allowed_as_paper_trail"],
+      "description": "pending=awaiting user decision. allowed=routes to imbox. allowed_as_feed=routes to Feed. allowed_as_paper_trail=routes to Paper Trail. blocked=never reaches inbox."
+    },
+
+    "defaultRoutingSlot": {
+      "enum": ["imbox", "feed", "paper_trail"],
+      "description": "Where allowed mail from this sender goes by default."
+    },
+
+    "decidedAt": { "type": "string", "format": "date-time" },
+    "firstContactAt": { "type": "string", "format": "date-time" },
+    "pendingMessageCount": { "type": "integer", "minimum": 0, "default": 0 },
+
+    "aiClassification": {
+      "enum": ["person", "newsletter", "notification", "receipt", "marketing", "unknown"],
+      "description": "AI-suggested sender class to guide the screener decision."
+    },
+    "aiConfidence": { "type": "number", "minimum": 0, "maximum": 1 },
+
+    "notes": { "type": "string" },
+    "policyRefs": { "type": "array", "items": { "type": "string" }, "default": [] }
+  }
+}

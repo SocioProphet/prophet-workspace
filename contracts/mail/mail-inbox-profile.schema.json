@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.ai/prophet-workspace/mail/mail-inbox-profile.schema.v0.1.json",
+  "title": "MailInboxProfile",
+  "description": "Per-account inbox configuration. Defines the slot layout (Imbox / Feed / Paper Trail), screener behavior, AI triage policy, and Superhuman-style speed settings. This is the product personality layer — the same backend can present as Hey!, Superhuman, or classic Gmail depending on the profile.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "profileId", "accountRef", "slotConfig", "screenerConfig", "aiTriageConfig"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "profileId": { "type": "string" },
+    "accountRef": { "type": "string" },
+    "displayMode": {
+      "enum": ["hey_style", "superhuman_style", "classic"],
+      "default": "hey_style",
+      "description": "Controls which UX conventions are applied. hey_style=screener+slots prominent. superhuman_style=speed+keyboard+split-inbox. classic=traditional folder/label view."
+    },
+
+    "slotConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["imboxEnabled", "feedEnabled", "paperTrailEnabled"],
+      "properties": {
+        "imboxEnabled": { "type": "boolean", "default": true },
+        "feedEnabled": { "type": "boolean", "default": true },
+        "paperTrailEnabled": { "type": "boolean", "default": true },
+        "feedKeywords": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Keywords/domains that auto-route to Feed",
+          "default": ["newsletter", "unsubscribe", "digest", "weekly", "monthly"]
+        },
+        "paperTrailKeywords": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Keywords that auto-route to Paper Trail",
+          "default": ["receipt", "order confirmation", "invoice", "your order", "booking confirmation", "reservation"]
+        }
+      }
+    },
+
+    "screenerConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": { "type": "boolean", "default": true },
+        "autoAllowContacts": { "type": "boolean", "default": true, "description": "Auto-allow senders already in Contacts" },
+        "autoAllowRepliedTo": { "type": "boolean", "default": true, "description": "Auto-allow senders you've replied to before" },
+        "autoClassifyWithAI": { "type": "boolean", "default": true }
+      }
+    },
+
+    "aiTriageConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "summaryEnabled": { "type": "boolean", "default": true },
+        "replyDraftEnabled": { "type": "boolean", "default": true },
+        "routingSuggestionsEnabled": { "type": "boolean", "default": true },
+        "topicTaggingEnabled": { "type": "boolean", "default": true },
+        "memoryRecallEnabled": { "type": "boolean", "default": true, "description": "Pull memory-mesh context before composing replies" },
+        "modelRef": { "type": "string", "description": "Model/policy ref for AI operations" }
+      }
+    },
+
+    "keyboardShortcutsEnabled": { "type": "boolean", "default": true },
+    "splitInboxLabels": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Superhuman-style split inbox: labels that get their own pinned section",
+      "default": []
+    },
+    "readReceiptsEnabled": { "type": "boolean", "default": false },
+    "snoozeDefaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "laterToday": { "type": "string", "description": "e.g. 18:00" },
+        "tomorrow": { "type": "string", "description": "e.g. 09:00" },
+        "nextWeek": { "type": "string", "description": "e.g. monday 09:00" }
+      }
+    },
+    "policyRefs": { "type": "array", "items": { "type": "string" }, "default": [] }
+  }
+}

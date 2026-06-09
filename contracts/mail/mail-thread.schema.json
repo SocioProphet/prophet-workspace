@@ -1,0 +1,39 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.ai/prophet-workspace/mail/mail-thread.schema.v0.1.json",
+  "title": "MailThread",
+  "description": "Conversation thread. Groups messages by subject+participants. The thread is the primary unit of navigation — labels, snooze, and routing actions apply at thread level unless explicitly per-message.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "threadId", "accountRef", "subject", "participants", "messageCount", "lastMessageAt", "routingState"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "threadId": { "type": "string" },
+    "accountRef": { "type": "string" },
+    "subject": { "type": "string" },
+    "participants": {
+      "type": "array",
+      "items": { "type": "string", "description": "email address or contactRef" },
+      "minItems": 1
+    },
+    "messageCount": { "type": "integer", "minimum": 1 },
+    "unreadCount": { "type": "integer", "minimum": 0, "default": 0 },
+    "lastMessageAt": { "type": "string", "format": "date-time" },
+    "firstMessageAt": { "type": "string", "format": "date-time" },
+    "messageRefs": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "Ordered list of messageId refs"
+    },
+    "routingState": {
+      "enum": ["imbox", "feed", "paper_trail", "set_aside", "reply_later", "snoozed", "archived", "trash", "screener_pending", "screener_blocked"]
+    },
+    "labels": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "isStarred": { "type": "boolean", "default": false },
+    "snoozeUntil": { "type": "string", "format": "date-time" },
+    "remindAt": { "type": "string", "format": "date-time" },
+    "aiSummary": { "type": "string", "description": "AI-generated thread summary (Superhuman-style)" },
+    "workroomRef": { "type": "string" },
+    "notes": { "type": "string", "description": "User notes on the thread (Hey!-style clips/notes)" }
+  }
+}

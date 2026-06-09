@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.ai/prophet-workspace/mail/mail-label.schema.v0.1.json",
+  "title": "MailLabel",
+  "description": "Semantic tag for mail. Labels are not folders — a message can carry many labels. System labels (imbox, feed, paper_trail) are fixed routing slots. User labels are arbitrary. AI-suggested labels are provisional until confirmed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "labelId", "accountRef", "name", "labelClass", "status"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "labelId": { "type": "string" },
+    "accountRef": { "type": "string" },
+    "name": { "type": "string" },
+    "labelClass": {
+      "enum": ["system", "user", "ai_suggested", "workroom", "topic"],
+      "description": "system=built-in routing slot. user=manually created. ai_suggested=provisional AI tag. workroom=linked to a professional workroom. topic=aligned to 22-topic canon."
+    },
+    "status": {
+      "enum": ["PROPOSED", "PROVISIONAL", "GOVERNED", "CANONICAL", "DEPRECATED"]
+    },
+    "color": { "type": "string" },
+    "topicCode": {
+      "type": "string",
+      "description": "If labelClass=topic, the TriTRPC topic code this label aligns to (e.g. 'pol', 'wfl', 'lrn')"
+    },
+    "parentLabelId": { "type": "string", "description": "For nested label hierarchies" },
+    "messageCount": { "type": "integer", "minimum": 0, "default": 0 },
+    "isHidden": { "type": "boolean", "default": false },
+    "createdAt": { "type": "string", "format": "date-time" }
+  }
+}

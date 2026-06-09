@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.ai/prophet-workspace/mail/mail-account-binding.schema.v0.1.json",
+  "title": "MailAccountBinding",
+  "description": "Binds a mail account to a workspace identity. Adapter-agnostic — supports IMAP/SMTP, Google Workspace, Microsoft Exchange, and future backends. Credentials are never stored here; referenced via a secure vault ref.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "accountId", "workspaceUserId", "emailAddress", "adapterType", "syncState"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "accountId": { "type": "string" },
+    "workspaceUserId": { "type": "string" },
+    "displayName": { "type": "string" },
+    "emailAddress": { "type": "string", "format": "email" },
+
+    "adapterType": {
+      "enum": ["imap_smtp", "google_workspace", "microsoft_exchange", "microsoft_365", "custom"],
+      "description": "Transport backend. imap_smtp is the universal fallback."
+    },
+
+    "imapConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "host": { "type": "string" },
+        "port": { "type": "integer" },
+        "tls": { "type": "boolean", "default": true },
+        "credentialVaultRef": { "type": "string" }
+      }
+    },
+    "smtpConfig": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "host": { "type": "string" },
+        "port": { "type": "integer" },
+        "tls": { "type": "boolean", "default": true },
+        "credentialVaultRef": { "type": "string" }
+      }
+    },
+    "oauthRef": { "type": "string", "description": "OAuth token vault ref for Google/Microsoft adapters" },
+
+    "syncState": {
+      "enum": ["active", "paused", "error", "pending_auth", "disconnected"]
+    },
+    "lastSyncAt": { "type": "string", "format": "date-time" },
+    "syncErrorMessage": { "type": "string" },
+
+    "inboxProfile": { "type": "string", "description": "Ref to MailInboxProfile for this account" },
+    "isPrimary": { "type": "boolean", "default": false },
+    "alias": { "type": "boolean", "default": false, "description": "True if this is a send-as alias, not a full inbox" },
+    "policyRefs": { "type": "array", "items": { "type": "string" }, "default": [] }
+  }
+}
