@@ -71,6 +71,7 @@
 
     "createdAt": { "type": "string", "format": "date-time" },
     "updatedAt": { "type": "string", "format": "date-time" },
+    "blockingTaskRefs": { "type": "array", "items": { "type": "string" }, "default": [], "description": "Task IDs that this task must be completed before" },
     "policyRefs": { "type": "array", "items": { "type": "string" }, "default": [] },
     "evidenceRefs": { "type": "array", "items": { "type": "string" }, "default": [] }
   }
