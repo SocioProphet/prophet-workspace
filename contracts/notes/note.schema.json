@@ -69,6 +69,7 @@
     "eventRef": { "type": "string", "description": "Calendar event if noteType=meeting_notes" },
     "mailThreadRefs": { "type": "array", "items": { "type": "string" }, "default": [] },
     "taskRefs": { "type": "array", "items": { "type": "string" }, "default": [] },
+    "noteRefs": { "type": "array", "items": { "type": "string" }, "default": [], "description": "Links to other notes (WikiLink-resolved backlink graph)" },
     "workroomRef": { "type": "string" },
     "driveFileRef": { "type": "string", "description": "If synced to Drive as a doc" },
 
