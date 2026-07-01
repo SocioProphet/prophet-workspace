@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.io/schemas/workspace/context-fabric/personal-context-graph.schema.json",
+  "title": "PersonalContextGraph",
+  "description": "The default graph structure for a person — the ego-scoped view of the CSKG. A ContextGraph anchored on the individual (selfRef) rather than a workroom: the seed the Memory Steward builds over. Nodes/edges are CSKG entities referenced by id (edges are CSKGEdge {node1,relation,node2,provenance_refs,source_evidence_refs}); sourceRefs are WorkspaceSource sourceIds (Layer-1 canonical objects) so every element is provenance-bound; external-KG links are reference-only and cross the membrane ONLY as ProviderProjection (nothing private egresses). Contract lives here (contract-first); the runtime that ingests WorkspaceSource objects and writes HellGraph lives in memory-mesh; deployment (managed HellGraph service) lives in prophet-platform.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "personalContextGraphId", "selfRef", "subjectScope", "title", "status", "nodeRefs", "edgeRefs", "sourceRefs", "externalProjectionRefs", "policyRefs", "evidenceRefs", "receiptRefs"],
+  "properties": {
+    "schemaVersion": { "const": "v0.1" },
+    "personalContextGraphId": { "type": "string" },
+    "selfRef": { "type": "string", "description": "The Self anchor node — the individual this graph is centered on. Exactly one per graph (the single-Self invariant)." },
+    "subjectScope": { "const": "person", "description": "Person-scoped (ego graph), as opposed to a workroom-bound ContextGraph." },
+    "title": { "type": "string" },
+    "status": { "type": "string", "enum": ["draft", "active", "review", "sealed", "archived"] },
+    "nodeRefs": { "type": "array", "items": { "type": "string" }, "description": "CSKG node ids in this person-graph (typed by nodeTypeVocabulary; contacts carry csKgNodeRef here)." },
+    "edgeRefs": { "type": "array", "items": { "type": "string" }, "description": "CSKGEdge ids (relation typed by relationVocabulary)." },
+    "sourceRefs": { "type": "array", "items": { "type": "string", "pattern": "^workspace-source:" }, "description": "WorkspaceSource sourceIds — the Layer-1 canonical objects the nodes/edges were derived from. Retention/deletion of a source retracts its derived elements." },
+    "externalProjectionRefs": { "type": "array", "items": { "type": "string" }, "description": "ProviderProjection ids — the ONLY way external-KG links cross the membrane (reference-only; included/withheld governed by the projection). Never a data copy." },
+    "policyRefs": { "type": "array", "items": { "type": "string" } },
+    "evidenceRefs": { "type": "array", "items": { "type": "string" } },
+    "receiptRefs": { "type": "array", "items": { "type": "string" } },
+    "memoryScope": { "type": "string", "description": "The memory-scope this graph is governed under (e.g. relationship_context:approved). Owned by the memory-steward.", "default": "relationship_context:approved" },
+    "nodeTypeVocabulary": {
+      "type": "array",
+      "description": "The entity classes a person is built from (the seed vocabulary).",
+      "items": { "enum": ["Self", "Person", "Place", "Organization", "Thing", "Interest", "Event", "Document", "Communication", "Account"] }
+    },
+    "relationVocabulary": {
+      "type": "array",
+      "description": "The typed relations inside the person-graph (CSKGEdge.relation values).",
+      "items": { "enum": ["relatedTo", "knows", "homeTown", "residesIn", "attended", "worksAt", "memberOf", "providerFor", "owns", "uses", "interestedIn", "skilledIn", "participatedIn", "authored", "communicatedWith", "hasAccount"] }
+    },
+    "labels": { "type": "object", "additionalProperties": { "type": "string" } }
+  }
+}
