@@ -1,0 +1,57 @@
+{
+  "personalContextGraph": {
+    "schemaVersion": "v0.1",
+    "personalContextGraphId": "pkg-demo-0001",
+    "selfRef": "cskg-node://self/demo-user",
+    "subjectScope": "person",
+    "title": "Personal knowledge graph — demo user",
+    "status": "active",
+    "nodeRefs": [
+      "cskg-node://self/demo-user",
+      "cskg-node://person/mom",
+      "cskg-node://person/jamie",
+      "cskg-node://organization/acme-music",
+      "cskg-node://event/band-practice",
+      "cskg-node://document/setlist"
+    ],
+    "edgeRefs": [
+      "cskg-edge://relatedTo/self-mom",
+      "cskg-edge://knows/self-jamie",
+      "cskg-edge://worksAt/jamie-acme",
+      "cskg-edge://participatedIn/self-practice",
+      "cskg-edge://communicatedWith/self-jamie",
+      "cskg-edge://authored/self-setlist"
+    ],
+    "sourceRefs": [
+      "workspace-source:contacts/mom",
+      "workspace-source:contacts/jamie",
+      "workspace-source:calendar/band-practice",
+      "workspace-source:mail/jamie-setlist-thread",
+      "workspace-source:docs/setlist"
+    ],
+    "externalProjectionRefs": ["projection-social-jamie-0001"],
+    "policyRefs": ["policy-decision://memory-scope/relationship-context/decision-0001"],
+    "evidenceRefs": ["evidence://personal-context-graph/demo-0001"],
+    "receiptRefs": ["receipt://personal-context-graph/demo-0001"],
+    "memoryScope": "relationship_context:approved",
+    "nodeTypeVocabulary": ["Self", "Person", "Organization", "Event", "Document"],
+    "relationVocabulary": ["relatedTo", "knows", "worksAt", "participatedIn", "communicatedWith", "authored"]
+  },
+  "externalProjection": {
+    "schemaVersion": "v0.1",
+    "projectionId": "projection-social-jamie-0001",
+    "workroomId": "person:demo-user",
+    "contextGraphId": "pkg-demo-0001",
+    "targetProvider": "social_network",
+    "purpose": "entity-resolution-reference-only",
+    "includedNodeRefs": ["cskg-node://person/jamie"],
+    "withheldRefs": [
+      { "ref": "cskg-node://person/mom", "reason": "private-relationship; never egresses" }
+    ],
+    "redactionRefs": [],
+    "policyRefs": ["policy-decision://memory-scope/relationship-context/decision-0001"],
+    "membraneDecisionRef": "membrane://personal-context-graph/projection-social-jamie-0001",
+    "evidenceRefs": ["evidence://personal-context-graph/projection/demo-0001"],
+    "receiptRefs": ["receipt://personal-context-graph/projection/demo-0001"]
+  }
+}
