@@ -71,5 +71,12 @@
   "labels": {
     "program": "professional-intelligence-os",
     "gate": "gate-3"
+  },
+  "captureCadence": {
+    "cadenceRef": "urn:srcos:capture-cadence:standard-8wk",
+    "currentWeek": 4,
+    "minReadiness": 0.5,
+    "nextReviewAt": "2026-07-11T13:00:00Z",
+    "readinessScoreRef": "urn:srcos:readiness-score:pi-demo-0001"
   }
 }
