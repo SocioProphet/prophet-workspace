@@ -39,9 +39,11 @@ import argparse
 import hashlib
 import json
 import os
+import re
 import subprocess
 import sys
 import time
+import urllib.parse
 import uuid
 from pathlib import Path
 from typing import Any
@@ -157,6 +159,91 @@ def file_sha256(p: Path) -> str:
     return "sha256:" + h.hexdigest()
 
 
+# ── the glob-metacharacter hole (in the LISTING, not the upload) ─────────────────
+# `gcloud storage` cannot ADDRESS object names containing [ ] * or ?, because it expands them
+# as glob patterns. Concretely, for a bucket that genuinely contains `a[x]b/f.txt`:
+#
+#   gcloud storage ls --recursive <prefix>   enumerates `a[x]b/:` as a directory and then
+#                                            lists NOTHING inside it
+#   gcloud storage cat <prefix>/a[x]b/f.txt  "matched no objects or files"
+#   gcloud storage cp  ... 'dest/[id]/x'     "Destination contains an unexpected wildcard"
+#
+# The UPLOAD is fine: `rsync` copies these paths correctly. An earlier revision of this comment
+# claimed rsync silently skipped them and called it silent data loss. That was WRONG, and wrong
+# in the direction that matters — it was inferred from `gcloud storage ls` output, using the very
+# tool that cannot see these objects as the evidence that they were absent. The authoritative
+# JSON API listing shows all of them present.
+#
+# The real defect is a FALSE GAP in verify: archiving ~/Desktop/Investigation, every "missing"
+# object was a Next.js/Medusa dynamic-route directory (`products/[id]/`, `[order_id]/`) that had
+# in fact uploaded. verify reported Gap and refused to reap a complete collection.
+#
+# Note which way that fails. It refuses to delete when it should have deleted — safe, and the
+# right direction — but it is still a wrong answer, and the tempting "fix" of loosening the
+# presence check would have destroyed the one guarantee this tool exists to provide. So the fix
+# goes where the fault is: verify lists through the JSON API, where the object name is a literal
+# URL-encoded value, and reads glob-bearing objects the same way.
+GLOB_META = re.compile(r"[\[\]*?]")
+
+
+def has_glob_meta(rel_path: str) -> bool:
+    return bool(GLOB_META.search(rel_path))
+
+
+def _access_token() -> str:
+    r = subprocess.run(["gcloud", "auth", "print-access-token"], capture_output=True, text=True)
+    if r.returncode != 0:
+        sys.exit(f"cannot obtain an access token for the JSON API:\n{r.stderr}")
+    return r.stdout.strip()
+
+
+def list_remote(bucket: str, prefix: str) -> set[str]:
+    """Authoritative recursive listing, relative to `prefix`, via the JSON API.
+
+    Replaces `gcloud storage ls --recursive`, which cannot see objects whose names contain
+    glob metacharacters and therefore under-reports. Paginated — a 6.8 GiB collection runs to
+    tens of thousands of objects and the API caps each page.
+    """
+    token = _access_token()
+    out: set[str] = set()
+    page: str | None = None
+    while True:
+        url = (f"https://storage.googleapis.com/storage/v1/b/{bucket}/o"
+               f"?prefix={urllib.parse.quote(prefix + '/', safe='')}"
+               f"&fields=items(name),nextPageToken&maxResults=1000")
+        if page:
+            url += f"&pageToken={urllib.parse.quote(page, safe='')}"
+        r = subprocess.run(["curl", "-s", "-H", f"Authorization: Bearer {token}", url],
+                           capture_output=True, text=True)
+        if r.returncode != 0:
+            sys.exit(f"remote listing failed: {r.stderr}")
+        try:
+            d = json.loads(r.stdout)
+        except json.JSONDecodeError:
+            sys.exit(f"remote listing returned non-JSON: {r.stdout[:300]}")
+        if "error" in d:
+            sys.exit(f"remote listing error: {d['error'].get('message', d['error'])}")
+        for it in d.get("items", []):
+            name = it["name"]
+            if name.startswith(prefix + "/"):
+                out.add(name[len(prefix) + 1:])
+        page = d.get("nextPageToken")
+        if not page:
+            return out
+
+
+def read_remote(bucket: str, object_name: str, token: str) -> bytes | None:
+    """Fetch one object's bytes via the JSON API. Used for every sampled object, not only the
+    glob-bearing ones, so the content check does not depend on which tool can address a name."""
+    enc = urllib.parse.quote(object_name, safe="")
+    r = subprocess.run(
+        ["curl", "-s", "--fail", "-H", f"Authorization: Bearer {token}",
+         f"https://storage.googleapis.com/storage/v1/b/{bucket}/o/{enc}?alt=media"],
+        capture_output=True,
+    )
+    return r.stdout if r.returncode == 0 else None
+
+
 def manifest_path(collection: str) -> Path:
     return STATE / (collection.replace("/", "__") + ".json")
 
@@ -224,6 +311,10 @@ def cmd_plan(args: argparse.Namespace) -> int:
     print(f"    digest  {man['collectionDigest']}")
     if skipped:
         print(f"    skipped {len(skipped)} (symlinks/unreadable) — not ingested, not reaped")
+    globbed = sum(1 for f in files if has_glob_meta(f["path"]))
+    if globbed:
+        print(f"    globby {globbed:,} path(s) with [ ] * or ? — gcloud cannot ADDRESS these;")
+        print(f"           they upload fine, and verify lists via the JSON API so they are seen")
     emit_custody(args.collection, "Intake", "PendingVerification", None, "Discovery",
                  digest=man["collectionDigest"], note=f"{len(files)} files, {total} bytes enumerated and hashed locally")
     print(f"    → {manifest_path(args.collection)}")
@@ -258,17 +349,7 @@ def cmd_push(args: argparse.Namespace) -> int:
 def cmd_verify(args: argparse.Namespace) -> int:
     man = load_manifest(args.collection)
     dest = f"gs://{man['bucket']}/{man['prefix']}"
-    r = subprocess.run(
-        ["gcloud", "storage", "ls", "--recursive", dest], capture_output=True, text=True
-    )
-    if r.returncode != 0:
-        sys.exit(f"remote listing failed:\n{r.stderr}")
-
-    remote = {
-        line.strip()[len(dest) + 1 :]
-        for line in r.stdout.splitlines()
-        if line.strip().startswith(dest) and not line.strip().endswith("/")
-    }
+    remote = list_remote(man["bucket"], man["prefix"])
     remote.discard("_manifest.json")
     local = {f["path"] for f in man["files"]}
 
@@ -295,14 +376,13 @@ def cmd_verify(args: argparse.Namespace) -> int:
     # bytes match. Re-hash a sample of remote objects against the manifest.
     sample = man["files"][:: max(1, len(man["files"]) // 8)][:8]
     bad: list[str] = []
+    token = _access_token()
     for f in sample:
-        got = subprocess.run(
-            ["gcloud", "storage", "cat", f"{dest}/{f['path']}"], capture_output=True
-        )
-        if got.returncode != 0:
+        body = read_remote(man["bucket"], f"{man['prefix']}/{f['path']}", token)
+        if body is None:
             bad.append(f"{f['path']} (unreadable)")
             continue
-        h = "sha256:" + hashlib.sha256(got.stdout).hexdigest()
+        h = "sha256:" + hashlib.sha256(body).hexdigest()
         if h != f["sha256"]:
             bad.append(f"{f['path']} (hash mismatch)")
     if bad:
