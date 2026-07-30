@@ -207,7 +207,15 @@ def list_remote(bucket: str, prefix: str) -> set[str]:
     token = _access_token()
     out: set[str] = set()
     page: str | None = None
+    pages = 0
     while True:
+        # Access tokens expire in about an hour. A large collection paginates for a long time, so
+        # refresh periodically rather than discovering the expiry as a mid-listing 401 that would
+        # look like a Gap — i.e. as a false integrity failure, the exact fault this listing
+        # replaced.
+        pages += 1
+        if pages % 50 == 0:
+            token = _access_token()
         url = (f"https://storage.googleapis.com/storage/v1/b/{bucket}/o"
                f"?prefix={urllib.parse.quote(prefix + '/', safe='')}"
                f"&fields=items(name),nextPageToken&maxResults=1000")
@@ -448,12 +456,26 @@ def cmd_reap(args: argparse.Namespace) -> int:
     root = Path(man["sourceRoot"])
     freed = 0
     gone = 0
+    changed: list[str] = []
     for f in man["files"]:
         p = root / f["path"]
-        if p.exists():
-            freed += f["size"]
-            p.unlink()
-            gone += 1
+        if not p.exists():
+            continue
+        # Re-check SIZE against the manifest before deleting. The manifest is a snapshot from
+        # `plan`; a file modified between plan and reap would be deleted here while the bucket
+        # holds the bytes as they were at push time. Size is cheap and catches truncation,
+        # rewriting and growth — and unlike a full re-hash it is affordable on 82,529 files.
+        # A mismatch means the local copy is NOT the copy that was verified, so it is kept.
+        try:
+            actual = p.stat().st_size
+        except OSError:
+            continue
+        if actual != f["size"]:
+            changed.append(f"{f['path']} (manifest {f['size']}, now {actual})")
+            continue
+        freed += f["size"]
+        p.unlink()
+        gone += 1
     # Remove now-empty directories, deepest first. Never removes the root itself.
     for d in sorted((p for p in root.rglob("*") if p.is_dir()), key=lambda x: -len(x.parts)):
         try:
@@ -464,6 +486,12 @@ def cmd_reap(args: argparse.Namespace) -> int:
                  digest=man["collectionDigest"],
                  note=f"{gone} local files retired, {freed} bytes freed; bucket copy is now authoritative")
     print(f"  reaped {gone:,} files, freed {freed/1024**3:.2f} GiB from {root}")
+    if changed:
+        print(f"    ⚠️  KEPT {len(changed)} file(s) whose size no longer matches the manifest —")
+        print(f"        modified after `plan`, so the local copy is not the copy that was verified")
+        for c in changed[:10]:
+            print(f"          {c}")
+        print(f"        re-run plan/push/verify for these before reaping again")
     print(f"    custody: Landing → Governed (Retirement)")
     if man["skipped"]:
         print(f"    kept {len(man['skipped'])} skipped (never ingested)")
