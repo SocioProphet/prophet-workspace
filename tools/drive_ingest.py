@@ -190,6 +190,19 @@ def has_glob_meta(rel_path: str) -> bool:
     return bool(GLOB_META.search(rel_path))
 
 
+def _curl(token: str, url: str) -> subprocess.CompletedProcess[bytes]:
+    """curl with the bearer token on STDIN, never in argv.
+
+    `curl -H "Authorization: Bearer <token>"` puts the credential in the process table, where
+    any local user can read it out of `ps`. `--config -` takes the same directives on stdin, so
+    the token is never an argument. The URL goes in the config too, which incidentally removes
+    any question of shell metacharacters in an object name reaching a command line.
+    """
+    cfg = f'header = "Authorization: Bearer {token}"\nurl = "{url}"\n'
+    return subprocess.run(["curl", "-s", "--fail", "--config", "-"],
+                          input=cfg.encode(), capture_output=True)
+
+
 def _access_token() -> str:
     r = subprocess.run(["gcloud", "auth", "print-access-token"], capture_output=True, text=True)
     if r.returncode != 0:
@@ -221,14 +234,13 @@ def list_remote(bucket: str, prefix: str) -> set[str]:
                f"&fields=items(name),nextPageToken&maxResults=1000")
         if page:
             url += f"&pageToken={urllib.parse.quote(page, safe='')}"
-        r = subprocess.run(["curl", "-s", "-H", f"Authorization: Bearer {token}", url],
-                           capture_output=True, text=True)
+        r = _curl(token, url)
         if r.returncode != 0:
-            sys.exit(f"remote listing failed: {r.stderr}")
+            sys.exit(f"remote listing failed: {r.stderr.decode(errors='replace')}")
         try:
-            d = json.loads(r.stdout)
-        except json.JSONDecodeError:
-            sys.exit(f"remote listing returned non-JSON: {r.stdout[:300]}")
+            d = json.loads(r.stdout.decode())
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            sys.exit(f"remote listing returned non-JSON: {r.stdout[:300]!r}")
         if "error" in d:
             sys.exit(f"remote listing error: {d['error'].get('message', d['error'])}")
         for it in d.get("items", []):
@@ -244,11 +256,7 @@ def read_remote(bucket: str, object_name: str, token: str) -> bytes | None:
     """Fetch one object's bytes via the JSON API. Used for every sampled object, not only the
     glob-bearing ones, so the content check does not depend on which tool can address a name."""
     enc = urllib.parse.quote(object_name, safe="")
-    r = subprocess.run(
-        ["curl", "-s", "--fail", "-H", f"Authorization: Bearer {token}",
-         f"https://storage.googleapis.com/storage/v1/b/{bucket}/o/{enc}?alt=media"],
-        capture_output=True,
-    )
+    r = _curl(token, f"https://storage.googleapis.com/storage/v1/b/{bucket}/o/{enc}?alt=media")
     return r.stdout if r.returncode == 0 else None
 
 
