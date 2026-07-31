@@ -1,0 +1,13 @@
+# Example (placeholder) Synapse OIDC config for Supabase-first identity.
+# Replace values with your deployment values.
+
+oidc_providers:
+  - idp_id: "supabase"
+    idp_name: "Supabase"
+    issuer: "https://<YOUR-SUPABASE-AUTH-DOMAIN>"
+    client_id: "<OIDC_CLIENT_ID>"
+    client_secret: "<OIDC_CLIENT_SECRET>"
+    scopes: ["openid","profile","email"]
+    user_mapping_provider:
+      config:
+        localpart_template: "u_{{ user.sub }}"
