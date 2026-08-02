@@ -37,8 +37,8 @@
       "properties": {
         "agentId": {"type": "string", "minLength": 1},
         "declaredExtent": {"type": "string", "minLength": 1},
-        "mountAuthority": {"enum": ["none", "read", "widen"]},
-        "operation": {"enum": ["publish", "mount", "restrict"]},
+        "mountAuthority": {"const": "none", "description": "WS-5: the SP-File Naming agent has zero mount authority."},
+        "operation": {"const": "publish", "description": "Filing is a publish (f_!); mounting/restricting is not a filing decision."},
         "inputArtifactId": {"type": "string", "minLength": 1},
         "canonicalName": {"type": "string", "minLength": 1},
         "targetPath": {"type": "string", "minLength": 1},

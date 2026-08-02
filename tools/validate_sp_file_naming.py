@@ -18,9 +18,13 @@ keys fail closed here, not only against the JSON Schema.
 from __future__ import annotations
 
 import json
+import re
 import sys
+from datetime import datetime
 from pathlib import Path
 from typing import Any
+
+DIGEST_RE = re.compile(r"^sha256:[a-fA-F0-9]{64}$")
 
 ROOT = Path(__file__).resolve().parents[1]
 SCHEMA = ROOT / "schemas/sp-file-naming-decision.schema.json"
@@ -91,7 +95,17 @@ def validate_decision(record: Any) -> None:
         fail("metadata must be an object")
     no_extra(meta, META_KEYS, "metadata")
     need_str(meta, "decisionId")
-    need_str(meta, "createdAt")
+    created = need_str(meta, "createdAt")
+    try:
+        datetime.fromisoformat(created.replace("Z", "+00:00"))
+    except ValueError:
+        fail("metadata.createdAt must be an RFC3339/ISO-8601 date-time")
+    labels = meta.get("labels")
+    if labels is not None:
+        if not isinstance(labels, dict) or not all(
+            isinstance(k, str) and isinstance(v, str) for k, v in labels.items()
+        ):
+            fail("metadata.labels must be an object of string->string")
 
     spec = record.get("spec")
     if not isinstance(spec, dict):
@@ -123,14 +137,42 @@ def validate_decision(record: Any) -> None:
         fail("proofArtifact must be an object")
     no_extra(proof, PROOF_KEYS, "proofArtifact")
     digest = need_str(proof, "outputDigest")
-    if not (digest.startswith("sha256:") and len(digest) == len("sha256:") + 64):
-        fail("proofArtifact.outputDigest must be a sha256 digest")
+    if not DIGEST_RE.fullmatch(digest):
+        fail("proofArtifact.outputDigest must match ^sha256:[a-fA-F0-9]{64}$")
     need_str(proof, "publicationRef")
+    if "inclusionRecord" in proof and not isinstance(proof["inclusionRecord"], str):
+        fail("proofArtifact.inclusionRecord must be a string when present")
+
+
+def validate_schema(schema: Any) -> None:
+    """Exercise the published schema and assert it stays in lockstep with this
+    validator's invariants, so the two cannot silently drift (dependency-light:
+    no jsonschema library, matching this repo's convention)."""
+    if not isinstance(schema, dict):
+        fail("schema must be an object")
+    if schema.get("$schema") != "https://json-schema.org/draft/2020-12/schema":
+        fail("schema must use JSON Schema draft 2020-12")
+    if schema.get("additionalProperties") is not False:
+        fail("schema root must be strict (additionalProperties:false)")
+    props = schema.get("properties", {})
+    if props.get("kind", {}).get("const") != "SpFileNamingDecision":
+        fail("schema kind const mismatch")
+    spec = props.get("spec", {})
+    if spec.get("additionalProperties") is not False:
+        fail("schema spec must be strict")
+    if set(spec.get("required", [])) != SPEC_KEYS:
+        fail("schema spec.required drifted from validator SPEC_KEYS")
+    spec_props = spec.get("properties", {})
+    # The invariants must be encoded in the schema itself (const), not only here.
+    if spec_props.get("mountAuthority", {}).get("const") != "none":
+        fail("schema must pin mountAuthority const 'none' (WS-5)")
+    if spec_props.get("operation", {}).get("const") != "publish":
+        fail("schema must pin operation const 'publish' (f_!)")
 
 
 def main() -> int:
     try:
-        load(SCHEMA)  # must be valid JSON
+        validate_schema(load(SCHEMA))  # schema is exercised, not just parsed
         validate_decision(load(EXAMPLE))  # canonical example must pass
         for path in INVALID:
             try:
