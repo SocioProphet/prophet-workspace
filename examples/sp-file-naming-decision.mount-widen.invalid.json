@@ -1,0 +1,23 @@
+{
+  "apiVersion": "workspace.socioprophet.dev/v1",
+  "kind": "SpFileNamingDecision",
+  "metadata": {
+    "decisionId": "sp-file-naming:2026-08-02-0002",
+    "createdAt": "2026-08-02T18:31:00Z"
+  },
+  "spec": {
+    "agentId": "agent://prophet-workspace/sp-file-naming@v1",
+    "declaredExtent": "extent://filing/SOCIOPROPHET",
+    "mountAuthority": "widen",
+    "operation": "publish",
+    "inputArtifactId": "workspace-artifact:docs/untitled-draft-2026-08-02",
+    "canonicalName": "2026-08-02_note_v1.md",
+    "targetPath": "SOCIOPROPHET/architecture/decision-records",
+    "proofArtifact": {
+      "outputDigest": "sha256:5555555555555555555555555555555555555555555555555555555555555555",
+      "publicationRef": "workspace://drive/SOCIOPROPHET/x.md"
+    },
+    "policyRef": "policy://workspace/sp-file-naming",
+    "evidenceCorrelationId": "sp-file-naming:2026-08-02-0002"
+  }
+}

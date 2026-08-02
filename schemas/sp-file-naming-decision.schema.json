@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.dev/prophet-workspace/sp-file-naming-decision.v1.schema.json",
+  "title": "SpFileNamingDecision v1",
+  "description": "A4-30 (SP-ARCH-004 §8): the SP-File Naming agent is the reference implementation of the workspace-as-star-machine. It has a narrow declared extent and ZERO mount authority (WS-5); filing an artifact is a publish (f_!) through the policy gate that yields a ProofArtifact digest. The naming decision itself is a checkable artifact.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "apiVersion": {"const": "workspace.socioprophet.dev/v1"},
+    "kind": {"const": "SpFileNamingDecision"},
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decisionId", "createdAt"],
+      "properties": {
+        "decisionId": {"type": "string", "minLength": 1},
+        "createdAt": {"type": "string", "format": "date-time"},
+        "labels": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "agentId",
+        "declaredExtent",
+        "mountAuthority",
+        "operation",
+        "inputArtifactId",
+        "canonicalName",
+        "targetPath",
+        "proofArtifact",
+        "policyRef",
+        "evidenceCorrelationId"
+      ],
+      "properties": {
+        "agentId": {"type": "string", "minLength": 1},
+        "declaredExtent": {"type": "string", "minLength": 1},
+        "mountAuthority": {"enum": ["none", "read", "widen"]},
+        "operation": {"enum": ["publish", "mount", "restrict"]},
+        "inputArtifactId": {"type": "string", "minLength": 1},
+        "canonicalName": {"type": "string", "minLength": 1},
+        "targetPath": {"type": "string", "minLength": 1},
+        "proofArtifact": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["outputDigest", "publicationRef"],
+          "properties": {
+            "outputDigest": {"type": "string", "pattern": "^sha256:[a-fA-F0-9]{64}$"},
+            "publicationRef": {"type": "string", "minLength": 1},
+            "inclusionRecord": {"type": "string"}
+          }
+        },
+        "policyRef": {"type": "string", "minLength": 1},
+        "evidenceCorrelationId": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}
