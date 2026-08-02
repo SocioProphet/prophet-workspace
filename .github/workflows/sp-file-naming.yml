@@ -1,0 +1,37 @@
+name: SP-File Naming
+
+on:
+  pull_request:
+    paths:
+      - 'schemas/sp-file-naming-decision.schema.json'
+      - 'examples/sp-file-naming-decision.example.json'
+      - 'examples/sp-file-naming-decision.*.invalid.json'
+      - 'tools/validate_sp_file_naming.py'
+      - '.github/workflows/sp-file-naming.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'schemas/sp-file-naming-decision.schema.json'
+      - 'examples/sp-file-naming-decision.example.json'
+      - 'examples/sp-file-naming-decision.*.invalid.json'
+      - 'tools/validate_sp_file_naming.py'
+      - '.github/workflows/sp-file-naming.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-sp-file-naming:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Validate SP-File Naming decision contract
+        run: python3 tools/validate_sp_file_naming.py
