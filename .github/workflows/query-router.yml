@@ -45,55 +45,33 @@ jobs:
         working-directory: tools/query-router
         run: python3 tests/conformance_test.py
 
-  # Gates the WIRED graph→vector selective route (#81). Unlike router-tests, this consumes the REAL
-  # agentplane fibered descend-abstain gate (fiber_retrieval), which lives in a SIBLING repo — so the
-  # job checks out agentplane and points AGENTPLANE_TOOLS at it (consume-not-fork: the real module,
-  # never a vendored copy). Cross-repo checkout of the private agentplane repo needs a read token; the
-  # provisioning of ESTATE_CHECKOUT_TOKEN + turning this gate green is tracked as a runtime task.
+  # Gates the WIRED graph→vector selective route (#81). It consumes the REAL agentplane fibered
+  # descend-abstain gate (fiber_retrieval) — but as a SHA-256-pinned VENDORED copy under
+  # tools/query-router/vendor/agentplane (consume-not-fork: a byte-identical snapshot at a recorded
+  # commit, kept honest by the consume-guard). So the full teeth run WITHOUT a cross-repo checkout and
+  # WITHOUT ESTATE_CHECKOUT_TOKEN — the token requirement of #96 is retired (live-binding + sherlock-
+  # scout wiring remain tracked there). The consume-guard runs FIRST as a gate: if the
+  # vendored copy ever drifts from its recorded digest, this job fails closed before the teeth run.
   selective-route-tests:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout prophet-workspace
         uses: actions/checkout@v4
 
-      # Cross-repo integration test needs the sibling agentplane repo (the real
-      # fiber_retrieval, consume-not-fork). Until ESTATE_CHECKOUT_TOKEN is provisioned
-      # (tracked in #96) the checkout cannot run, so guard-skip cleanly (green + loud
-      # notice) rather than hard-fail and block the PR. The 19/19 teeth run locally and
-      # will run here the moment the token exists. Optional-until-provisioned, flagged.
-      - name: Guard on cross-repo token
-        id: guard
-        env:
-          TOK: ${{ secrets.ESTATE_CHECKOUT_TOKEN }}
-        run: |
-          if [ -z "$TOK" ]; then
-            echo "skip=true" >> "$GITHUB_OUTPUT"
-            echo "::notice::selective-route cross-repo test SKIPPED — ESTATE_CHECKOUT_TOKEN not provisioned (see #96); local teeth are the merged-in proof."
-          else
-            echo "skip=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Checkout agentplane (the real fiber_retrieval, consume-not-fork)
-        if: steps.guard.outputs.skip != 'true'
-        uses: actions/checkout@v4
-        with:
-          repository: SocioProphet/agentplane
-          path: _agentplane
-          token: ${{ secrets.ESTATE_CHECKOUT_TOKEN }}
-
       - name: Set up Python
-        if: steps.guard.outputs.skip != 'true'
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
 
+      # GATE: the vendored agentplane copy must match its SHA-256 pin in vendor/VENDOR.md (source-os#317
+      # drift guard). Runs before the teeth so silent drift of the consumed gate is caught first.
+      - name: Vendor consume-guard (SHA-256 drift gate on vendor/agentplane)
+        working-directory: tools/query-router
+        run: python3 tests/vendor_consume_guard.py
+
       - name: Install spine advisory dep
-        if: steps.guard.outputs.skip != 'true'
         run: python3 -m pip install blake3  # proof-artifact-spine imports blake3 (advisory, non-FIPS)
 
       - name: Selective route conformance (graph→vector fuse, descend-abstain gate, teeth both ways)
-        if: steps.guard.outputs.skip != 'true'
         working-directory: tools/query-router
-        env:
-          AGENTPLANE_TOOLS: ${{ github.workspace }}/_agentplane/tools
         run: python3 tests/selective_route_conformance.py

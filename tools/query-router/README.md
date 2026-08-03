@@ -84,7 +84,11 @@ stubs here), and binding the real sovereign embedder behind `PinnedSpace` are tr
 RAG conformance audit (issues filed under the ADR-0001 WO register). `sherlock-scout` (WO-D), which
 today hard-codes the graph path, is the intended first consumer of `Route.Decide` / `selective_route`.
 
-For the selective route specifically (#81): binding the live HellGraph graph retriever and the live
-vector store behind the `GraphRetriever` / `VectorRetriever` seams, and provisioning
-`ESTATE_CHECKOUT_TOKEN` so CI can check out the sibling `agentplane` repo and turn the
-`selective-route-tests` gate green, are the tracked runtime tasks — no live/shared-state writes here.
+For the selective route specifically (#81): the `selective-route-tests` gate now runs the full teeth in
+CI against a **SHA-256-pinned vendored copy** of the `agentplane` fibered descend-abstain gate
+(`vendor/agentplane/`, consume-not-fork; see `vendor/VENDOR.md` and the `vendor_consume_guard.py` drift
+gate). No `ESTATE_CHECKOUT_TOKEN`, no cross-repo checkout, no guard-skip — the token requirement of #96
+is retired. A live `agentplane` checkout still wins at runtime via `$AGENTPLANE_TOOLS`; the vendored
+copy is the fallback. **Still tracked under #96:** binding the live HellGraph graph retriever and the
+live vector store behind the `GraphRetriever` / `VectorRetriever` seams, and wiring `sherlock-scout`
+(WO-D) as the first `Route.Decide` consumer — no live/shared-state writes here.
