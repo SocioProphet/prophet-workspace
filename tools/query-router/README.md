@@ -25,6 +25,7 @@ graph→vector semantic route at all. This module provides the first owned, CI-g
 | File | Role |
 |---|---|
 | `router.py` | `LogicalRouter` (signal-rule v0.1, LLM seam) + `SemanticRouter` (cosine-to-exemplar in a pinned space) + `apply_fallback` (the Graph DB → Vector DB edge) + `emit_route_decision` (hash-chained on the shared spine) + `construct_query` (validates the graph handoff against WO-A). |
+| `selective_route.py` | Query-driven graph→vector **selective fuse** on the REAL fibered descend-abstain gate (`fiber_retrieval`, first real importer). Graph-confident ⇒ graph only; miss ⇒ vector; weak+hit ⇒ fuse; both-miss ⇒ explicit abstain. Every outcome emits a `RouteDecision`. (#81) |
 | `embedding.py` | `PinnedSpace` + `FixtureEmbedder` — the #602 embedding-space discipline as an enforceable contract (query-by-vector; foreign-dimension vectors are rejected, not silently cosine-missed). |
 | `tests/conformance_test.py` | Teeth both ways. Run: `python3 tests/conformance_test.py`. |
 | `route_decision.proto` | triRPC IDL for the `Route.Decide` verb (fronts `Graph.QueryCypher`). |
@@ -41,6 +42,31 @@ graph→vector semantic route at all. This module provides the first owned, CI-g
   the route falls back along the declared edge and records it on the decision; no usable edge ⇒
   `route-unavailable` (fail-closed).
 
+## Selective graph→vector cross-source route (`selective_route.py`, #81)
+
+`router.py`'s `apply_fallback` fires only when the graph backend is *administratively unavailable*.
+`selective_route.py` makes the graph→vector edge **query-driven** and turns it into a selective **fuse**:
+
+1. attempt GRAPH retrieval over the WO-A `cypher-atomspace-gateway` path (the Cypher is validated by the
+   real `cypher_subset.parse` before it is handed to the injected graph retriever);
+2. decide advance-vs-fall with the REAL fibered **descend-abstain** conformal gate — this module is the
+   **first real importer** of `agentplane/tools/fiber_retrieval.py` (previously zero importers): the
+   gate's `ACCEPT`/abstain over the graph result's *nonconformity* is the fall signal (consumed by path,
+   never forked; see `AGENTPLANE_TOOLS`);
+3. **graph confident** ⇒ route to graph, the vector store is **never consulted**; **graph miss** ⇒ descend
+   to vector; **graph weak-but-nonempty + vector hit** ⇒ **FUSE** (union, graph-precision first,
+   vector-recall second, deduped) rather than replace; **both miss** ⇒ **explicit abstain**
+   (`cross-source-miss`) — a `RouteDecision` is recorded on the spine, then `RouteAbstained` is raised,
+   never a silent empty result.
+
+Every outcome (graph / vector-fallback / fuse / abstain) emits a hash-chained `RouteDecision`.
+
+Retrievers are dependency-injected callables (`GraphRetriever = (query, cypher) -> SourceHits`,
+`VectorRetriever = (query) -> SourceHits`); binding the live HellGraph + vector store is the runtime seam.
+
+Run the teeth: `python3 tests/selective_route_conformance.py` (needs `agentplane/tools` reachable — as a
+sibling repo or via `AGENTPLANE_TOOLS`).
+
 ## Teeth (both ways)
 
 Positive: each of the three questions routes to the right backend+verb; the graph route's Cypher
@@ -56,4 +82,9 @@ covers every embed path), `route-unavailable`, and a tampered `RouteDecision` le
 The LLM logical router, the NL→SQL and NL→filter constructors (`text-to-sql` / `self-query` are v0.1
 stubs here), and binding the real sovereign embedder behind `PinnedSpace` are tracked gaps from the
 RAG conformance audit (issues filed under the ADR-0001 WO register). `sherlock-scout` (WO-D), which
-today hard-codes the graph path, is the intended first consumer of `Route.Decide`.
+today hard-codes the graph path, is the intended first consumer of `Route.Decide` / `selective_route`.
+
+For the selective route specifically (#81): binding the live HellGraph graph retriever and the live
+vector store behind the `GraphRetriever` / `VectorRetriever` seams, and provisioning
+`ESTATE_CHECKOUT_TOKEN` so CI can check out the sibling `agentplane` repo and turn the
+`selective-route-tests` gate green, are the tracked runtime tasks — no live/shared-state writes here.
