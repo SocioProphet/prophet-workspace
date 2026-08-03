@@ -1,0 +1,37 @@
+name: Labor Request Contract
+
+on:
+  pull_request:
+    paths:
+      - 'contracts/labor/**'
+      - 'tools/labor-request-contract/**'
+      - 'tools/validate_labor_contract.py'
+      - 'tools/proof-artifact-spine/**'
+      - '.github/workflows/labor-request-contract.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'contracts/labor/**'
+      - 'tools/labor-request-contract/**'
+      - 'tools/validate_labor_contract.py'
+      - 'tools/proof-artifact-spine/**'
+      - '.github/workflows/labor-request-contract.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-labor-request-contract:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Install receipt-spine deps (blake3 advisory dual-hash; ledger chain is SHA-256)
+        run: python3 -m pip install -r tools/proof-artifact-spine/requirements.txt
+      - name: Validate labor-request contract (shape + chain teeth)
+        run: python3 tools/validate_labor_contract.py

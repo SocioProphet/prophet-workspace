@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.dev/prophet-workspace/labor/labor-evidence.v0.1.schema.json",
+  "title": "Evidence v0.1",
+  "description": "An evidence packet backing a response/fulfillment (charter v0.1 §7). Graded on the estate metadata-standards evidence_grade ladder E1..E5 — CONSUMED, not reinvented. E3+ evidence MUST attach null_hypothesis_ids (falsification / counter-explanation), matching metadata-standards teeth (E3+ ⇒ null_hypothesis_ids). response_ref MUST point to a LaborResponse.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["record_type", "evidence_id", "response_ref", "artifact_refs", "evidence_grade"],
+  "properties": {
+    "record_type": {"const": "Evidence"},
+    "evidence_id": {"type": "string", "pattern": "^labor-evidence:[a-z0-9][a-z0-9:._/@-]{1,160}$"},
+    "response_ref": {"type": "string", "pattern": "^labor-response:[a-z0-9][a-z0-9:._/@-]{1,160}$"},
+    "artifact_refs": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}, "description": "Ledger seqs / credential ids / artifact ids evidencing the claim (charter §7.3 evidence examples)."},
+    "evidence_grade": {"enum": ["E1", "E2", "E3", "E4", "E5"], "description": "metadata-standards forensic-grade ladder."},
+    "null_hypothesis_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "description": "Required when evidence_grade >= E3 (metadata-standards). Falsification / counter-explanations."},
+    "receipt_ref": {"$ref": "https://schemas.socioprophet.dev/prophet-workspace/labor/receipt-ref.v0.1.schema.json"}
+  }
+}
