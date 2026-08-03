@@ -1,0 +1,66 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.dev/prophet-workspace/workspace-mount-table.v1.schema.json",
+  "title": "WorkspaceMountTable v1",
+  "description": "A4-31 (SP-ARCH-004): the mount (f*) companion to A4-30's publish (f_!). A workspace is a materialised star; the MOUNT TABLE is its capability surface — the complete declared set of sources pulled back (f*) into the star's extent. WS-5 (zero mount authority) made mechanical: every mount is granted by an EXTERNAL authority (grantedBy != the workspace) and carries a grantRef warrant; a workspace can never grant itself a mount. The table IS the surface — nothing off it is mountable.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "apiVersion": { "const": "workspace.socioprophet.dev/v1" },
+    "kind": { "const": "WorkspaceMountTable" },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tableId", "createdAt"],
+      "properties": {
+        "tableId": { "type": "string", "minLength": 1 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "labels": { "type": "object", "additionalProperties": { "type": "string" } }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workspaceId", "declaredExtent", "entries", "policyRef", "evidenceCorrelationId"],
+      "properties": {
+        "workspaceId": { "type": "string", "minLength": 1 },
+        "declaredExtent": { "type": "string", "minLength": 1 },
+        "entries": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["sourceId", "surface", "capabilities", "grantedBy", "grantRef"],
+            "properties": {
+              "sourceId": { "type": "string", "minLength": 1 },
+              "surface": {
+                "type": "string",
+                "enum": ["mail", "calendar", "contacts", "drive", "docs", "sheets",
+                         "slides", "chat", "meeting", "admin", "audit", "policy", "search"]
+              },
+              "capabilities": {
+                "type": "array",
+                "minItems": 1,
+                "items": { "type": "string", "enum": ["read", "reference", "subscribe"] }
+              },
+              "grantedBy": {
+                "type": "string",
+                "minLength": 1,
+                "description": "The EXTERNAL authority that granted this mount (WS-5: never the workspace itself)."
+              },
+              "grantRef": {
+                "type": "string",
+                "minLength": 1,
+                "description": "The warrant for the mount (a grant/decision/receipt id) — an unwarranted mount is refused."
+              }
+            }
+          }
+        },
+        "policyRef": { "type": "string", "minLength": 1 },
+        "evidenceCorrelationId": { "type": "string", "minLength": 1 }
+      }
+    }
+  }
+}

@@ -1,0 +1,35 @@
+name: Workspace Mount Table
+
+on:
+  pull_request:
+    paths:
+      - 'schemas/workspace-mount-table.schema.json'
+      - 'examples/workspace-mount-table.example.json'
+      - 'examples/workspace-mount-table.*.invalid.json'
+      - 'tools/validate_workspace_mount_table.py'
+      - '.github/workflows/mount-table.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'schemas/workspace-mount-table.schema.json'
+      - 'examples/workspace-mount-table.example.json'
+      - 'examples/workspace-mount-table.*.invalid.json'
+      - 'tools/validate_workspace_mount_table.py'
+      - '.github/workflows/mount-table.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-mount-table:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Validate Workspace Mount Table contract
+        run: python3 tools/validate_workspace_mount_table.py
