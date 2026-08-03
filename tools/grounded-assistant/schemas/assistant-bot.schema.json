@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.dev/schemas/grounded-assistant/assistant-bot.schema.json",
+  "title": "AssistantBot",
+  "description": "A domain-scoped support bot on the Open Agent Continuum (ADR-0001). Each bot maps to an agent-registry AgentSpec principal and answers only in the grounded-answer-card shape.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "domain", "skill", "requiredClientFields"],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^bot://socioprophet/tech-support/[a-z0-9-]+$",
+      "description": "Stable bot id."
+    },
+    "displayName": {"type": "string"},
+    "domain": {
+      "type": "string",
+      "description": "Knowledge scope that grounds this bot (a corpus/registry scope)."
+    },
+    "skill": {
+      "type": "string",
+      "description": "The grounded skill the bot invokes."
+    },
+    "requiredClientFields": {
+      "type": "array",
+      "items": {"type": "string"},
+      "description": "Client info that MUST be gathered before the bot may answer; a bot answering with any of these missing is rejected."
+    },
+    "agentSpecRef": {
+      "type": "string",
+      "pattern": "^agent://",
+      "description": "agent-registry AgentSpec principal. Enters as an external principal, capped at the Derived epistemic ceiling (STAR-1)."
+    }
+  }
+}
