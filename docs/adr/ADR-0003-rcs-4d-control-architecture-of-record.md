@@ -101,7 +101,7 @@ Every one of the six nodes binds to a real mechanism (§3), so there is **no who
 | GAP | Node | What's missing | Filed |
 |---|---|---|---|
 | **GAP-A** | Value Judgment | policy-fabric#102 (`live_activation_authorization` / shared-state write) is **CLOSED-UNMERGED**; VJ's *authority-to-act* gate is not in force on `main`. Same item as ADR-0002 GAP-1. | tracked (ADR-0002 GAP-1 / policy-fabric#102) |
-| **GAP-B** | Sensory Recognition | RCS defines SR as the node that **compares predictions with observations** (the discrepancy / prediction-error signal that drives VJ + replanning). The estate **records** observations (OBSERVATION, step 7) but has **no first-class predicted-vs-observed comparator** producing a discrepancy signal into WM/VJ. | filed (§8) |
+| **GAP-B** | Sensory Recognition | RCS defines SR as the node that **compares predictions with observations** (the discrepancy / prediction-error signal that drives VJ + replanning). The estate **records** observations (OBSERVATION, step 7) but has **no first-class predicted-vs-observed comparator** producing a discrepancy signal into WM/VJ. | prophet-workspace#114 |
 
 GAP-A is not re-filed (it is an existing tracked item); GAP-B is the one RCS-distinctive gap this ADR surfaces and files.
 
@@ -119,5 +119,5 @@ GAP-A is not re-filed (it is an existing tracked item); GAP-B is the one RCS-dis
 
 ## 8. Open items
 
-- **GAP-B issue:** filed against the SR binding — a first-class predicted-vs-observed comparator feeding a discrepancy/surprise signal into World Model + Value Judgment. Linked from this ADR once opened.
+- **GAP-B issue:** prophet-workspace#114 — a first-class predicted-vs-observed comparator feeding a discrepancy/surprise signal into World Model + Value Judgment.
 - **Hierarchy depth:** 4D-RCS is explicitly hierarchical (each node is a loop one level down). This ADR pins the vocabulary at one level; declaring the estate's control *hierarchy* (which node contains which) is follow-on, gated on ProCybernetica#124 landing the typed ControlNode contract.
