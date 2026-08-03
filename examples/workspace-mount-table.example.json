@@ -1,0 +1,38 @@
+{
+  "apiVersion": "workspace.socioprophet.dev/v1",
+  "kind": "WorkspaceMountTable",
+  "metadata": {
+    "tableId": "workspace-mount-table:demo",
+    "createdAt": "2026-08-03T00:00:00Z",
+    "labels": {
+      "demo": "star-machine"
+    }
+  },
+  "spec": {
+    "workspaceId": "workspace://socioprophet/demo-star",
+    "declaredExtent": "extent://filing/SOCIOPROPHET",
+    "entries": [
+      {
+        "sourceId": "workspace-source:docs/demo-brief",
+        "surface": "docs",
+        "capabilities": [
+          "read",
+          "reference"
+        ],
+        "grantedBy": "authority://sociosphere/grants",
+        "grantRef": "grant://sociosphere/2026-08-03/docs-brief"
+      },
+      {
+        "sourceId": "workspace-source:sheets/demo-dataset",
+        "surface": "sheets",
+        "capabilities": [
+          "read"
+        ],
+        "grantedBy": "authority://sociosphere/grants",
+        "grantRef": "grant://sociosphere/2026-08-03/sheets-dataset"
+      }
+    ],
+    "policyRef": "policy://workspace/demo",
+    "evidenceCorrelationId": "workspace-mount-table:demo"
+  }
+}
