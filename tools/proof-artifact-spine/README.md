@@ -37,4 +37,11 @@ that emitter by design. See the WO register / assigned issues.
 
 ## MS-P3 conformance (Metadata Standards v0.1)
 
-Aligned to the metadata standard: content hashes are **dual** (`{blake3, sha256}` — BLAKE3-256 primary per §3.2, SHA-256 for FRE 902(14)); the chain `entryHash` uses **BLAKE3**; and every receipt carries the **three-time** `temporal` block (`observed_at_micros` / `txn_created` / `uploaded_at_micros`, §3.3). Requires the `blake3` package (`requirements.txt`). Verified: `python3 tests/wo_b_test.py` → 14/14.
+Aligned to the metadata standard: content hashes are **dual** (`{sha256, blake3}`); the chain `entryHash` and the authoritative integrity assertion use **SHA-256 (FIPS 180-4)**; and every receipt carries the **three-time** `temporal` block (`observed_at_micros` / `txn_created` / `uploaded_at_micros`, §3.3). Requires the `blake3` package (`requirements.txt`). Verified: `python3 tests/wo_b_test.py` → 14/14.
+
+
+## FIPS compliance + MS-P4 (14-type CustodyEvent)
+
+**FIPS:** BLAKE3/BLAKE2b are NOT FIPS-validated, so the hash **chain** and the **authoritative** integrity assertion use **SHA-256** (FIPS 180-4). BLAKE3 is retained only as an *advisory/performance* fingerprint in the dual-hash — never for the chain or authoritative verification. (Supersedes MS-P3's BLAKE3 chain.)
+
+**MS-P4** (`custody_event.py`): the full **14-type CustodyEvent** model (Metadata Standards §6.2) — Intake, HashVerification, ZonePromotion/Demotion, Examination, EnrichmentWrite, HypothesisLink, Read, ExportBundled, Disclosed, IntegrityViolation, PolicyException, ManualOverride, Retirement. Each declares its mandatory fields; emission is fail-closed. Events share the SAME FIPS chain as ProofArtifacts — one mixed, tamper-evident ledger. Verify: `python3 tests/wo_msp4_test.py` → 11/11.

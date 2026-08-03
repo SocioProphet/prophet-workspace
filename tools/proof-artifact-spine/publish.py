@@ -90,8 +90,8 @@ def replay(receipt: dict) -> dict:
     from proof_artifact import dual_hash
     run = receipt["runPackage"]
     # Re-verify against the PRIMARY (BLAKE3) content hash; sha256 is also stored for legal/interop.
-    if dual_hash(canonical(run))["blake3"] != receipt["outputHash"]["blake3"]:
-        raise PublishDenied("replay-mismatch", "run package does not match the receipt outputHash (blake3)")
+    if dual_hash(canonical(run))["sha256"] != receipt["outputHash"]["sha256"]:
+        raise PublishDenied("replay-mismatch", "run package does not match the receipt outputHash (sha256, FIPS)")
     return {"plan": run["plan"], "tool_calls": run["tool_calls"],
             "outputs": run["outputs"], "policy_report": run["policy_report"],
             "verified": True, "seq": receipt["ledgerSeq"]}
