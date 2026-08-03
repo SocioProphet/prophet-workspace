@@ -1,0 +1,27 @@
+{
+  "apiVersion": "workspace.socioprophet.dev/v1",
+  "kind": "ControlArchitectureDeclaration",
+  "metadata": {
+    "declarationId": "estate-control-architecture-of-record-dangling-sensory",
+    "createdAt": "2026-08-03T00:00:00Z",
+    "referenceArchitecture": "NIST-RCS-4D",
+    "adrRef": "docs/adr/ADR-0003-rcs-4d-control-architecture-of-record.md"
+  },
+  "spec": {
+    "mechanisms": {
+      "procybernetica-value-judgment": {"repo": "SocioProphet/ProCybernetica", "ref": "#124", "kind": "control-node"},
+      "worldmodel-substrate-w": {"repo": "SocioProphet/prophet-workspace", "ref": "#107", "kind": "substrate"},
+      "hellgraph-memory-fair": {"repo": "SocioProphet/hellgraph", "ref": "main", "kind": "knowledge-database"},
+      "agent-cognition-plan": {"repo": "SocioProphet/prophet-workspace", "ref": "feat/agent-cognition-er:PLAN", "kind": "task-planner"},
+      "sp-orchestrator-execution": {"repo": "SocioProphet/sp-orchestrator", "ref": "crates/sp-exec/src/exec.rs", "kind": "task-executor"}
+    },
+    "nodes": {
+      "ValueJudgment": {"mechanismRef": "procybernetica-value-judgment", "rcsRole": "Evaluate"},
+      "WorldModel": {"mechanismRef": "worldmodel-substrate-w", "rcsRole": "Update/Predict/Simulate"},
+      "KnowledgeDatabase": {"mechanismRef": "hellgraph-memory-fair", "rcsRole": "State variables, entity lists, maps"},
+      "SensoryRecognition": {"mechanismRef": "observation-receipt-spine-DOES-NOT-EXIST", "rcsRole": "Observations"},
+      "TaskPlanner": {"mechanismRef": "agent-cognition-plan", "rcsRole": "Plan"},
+      "TaskExecutor": {"mechanismRef": "sp-orchestrator-execution", "rcsRole": "Act"}
+    }
+  }
+}

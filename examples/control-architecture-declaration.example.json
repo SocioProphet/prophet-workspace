@@ -1,0 +1,99 @@
+{
+  "apiVersion": "workspace.socioprophet.dev/v1",
+  "kind": "ControlArchitectureDeclaration",
+  "metadata": {
+    "declarationId": "estate-control-architecture-of-record",
+    "createdAt": "2026-08-03T00:00:00Z",
+    "referenceArchitecture": "NIST-RCS-4D",
+    "adrRef": "docs/adr/ADR-0003-rcs-4d-control-architecture-of-record.md",
+    "labels": {
+      "status": "proposed",
+      "owner": "mdheller"
+    }
+  },
+  "spec": {
+    "mechanisms": {
+      "procybernetica-value-judgment": {
+        "repo": "SocioProphet/ProCybernetica",
+        "ref": "#124",
+        "kind": "control-node",
+        "crossRefs": [
+          "SocioProphet/policy-fabric#100",
+          "SocioProphet/policy-fabric#101",
+          "SocioProphet/policy-fabric#102",
+          "docs/adr/ADR-0002-governed-cognition-functor.md#L2"
+        ]
+      },
+      "worldmodel-substrate-w": {
+        "repo": "SocioProphet/prophet-workspace",
+        "ref": "#107",
+        "kind": "substrate",
+        "crossRefs": [
+          "SocioProphet/gaia-world-model",
+          "docs/adr/ADR-0002-governed-cognition-functor.md#L1"
+        ]
+      },
+      "hellgraph-memory-fair": {
+        "repo": "SocioProphet/hellgraph",
+        "ref": "main",
+        "kind": "knowledge-database",
+        "crossRefs": [
+          "SocioProphet/memory-mesh",
+          "SocioProphet/metadata-standards"
+        ]
+      },
+      "observation-receipt-spine": {
+        "repo": "SocioProphet/prophet-workspace",
+        "ref": "feat/agent-cognition-er:OBSERVATION",
+        "kind": "sensory",
+        "crossRefs": [
+          "docs/adr/ADR-0002-governed-cognition-functor.md#5",
+          "docs/adr/ADR-0001-open-agent-continuum.md#5"
+        ]
+      },
+      "agent-cognition-plan": {
+        "repo": "SocioProphet/prophet-workspace",
+        "ref": "feat/agent-cognition-er:PLAN",
+        "kind": "task-planner",
+        "crossRefs": [
+          "docs/adr/ADR-0001-open-agent-continuum.md#5"
+        ]
+      },
+      "sp-orchestrator-execution": {
+        "repo": "SocioProphet/sp-orchestrator",
+        "ref": "crates/sp-exec/src/exec.rs",
+        "kind": "task-executor",
+        "crossRefs": [
+          "feat/agent-cognition-er:ACTION",
+          "crates/sp-taskkey/src/dag.rs"
+        ]
+      }
+    },
+    "nodes": {
+      "ValueJudgment": {
+        "mechanismRef": "procybernetica-value-judgment",
+        "rcsRole": "Evaluate"
+      },
+      "WorldModel": {
+        "mechanismRef": "worldmodel-substrate-w",
+        "rcsRole": "Update/Predict/Simulate — What is? / What if?"
+      },
+      "KnowledgeDatabase": {
+        "mechanismRef": "hellgraph-memory-fair",
+        "rcsRole": "State variables, entity lists, maps"
+      },
+      "SensoryRecognition": {
+        "mechanismRef": "observation-receipt-spine",
+        "rcsRole": "Observations; compare predictions with observations"
+      },
+      "TaskPlanner": {
+        "mechanismRef": "agent-cognition-plan",
+        "rcsRole": "Plan"
+      },
+      "TaskExecutor": {
+        "mechanismRef": "sp-orchestrator-execution",
+        "rcsRole": "Act"
+      }
+    }
+  }
+}
