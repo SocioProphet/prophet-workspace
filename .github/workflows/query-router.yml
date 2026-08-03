@@ -40,3 +40,35 @@ jobs:
       - name: Query-router conformance (logical + semantic route, fallback, #602 pin, teeth both ways)
         working-directory: tools/query-router
         run: python3 tests/conformance_test.py
+
+  # Gates the WIRED graph→vector selective route (#81). Unlike router-tests, this consumes the REAL
+  # agentplane fibered descend-abstain gate (fiber_retrieval), which lives in a SIBLING repo — so the
+  # job checks out agentplane and points AGENTPLANE_TOOLS at it (consume-not-fork: the real module,
+  # never a vendored copy). Cross-repo checkout of the private agentplane repo needs a read token; the
+  # provisioning of ESTATE_CHECKOUT_TOKEN + turning this gate green is tracked as a runtime task.
+  selective-route-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout prophet-workspace
+        uses: actions/checkout@v4
+
+      - name: Checkout agentplane (the real fiber_retrieval, consume-not-fork)
+        uses: actions/checkout@v4
+        with:
+          repository: SocioProphet/agentplane
+          path: _agentplane
+          token: ${{ secrets.ESTATE_CHECKOUT_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install spine advisory dep
+        run: python3 -m pip install blake3  # proof-artifact-spine imports blake3 (advisory, non-FIPS)
+
+      - name: Selective route conformance (graph→vector fuse, descend-abstain gate, teeth both ways)
+        working-directory: tools/query-router
+        env:
+          AGENTPLANE_TOOLS: ${{ github.workspace }}/_agentplane/tools
+        run: python3 tests/selective_route_conformance.py
