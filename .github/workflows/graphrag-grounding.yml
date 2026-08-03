@@ -29,7 +29,10 @@ jobs:
         with:
           python-version: '3.x'
 
-      # Stdlib-only. Teeth both ways: the "prove √2 is not rational → cite pages" answer VERIFIES with
+      - name: Install receipt-spine deps (blake3 advisory dual-hash; ledger chain is SHA-256)
+        run: python3 -m pip install -r tools/proof-artifact-spine/requirements.txt
+
+      # Teeth both ways: the "prove √2 is not rational → cite pages" answer VERIFIES with
       # resolvable page refs above the accuracy + QA-F1 floors and is receipted; no-page-refs /
       # unresolvable-ref / below-floor / low-QA answers are REJECTED (and still receipted). Gating it
       # means the grounded-answer-with-page-reference contract (pw#76 Knowledge Hub) cannot rot.
