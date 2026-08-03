@@ -1,0 +1,12 @@
+{
+  "apiVersion": "graph.socioprophet.dev/v1",
+  "kind": "CSKGEdge",
+  "metadata": { "edgeId": "cskg-edge:cs/bad-truth", "createdAt": "2026-08-03T00:00:00Z" },
+  "spec": {
+    "node1": "rain", "relation": "IsA", "node2": "weather",
+    "truth": { "strength": 1.5, "confidence": 0.9 },
+    "epistemicTier": "commonsense",
+    "defeasible": true,
+    "status": "promoted"
+  }
+}

@@ -1,0 +1,105 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.dev/prophet-workspace/cskg-edge.v1.schema.json",
+  "title": "CSKGEdge v1",
+  "description": "A governance-bearing CSKG edge record — the wire/record companion to WO-A's cypher-atomspace-gateway, which today carries only a bare TruthValue{strength,confidence} per edge. Distilled from the Masonmark 'Schema-Grounded KAIROS/CHRONOS CSKG' deck (slides 53-54: 'Ontology Grounding + Commonsense Priors'): commonsense knowledge (CSKG/ConceptNet-style) is DEFEASIBLE SUPPORT, never institutional truth. This schema projects three estate disciplines that already exist elsewhere onto the graph EDGE so the gateway can consume them: (1) the epistemic-authority ladder (artifact-registry E1-E5 / fibration-node ceiling) as a per-edge tier + defeasibility law; (2) provenance (public CSKG source/sentence qualifiers, dropped by the gateway fixture) restored on the edge; (3) the estate three-time model (metadata-intake temporal: txn/valid/observed) — the edge carries ONLY valid-time + observation-time; transaction/system-time stays on the record/ledger, so no separate 'Kairos/Chronos' clock is introduced.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "apiVersion": { "const": "graph.socioprophet.dev/v1" },
+    "kind": { "const": "CSKGEdge" },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["edgeId", "createdAt"],
+      "properties": {
+        "edgeId": { "type": "string", "minLength": 1, "description": "Stable edge id (public CSKG `id` column analogue)." },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "labels": { "type": "object", "additionalProperties": { "type": "string" } }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["node1", "relation", "node2", "truth", "epistemicTier", "defeasible", "status"],
+      "properties": {
+        "node1": { "type": "string", "minLength": 1, "description": "Head concept (public CSKG `node1`; ConceptNode form)." },
+        "relation": { "type": "string", "minLength": 1, "description": "Edge predicate (public CSKG `relation`; EvaluationLink predicate, e.g. IsA/Causes)." },
+        "node2": { "type": "string", "minLength": 1, "description": "Tail concept (public CSKG `node2`)." },
+        "lifted": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Optional public-CSKG lifted columns (node1;label, node2;label, relation;label, relation;dimension).",
+          "properties": {
+            "node1Label": { "type": "string" },
+            "node2Label": { "type": "string" },
+            "relationLabel": { "type": "string" },
+            "relationDimension": { "type": "string" }
+          }
+        },
+        "truth": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["strength", "confidence"],
+          "description": "The gateway's TruthValue (adapter.py). Composes multiplicatively along a path (v0).",
+          "properties": {
+            "strength": { "type": "number", "minimum": 0.0, "maximum": 1.0 },
+            "confidence": { "type": "number", "minimum": 0.0, "maximum": 1.0 }
+          }
+        },
+        "epistemicTier": {
+          "enum": ["institutional", "schema", "commonsense"],
+          "description": "Authority tier (deck slide 54's three layers). institutional = authoritative estate truth; schema = curated governed-schema fact; commonsense = CSKG/ConceptNet defeasible prior."
+        },
+        "defeasible": {
+          "type": "boolean",
+          "description": "Whether the edge may be overridden. LAW: commonsense => true (never authoritative); institutional => false (authoritative). Enforced cross-field by the validator (CE-T1/CE-T2)."
+        },
+        "status": {
+          "enum": ["candidate", "promoted", "tombstoned"],
+          "description": "Controlled KB-extension state: candidate = reviewable cairnmark (predicted/discovered); promoted = adjudicated Stele; tombstoned = logically deleted (aligns cskg.vnext DeleteEdge)."
+        },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["source"],
+          "description": "Public CSKG source/sentence qualifiers, restored on the edge. REQUIRED for institutional & schema tiers (provenance-complete by construction; CE-T3).",
+          "properties": {
+            "source": { "type": "string", "minLength": 1, "description": "Source dataset/document/governed id (not a raw string)." },
+            "sentence": { "type": "string", "description": "Supporting sentence/evidence span." },
+            "extractor": { "type": "string", "description": "Producing tool id+version." }
+          }
+        },
+        "temporal": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Edge-level temporal typing, REUSING the metadata-intake three-time vocabulary. The edge carries valid-time + observation-time ONLY. Transaction/system-time (txn_created) is deliberately NOT accepted here — it belongs to the record/ledger (metadata-record + proof-artifact spine). additionalProperties:false makes 'no txn clock on the edge' mechanical (CE-T7).",
+          "properties": {
+            "validFromMicros": { "type": ["integer", "null"], "description": "Valid-time start: when the fact begins to hold in the world." },
+            "validToMicros": { "type": ["integer", "null"], "description": "Valid-time end: when the fact ceases to hold (null = open)." },
+            "observedAtMicros": { "type": "integer", "description": "Observation/event-time: when the edge was observed or extracted." }
+          }
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "epistemicTier": { "const": "commonsense" } } },
+          "then": { "properties": { "defeasible": { "const": true } } }
+        },
+        {
+          "if": { "properties": { "epistemicTier": { "const": "institutional" } } },
+          "then": { "properties": { "defeasible": { "const": false } } }
+        },
+        {
+          "if": { "properties": { "defeasible": { "const": false } } },
+          "then": { "properties": { "status": { "const": "promoted" } } }
+        },
+        {
+          "if": { "properties": { "epistemicTier": { "enum": ["institutional", "schema"] } } },
+          "then": { "required": ["provenance"] }
+        }
+      ]
+    }
+  }
+}

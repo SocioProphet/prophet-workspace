@@ -23,6 +23,7 @@ README + conformance suite; this page is the single index so no runtime object i
 | `artifact-registry` | MS-P6 | evidence_grade E1–E5 ⟷ epistemic-ceiling ladder + AC-01..12 artifact-class registry with per-class enrichment/zone routing | `python3 tests/wo_msp6_test.py` |
 | `image-promotion-gate` | WO-G | SourceOS image validation gate — EvidenceBundle IS a ProofArtifact; fail-closed promotion + PolicyException | `python3 tests/wo_g_test.py` |
 | `analysis-views` | AV-1 | Registered governed LSA/LDA/LSI analysis-view descriptor (reproducibility seed+hashes) fused with WNZL zone_path + epistemic ceiling + provenance | `python3 tests/av1_test.py` |
+| `cskg-edge` | WO-A+ | Governance-bearing CSKG edge for the gateway: epistemic tier + defeasibility (commonsense is never authoritative), edge-level provenance, valid/observation-time typing (no transaction clock on the edge) | `python3 tools/cskg-edge/tests/cskg_edge_test.py` |
 
 ## Data flow
 
