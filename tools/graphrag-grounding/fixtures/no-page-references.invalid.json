@@ -1,0 +1,25 @@
+{
+  "name": "answer with no page references → REJECTED (cannot be grounded)",
+  "expect": "REJECTED",
+  "reason_contains": "no page references",
+  "floor": 0.5,
+  "qa_floor": 0.3,
+  "index": {
+    "sources": {
+      "hardy-wright-intro-theory-of-numbers": {"title": "Hardy & Wright", "pages": [38, 39, 40, 41, 42]}
+    }
+  },
+  "gold": {
+    "answer": "√2 is irrational by the parity/infinite-descent argument.",
+    "pages": [{"source_id": "hardy-wright-intro-theory-of-numbers", "page": 40}]
+  },
+  "answer": {
+    "question": "Prove that the square root of 2 is not rational.",
+    "answer": "√2 is irrational by the parity/infinite-descent argument.",
+    "grounded": true,
+    "confidence": 0.9,
+    "citations": [
+      {"claim": "It is irrational.", "page_ref": null}
+    ]
+  }
+}

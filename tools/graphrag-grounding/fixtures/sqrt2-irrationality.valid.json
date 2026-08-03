@@ -1,0 +1,45 @@
+{
+  "name": "prove √2 is not rational → cite pages",
+  "expect": "VERIFY",
+  "floor": 0.5,
+  "qa_floor": 0.3,
+  "index": {
+    "sources": {
+      "hardy-wright-intro-theory-of-numbers": {
+        "title": "Hardy & Wright, An Introduction to the Theory of Numbers (6th ed.)",
+        "pages": [38, 39, 40, 41, 42, 43]
+      },
+      "rudin-principles-of-mathematical-analysis": {
+        "title": "Rudin, Principles of Mathematical Analysis (3rd ed.)",
+        "pages": [1, 2, 3]
+      }
+    }
+  },
+  "gold": {
+    "answer": "The square root of 2 is irrational. Assume √2 = p/q in lowest terms; then p² = 2q², so p² is even and p is even, p = 2r; then 4r² = 2q², so q² = 2r² and q is even, contradicting that p/q was in lowest terms. Therefore √2 is not rational.",
+    "pages": [
+      {"source_id": "hardy-wright-intro-theory-of-numbers", "page": 40},
+      {"source_id": "hardy-wright-intro-theory-of-numbers", "page": 41}
+    ]
+  },
+  "answer": {
+    "question": "Prove that the square root of 2 is not rational.",
+    "answer": "√2 is irrational. Assume √2 = p/q in lowest terms; then p² = 2q², so p² is even, hence p is even, p = 2r. Substituting gives 4r² = 2q², i.e. q² = 2r², so q is even too — contradicting lowest terms. Therefore √2 is not rational.",
+    "grounded": true,
+    "confidence": 0.92,
+    "evidence": [
+      "Theorem 43 (Hardy & Wright): √2 is irrational, proof by infinite descent / parity.",
+      "Rudin §1.1 motivates the reals via the non-existence of a rational √2."
+    ],
+    "citations": [
+      {
+        "claim": "If √2 = p/q in lowest terms then p² = 2q², so p is even (p = 2r), forcing q even — contradiction.",
+        "page_ref": {"source_id": "hardy-wright-intro-theory-of-numbers", "page": 40, "span": {"start": 120, "end": 640}, "quote": "√2 is irrational"}
+      },
+      {
+        "claim": "The parity argument concludes: no p/q in lowest terms can satisfy p² = 2q².",
+        "page_ref": {"source_id": "hardy-wright-intro-theory-of-numbers", "page": 41, "span": {"start": 0, "end": 210}}
+      }
+    ]
+  }
+}

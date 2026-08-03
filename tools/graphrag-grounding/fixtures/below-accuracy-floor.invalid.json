@@ -1,0 +1,30 @@
+{
+  "name": "resolvable refs but wrong pages, accuracy below floor → REJECTED",
+  "expect": "REJECTED",
+  "reason_contains": "retrieval_page_accuracy",
+  "floor": 0.5,
+  "qa_floor": 0.3,
+  "index": {
+    "sources": {
+      "hardy-wright-intro-theory-of-numbers": {"title": "Hardy & Wright", "pages": [1, 2, 3, 40, 41, 100, 200]}
+    }
+  },
+  "gold": {
+    "answer": "√2 is irrational by the parity/infinite-descent argument on p²=2q².",
+    "pages": [
+      {"source_id": "hardy-wright-intro-theory-of-numbers", "page": 40},
+      {"source_id": "hardy-wright-intro-theory-of-numbers", "page": 41}
+    ]
+  },
+  "answer": {
+    "question": "Prove that the square root of 2 is not rational.",
+    "answer": "√2 is irrational by the parity/infinite-descent argument on p²=2q².",
+    "grounded": true,
+    "confidence": 0.7,
+    "citations": [
+      {"claim": "right page", "page_ref": {"source_id": "hardy-wright-intro-theory-of-numbers", "page": 40}},
+      {"claim": "wrong page (in index but not the grounding page)", "page_ref": {"source_id": "hardy-wright-intro-theory-of-numbers", "page": 100}},
+      {"claim": "wrong page too", "page_ref": {"source_id": "hardy-wright-intro-theory-of-numbers", "page": 200}}
+    ]
+  }
+}

@@ -1,0 +1,42 @@
+name: graphrag grounded-answer (page reference)
+
+on:
+  pull_request:
+    paths:
+      - 'tools/graphrag-grounding/**'
+      - 'tools/proof-artifact-spine/**'
+      - '.github/workflows/graphrag-grounding.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'tools/graphrag-grounding/**'
+      - 'tools/proof-artifact-spine/**'
+      - '.github/workflows/graphrag-grounding.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  graphrag-grounding-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # Stdlib-only. Teeth both ways: the "prove √2 is not rational → cite pages" answer VERIFIES with
+      # resolvable page refs above the accuracy + QA-F1 floors and is receipted; no-page-refs /
+      # unresolvable-ref / below-floor / low-QA answers are REJECTED (and still receipted). Gating it
+      # means the grounded-answer-with-page-reference contract (pw#76 Knowledge Hub) cannot rot.
+      - name: grounding conformance (grade + receipts + annotation→KG, teeth both ways)
+        working-directory: tools/graphrag-grounding
+        run: python3 tests/grounding_test.py
+
+      - name: fixture conformance (VERIFY vs REJECTED)
+        working-directory: tools/graphrag-grounding
+        run: python3 validate_grounding.py

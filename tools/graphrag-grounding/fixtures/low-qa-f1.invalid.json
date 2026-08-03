@@ -1,0 +1,29 @@
+{
+  "name": "page-correct but answer prose is off-topic, QA F1 below floor → REJECTED",
+  "expect": "REJECTED",
+  "reason_contains": "qa_similarity_f1",
+  "floor": 0.5,
+  "qa_floor": 0.3,
+  "index": {
+    "sources": {
+      "hardy-wright-intro-theory-of-numbers": {"title": "Hardy & Wright", "pages": [40, 41, 42]}
+    }
+  },
+  "gold": {
+    "answer": "√2 is irrational: assume √2 = p/q in lowest terms, then p² = 2q², so p is even and then q is even, contradicting lowest terms.",
+    "pages": [
+      {"source_id": "hardy-wright-intro-theory-of-numbers", "page": 40},
+      {"source_id": "hardy-wright-intro-theory-of-numbers", "page": 41}
+    ]
+  },
+  "answer": {
+    "question": "Prove that the square root of 2 is not rational.",
+    "answer": "Bananas ripen quickest beside warm windows during humid coastal summers.",
+    "grounded": true,
+    "confidence": 0.6,
+    "citations": [
+      {"claim": "cited the right pages but said nothing about the proof", "page_ref": {"source_id": "hardy-wright-intro-theory-of-numbers", "page": 40}},
+      {"claim": "second correct page", "page_ref": {"source_id": "hardy-wright-intro-theory-of-numbers", "page": 41}}
+    ]
+  }
+}
