@@ -1,0 +1,49 @@
+name: SEC-2 Witness Quorum
+
+on:
+  pull_request:
+    paths:
+      - 'schemas/sec-witness-quorum.schema.json'
+      - 'examples/sec-witness-quorum.example.json'
+      - 'examples/sec-witness-quorum.*.invalid.json'
+      - 'tools/validate_sec_witness_quorum.py'
+      - 'tools/proof-artifact-spine/witness_quorum.py'
+      - 'tools/proof-artifact-spine/tests/sec2_test.py'
+      - 'tools/proof-artifact-spine/requirements.txt'
+      - '.github/workflows/sec-witness-quorum.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'schemas/sec-witness-quorum.schema.json'
+      - 'examples/sec-witness-quorum.example.json'
+      - 'examples/sec-witness-quorum.*.invalid.json'
+      - 'tools/validate_sec_witness_quorum.py'
+      - 'tools/proof-artifact-spine/witness_quorum.py'
+      - 'tools/proof-artifact-spine/tests/sec2_test.py'
+      - 'tools/proof-artifact-spine/requirements.txt'
+      - '.github/workflows/sec-witness-quorum.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-sec-witness-quorum:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install crypto dependency (FIPS ECDSA P-256 quorum)
+        run: python3 -m pip install 'cryptography>=42.0.0'
+
+      - name: Validate SEC-2 witness-quorum contract (schema lockstep + structure)
+        run: python3 tools/validate_sec_witness_quorum.py
+
+      - name: SEC-2 cryptographic conformance (real ECDSA P-256, fail-closed teeth)
+        run: python3 tools/proof-artifact-spine/tests/sec2_test.py

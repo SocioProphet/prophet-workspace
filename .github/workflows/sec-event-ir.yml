@@ -1,0 +1,39 @@
+name: SEC-1 Event-IR
+
+on:
+  pull_request:
+    paths:
+      - 'schemas/sec-event-ir.schema.json'
+      - 'examples/sec-event-ir.example.json'
+      - 'examples/sec-event-ir.*.invalid.json'
+      - 'tools/validate_sec_event_ir.py'
+      - 'tools/proof-artifact-spine/proof_artifact.py'
+      - '.github/workflows/sec-event-ir.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'schemas/sec-event-ir.schema.json'
+      - 'examples/sec-event-ir.example.json'
+      - 'examples/sec-event-ir.*.invalid.json'
+      - 'tools/validate_sec_event_ir.py'
+      - 'tools/proof-artifact-spine/proof_artifact.py'
+      - '.github/workflows/sec-event-ir.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-sec-event-ir:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Validate SEC-1 Event-IR contract (schema lockstep + teeth + canonical encoding)
+        run: python3 tools/validate_sec_event_ir.py

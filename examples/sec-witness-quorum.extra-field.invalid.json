@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "scheme": "ecdsa-p256-quorum",
+  "threshold": { "k": 2, "n": 1 },
+  "committed": {
+    "record_type": "ProofArtifact",
+    "entry_hash": "sha256:9ebc57892b19943ea7d5baa3b23f622aba8bc7bb095c59a5e6ae304229729ee0"
+  },
+  "signed_payload_hash": "sha256:6ac6a0c28af2008ffbf5d8a541574b6a0844c608d79f31a49f2d5975d755e08f",
+  "roster": [
+    { "witness_id": "witness-a", "alg": "ECDSA_P256_SHA256", "public_key_spki_b64": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE5CvZ0ctAHeErRW7eJRlyN8yGbHuXIU1TdQbpBvRGxu4d5LFpil7ZYucD3CoSOq2nv6QCj+A/6PXwFzW5qqsN2w==" }
+  ],
+  "signatures": [
+    { "witness_id": "witness-a", "sig_b64": "MEUCIAoKa2P5X15l+K7kRllTyVlzCnOlILHk8u3cXBQUcRYv" }
+  ],
+  "fips_posture": "ecdsa-p256-quorum",
+  "aggregated_signature": "this-scheme-has-no-aggregate-sig"
+}
