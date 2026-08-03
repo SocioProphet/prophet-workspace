@@ -30,6 +30,7 @@ README + conformance suite; this page is the single index so no runtime object i
 ```
 question
   → workspace-controller  (S¹ mount + S² ceiling; reachability)
+  → query-router  (logical + semantic route; graph→vector fallback; RouteDecision on the spine — WO-A2)
   → cypher-atomspace-gateway  (intent-routed 1–2 hop retrieval, safe subset)
   → sherlock-scout  (answer card: answer/evidence/citations/freshness/confidence/missing-info/next-actions)
   → proof-artifact-spine  (hash-chained, replayable ProofArtifact — AC-1)

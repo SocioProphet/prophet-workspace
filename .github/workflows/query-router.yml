@@ -31,7 +31,10 @@ jobs:
         with:
           python-version: '3.x'
 
-      # Stdlib-only. The router CONSUMES the sibling WO-A gateway parser and WO-B spine ledger, so this
+      - name: Install spine advisory dep
+        run: python3 -m pip install blake3  # proof-artifact-spine imports blake3 (advisory, non-FIPS)
+
+      # The router CONSUMES the sibling WO-A gateway parser and WO-B spine ledger, so this
       # suite also guards those seams (the paths above re-trigger it if either dependency changes).
       # Gating it means the WO-A2 routing contract cannot silently rot — control that cannot fail.
       - name: Query-router conformance (logical + semantic route, fallback, #602 pin, teeth both ways)
