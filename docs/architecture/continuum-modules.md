@@ -33,6 +33,7 @@ question
   → query-router  (logical + semantic route; graph→vector fallback; RouteDecision on the spine — WO-A2)
   → cypher-atomspace-gateway  (intent-routed 1–2 hop retrieval, safe subset)
   → sherlock-scout  (answer card: answer/evidence/citations/freshness/confidence/missing-info/next-actions)
+  → grounded-assistant  (tech-support product surface: 5 grounded bots over the scout card; every answer evidence-backed + receipted — WO-D)
   → proof-artifact-spine  (hash-chained, replayable ProofArtifact — AC-1)
 operated via sherlock-shell (Matrix rooms) and agent-term (CLI); reflexively governed by fibration-node
 (descent + decay; truth = what survives the loop).
