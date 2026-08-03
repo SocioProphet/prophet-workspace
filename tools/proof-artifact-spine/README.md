@@ -17,9 +17,13 @@ fail-closed — if ledger emission raises, the publish raises and nothing is con
 
 | File | Role |
 |---|---|
-| `proof_artifact.py` | `emit_proof_artifact()` (hash-chained append), `verify_ledger()` (chain + tamper check), `RunPackage`. |
+| `ledger_push.py` | **`Ledger.Push`** — the ONE physical append onto the spine. `ledger_push()` (the sole read-prev → seq → chain-hash → append primitive), the verb (`LedgerPushRequest` / `handle_ledger_push`), and `emit_inference_receipt()`. Every record type routes through here. |
+| `ledger_push.proto` | triRPC IDL for the `Ledger.Push` verb. |
+| `proof_artifact.py` | `emit_proof_artifact()` (shapes fields → `ledger_push`), `verify_ledger()` (chain + tamper check, record-type agnostic), `RunPackage`, and the FIPS chain primitives (`chain_hash`, `dual_hash`, `canonical`). |
+| `custody_event.py` | 14-type `emit_custody_event()` (shapes fields → `ledger_push`). |
 | `publish.py` | `publish()` = `f_!`: epistemic ceiling (external ≤ `Derived`, STAR-1) → extent/phase gate → inclusion-exclusion on overlapping covers → **emit receipt (fail-closed)** → return. `replay()` reconstructs + re-verifies the run package. |
-| `tests/wo_b_test.py` | 12 checks, teeth both ways. Run: `python3 tests/wo_b_test.py` → 12/12. |
+| `tests/wo_b_test.py` | Teeth both ways. Run: `python3 tests/wo_b_test.py` → 14/14. |
+| `tests/wo_b_ledger_push_test.py` | `Ledger.Push` consolidation: three record types on one ledger, one verify walk, byte-faithful refactor, fail-closed guards, cross-type tamper. Run: `python3 tests/wo_b_ledger_push_test.py` → 15/15. |
 
 ## Record shape
 
@@ -27,12 +31,19 @@ A ProofArtifact carries: `recordType`, `ledgerSeq`, `ledgerPrevHash`, `emittedAt
 `epistemicLevel`, `agent`, `inputHash`, `outputHash`, `runPackage` (plan / tool_calls / outputs /
 policy_report), `inclusionRecord`, and the chaining `entryHash`.
 
-## Runtime follow-up (tracked + assigned)
+## `Ledger.Push` — one spine, one append verb (live)
 
-Productionising = routing emission through the shared ledger service behind the **`Ledger.Push`** triRPC
-verb (ADR-0001), so the InferenceReceipt and ProofArtifact streams share one physical ledger, and
-consolidating the emitter with `inference_receipt_emitter.py`. The mechanics here are byte-compatible with
-that emitter by design. See the WO register / assigned issues.
+ADR-0001 names a `Ledger.Push` verb as the productionisation of the spine. It exists now
+(`ledger_push.py`): a single append primitive that owns read-prev → next `ledgerSeq` → FIPS SHA-256
+`entryHash` → append. **ProofArtifact, InferenceReceipt, and CustodyEvent all route through it**, so they
+share one physical, tamper-evident ledger that a single `verify_ledger` walk covers. The emitters became
+thin field-shapers — the read-prev/seq/chain/append invariant is no longer copied three times.
+
+Because `canonical()` sorts keys, routing an existing emitter through `Ledger.Push` yields
+**byte-identical** entryHashes (the WO-B and MS-P4 suites stay green across the refactor — the
+regression proof). The verb is fail-closed: an empty `record_type` or `fields` colliding with a
+spine-owned key (`recordType` / `ledgerSeq` / `ledgerPrevHash` / `entryHash`) is rejected and nothing is
+written. A network triRPC service is a thin transport over `handle_ledger_push` (`ledger_push.proto`).
 
 
 ## MS-P3 conformance (Metadata Standards v0.1)
