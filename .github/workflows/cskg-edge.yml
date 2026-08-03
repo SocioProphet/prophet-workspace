@@ -1,0 +1,36 @@
+name: CSKG Edge
+
+on:
+  pull_request:
+    paths:
+      - 'tools/cskg-edge/**'
+      - '.github/workflows/cskg-edge.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'tools/cskg-edge/**'
+      - '.github/workflows/cskg-edge.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-cskg-edge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # Stdlib-only by design (no jsonschema): the validator carries the cross-field teeth and a
+      # schema-drift guard, so gating them means the CSKG-edge contract cannot silently rot.
+      - name: Validate CSKGEdge descriptors (teeth both ways)
+        run: python3 tools/cskg-edge/validate_cskg_edge.py
+
+      - name: CSKG-edge conformance (both ways + per-tooth mutation)
+        run: python3 tools/cskg-edge/tests/cskg_edge_test.py

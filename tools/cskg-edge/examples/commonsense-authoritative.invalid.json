@@ -1,0 +1,13 @@
+{
+  "apiVersion": "graph.socioprophet.dev/v1",
+  "kind": "CSKGEdge",
+  "metadata": { "edgeId": "cskg-edge:cs/bad-authority", "createdAt": "2026-08-03T00:00:00Z" },
+  "spec": {
+    "node1": "rain", "relation": "Causes", "node2": "flood",
+    "truth": { "strength": 0.8, "confidence": 0.7 },
+    "epistemicTier": "commonsense",
+    "defeasible": false,
+    "status": "promoted",
+    "provenance": { "source": "conceptnet:/c/en/rain" }
+  }
+}

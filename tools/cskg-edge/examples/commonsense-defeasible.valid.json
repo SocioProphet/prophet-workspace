@@ -1,0 +1,17 @@
+{
+  "apiVersion": "graph.socioprophet.dev/v1",
+  "kind": "CSKGEdge",
+  "metadata": { "edgeId": "cskg-edge:cs/rain-isa-weather", "createdAt": "2026-08-03T00:00:00Z" },
+  "spec": {
+    "node1": "rain",
+    "relation": "IsA",
+    "node2": "weather",
+    "lifted": { "relationLabel": "is a", "relationDimension": "taxonomic" },
+    "truth": { "strength": 0.9, "confidence": 0.9 },
+    "epistemicTier": "commonsense",
+    "defeasible": true,
+    "status": "promoted",
+    "provenance": { "source": "conceptnet:/c/en/rain", "sentence": "rain is a kind of weather" },
+    "temporal": { "observedAtMicros": 1751328000000000 }
+  }
+}

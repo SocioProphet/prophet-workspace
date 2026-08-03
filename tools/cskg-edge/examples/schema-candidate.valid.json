@@ -1,0 +1,16 @@
+{
+  "apiVersion": "graph.socioprophet.dev/v1",
+  "kind": "CSKGEdge",
+  "metadata": { "edgeId": "cskg-edge:sch/amendment-precedes-closeout", "createdAt": "2026-08-03T00:00:00Z" },
+  "spec": {
+    "node1": "event:grant.amendment",
+    "relation": "TemporalPrecedes",
+    "node2": "event:grant.closeout",
+    "truth": { "strength": 0.8, "confidence": 0.7 },
+    "epistemicTier": "schema",
+    "defeasible": true,
+    "status": "candidate",
+    "provenance": { "source": "schema://award-lifecycle/v1", "extractor": "masonmark-schema-miner" },
+    "temporal": { "validFromMicros": 1735689600000000, "validToMicros": 1767225600000000 }
+  }
+}

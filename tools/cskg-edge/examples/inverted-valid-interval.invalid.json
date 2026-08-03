@@ -1,0 +1,14 @@
+{
+  "apiVersion": "graph.socioprophet.dev/v1",
+  "kind": "CSKGEdge",
+  "metadata": { "edgeId": "cskg-edge:sch/bad-interval", "createdAt": "2026-08-03T00:00:00Z" },
+  "spec": {
+    "node1": "event:a", "relation": "TemporalPrecedes", "node2": "event:b",
+    "truth": { "strength": 0.8, "confidence": 0.7 },
+    "epistemicTier": "schema",
+    "defeasible": true,
+    "status": "candidate",
+    "provenance": { "source": "schema://award-lifecycle/v1" },
+    "temporal": { "validFromMicros": 1767225600000000, "validToMicros": 1735689600000000 }
+  }
+}

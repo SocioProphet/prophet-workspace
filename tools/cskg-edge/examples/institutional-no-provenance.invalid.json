@@ -1,0 +1,12 @@
+{
+  "apiVersion": "graph.socioprophet.dev/v1",
+  "kind": "CSKGEdge",
+  "metadata": { "edgeId": "cskg-edge:inst/no-prov", "createdAt": "2026-08-03T00:00:00Z" },
+  "spec": {
+    "node1": "grant://sociosphere/2026/AF-0007", "relation": "HasStatus", "node2": "status:awarded",
+    "truth": { "strength": 1.0, "confidence": 1.0 },
+    "epistemicTier": "institutional",
+    "defeasible": false,
+    "status": "promoted"
+  }
+}
