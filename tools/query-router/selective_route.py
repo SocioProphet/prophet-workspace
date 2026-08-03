@@ -45,15 +45,25 @@ from router import (  # noqa: E402
 )
 
 
+# The pinned VENDORED copy of the agentplane fiber_retrieval closure (consume-not-fork). It is a
+# byte-for-byte snapshot of `agentplane/tools/*.py` at a recorded commit, SHA-256-pinned in
+# `vendor/VENDOR.md` and gated by `tests/vendor_consume_guard.py` (the source-os#317 drift guard). It is
+# the FALLBACK: a live agentplane checkout still wins (below), but the vendored copy lets the full teeth
+# run in CI with no cross-repo checkout and no ESTATE_CHECKOUT_TOKEN (#96).
+_VENDOR = os.path.join(_HERE, "vendor", "agentplane")
+
+
 # --- give fiber_retrieval its FIRST real importer (consume-not-fork, cross-repo by path) ------------
 def _resolve_fiber_retrieval():
-    """Locate and import the REAL `agentplane/tools/fiber_retrieval.py`.
+    """Locate and import the REAL `agentplane` `fiber_retrieval` (with its `conformal_gate`,
+    `fiber_projection`, `stopgate_artifact` closure).
 
-    Consume-not-fork: we import the actual module (which pulls its real `conformal_gate`,
-    `fiber_projection`, `stopgate_artifact` siblings), never a vendored copy. Resolution order:
-    `$AGENTPLANE_TOOLS`, then agentplane as a sibling repo under the common dev root. Fail-closed with
-    the attempted paths named, so a missing agentplane is a loud, actionable error — not a silent
-    fallback that would quietly drop the abstention gate.
+    Consume-not-fork: we import the actual module, never an edited fork. Resolution order:
+    `$AGENTPLANE_TOOLS`, then agentplane as a sibling repo under the common dev root (a LIVE checkout
+    wins so local edits are exercised), then finally the SHA-256-pinned VENDORED copy under
+    `vendor/agentplane/` — the byte-identical snapshot that lets CI run the cross-repo teeth without a
+    token (#96). Fail-closed with the attempted paths named, so even a missing vendor dir is a loud,
+    actionable error — never a silent fallback that would quietly drop the abstention gate.
     """
     tried: list[str] = []
     candidates: list[str] = []
@@ -69,6 +79,8 @@ def _resolve_fiber_retrieval():
         if parent == cur:
             break
         cur = parent
+    # Last: the pinned vendored copy (always present in-repo; the guard keeps it honest).
+    candidates.append(_VENDOR)
     for c in candidates:
         cand = os.path.abspath(c)
         tried.append(cand)
@@ -77,8 +89,9 @@ def _resolve_fiber_retrieval():
                 sys.path.insert(0, cand)
             return importlib.import_module("fiber_retrieval")
     raise ImportError(
-        "fiber_retrieval.py not found (its first importer needs the real agentplane module, not a "
-        "fork). Set AGENTPLANE_TOOLS to agentplane/tools. Tried: " + ", ".join(tried))
+        "fiber_retrieval.py not found (its importer needs the real agentplane module, not a fork). "
+        "Set AGENTPLANE_TOOLS to agentplane/tools, or restore the pinned vendor/ copy. Tried: "
+        + ", ".join(tried))
 
 
 # Imported at module load so the importer is REAL (not a lazy path that never fires). See #81.
