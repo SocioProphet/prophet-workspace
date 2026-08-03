@@ -1,0 +1,55 @@
+{
+  "surface": "virtual-assistant-tech-support",
+  "continuum": "ADR-0001 (Open Agent Continuum)",
+  "workOrder": "WO-D product-surface slice (Sherlock Scout: grounded, receipted answer)",
+  "crossRef": ["prophet-workspace#76 item 8", "sherlock-search/docs/evidence-answer-contract.md", "agent-registry AgentSpec"],
+  "answerContract": {
+    "shape": "sherlock-scout answer card",
+    "requiredFields": ["answer", "evidence", "citations", "freshness", "confidence", "missingInfo", "nextActions", "receipt"],
+    "confidenceFloor": 0.6,
+    "epistemicCeiling": "Derived",
+    "law": "AC-1 — an answer that cannot emit a receipt is not an answer"
+  },
+  "bots": [
+    {
+      "id": "bot://socioprophet/tech-support/qa",
+      "displayName": "Question & Answering",
+      "domain": "product-knowledge",
+      "skill": "grounded-qa",
+      "requiredClientFields": ["product_model"],
+      "agentSpecRef": "agent://socioprophet/tech-support/qa"
+    },
+    {
+      "id": "bot://socioprophet/tech-support/qa-flex",
+      "displayName": "Question & Answering Flex",
+      "domain": "product-knowledge",
+      "skill": "grounded-qa-flex",
+      "requiredClientFields": ["product_model", "issue_summary"],
+      "agentSpecRef": "agent://socioprophet/tech-support/qa-flex"
+    },
+    {
+      "id": "bot://socioprophet/tech-support/parts-replacement",
+      "displayName": "Parts Replacement",
+      "domain": "parts-catalog",
+      "skill": "parts-lookup",
+      "requiredClientFields": ["product_model", "part_id"],
+      "agentSpecRef": "agent://socioprophet/tech-support/parts-replacement"
+    },
+    {
+      "id": "bot://socioprophet/tech-support/service-request-status",
+      "displayName": "Check Service Request Status",
+      "domain": "service-requests",
+      "skill": "service-request-status",
+      "requiredClientFields": ["service_request_id"],
+      "agentSpecRef": "agent://socioprophet/tech-support/service-request-status"
+    },
+    {
+      "id": "bot://socioprophet/tech-support/warranty-check",
+      "displayName": "Warranty Check",
+      "domain": "warranty-registry",
+      "skill": "warranty-lookup",
+      "requiredClientFields": ["product_serial"],
+      "agentSpecRef": "agent://socioprophet/tech-support/warranty-check"
+    }
+  ]
+}
