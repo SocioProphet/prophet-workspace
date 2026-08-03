@@ -35,7 +35,7 @@ from embedding import EmbeddingSpaceMismatch, PinnedSpace, cosine
 
 # --- consume sibling estate contracts (consume-not-fork) --------------------------------------------
 _TOOLS = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-for _p in ("proof-artifact-spine", "cypher-atomspace-gateway"):
+for _p in ("proof-artifact-spine", "cypher-atomspace-gateway", "text-to-sql", "self-query"):
     sys.path.insert(0, os.path.join(_TOOLS, _p))
 
 # proof-artifact-spine: reuse the append-only, tamper-evident ledger discipline verbatim.
@@ -184,21 +184,29 @@ def apply_fallback(choice: RouteChoice, available: set[str]) -> RouteChoice:
 
 
 # --- construction handoff (prove the route hands a VALID query to the downstream store) --------------
-def construct_query(choice: RouteChoice, *, lemma: str) -> str:
-    """Build the store-specific query stub for the chosen verb.
+def construct_query(choice: RouteChoice, *, lemma: str | None = None, question: str | None = None):
+    """Build the store-specific query for the chosen verb by CONSUMING the sibling constructors.
 
-    For the GRAPH backend the produced Cypher is validated against the REAL cypher-atomspace-gateway
-    parser, so a graph route provably hands WO-A a query it accepts (raises CypherRejected otherwise).
-    text-to-sql / self-query are v0.1 stubs (the NL→SQL and NL→filter builders are tracked gaps).
+    All three verbs now hand the downstream store a query validated by the store's own contract layer
+    (consume-not-fork of WO-A / WO-A3), so a route provably produces something the store accepts:
+      * cypher      → validated by the REAL cypher-atomspace-gateway parser (raises CypherRejected).
+      * text-to-sql → `tools/text-to-sql` `build_sql` → a SAFE, parameterised `SafeSelect`
+                      (SELECT-only, declared schema, mandatory LIMIT; raises SqlRejected).
+      * self-query  → `tools/self-query` `build_self_query` → `{semantic_query, metadata_filter}` in
+                      the Qdrant filter shape (declared fields/ops only; raises FilterRejected).
+    `question` is the NL query for the sql/self-query builders; `lemma` seeds the graph anchor and is a
+    fallback topic when no `question` is supplied.
     """
     if choice.construction_verb == "cypher":
         cy = f'MATCH (h:Concept {{form:"{lemma}"}})-[:CSKG*1..2]->(t) RETURN t.form LIMIT 25'
         parse_cypher(cy)                # teeth: the gateway MUST accept what the router constructs
         return cy
     if choice.construction_verb == "text-to-sql":
-        return f"SELECT * FROM facts WHERE subject = '{lemma}' LIMIT 25"      # stub (NL→SQL is a gap)
+        from sql_subset import build_sql            # consume tools/text-to-sql (WO-A3, #79)
+        return build_sql(question or f"find memories about {lemma}")
     if choice.construction_verb == "self-query":
-        return f'{{"query": "{lemma}", "filter": {{}}}}'                       # stub (NL→filter is a gap)
+        from self_query import build_self_query     # consume tools/self-query (WO-A3, #80)
+        return build_self_query(question or (lemma or ""))
     raise RouteAbstained("unknown-verb", f"no constructor for verb '{choice.construction_verb}'")
 
 

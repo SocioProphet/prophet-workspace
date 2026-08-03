@@ -1,0 +1,43 @@
+// triRPC IDL for the text-to-SQL query-construction verb (WO-A3 of ADR-0001, RAG GAP #79).
+//
+// Contract: NL question + a DECLARED read-only schema -> a SAFE, parameterised SELECT. The service
+// MUST reject (never execute) anything outside the safe subset with a stable reason code, and MUST
+// bind user values as parameters (never interpolate). Mirrors graph_query_cypher.proto (WO-A).
+syntax = "proto3";
+
+package prophet.query.sql.v1;
+
+// A SELECT-only, parameterised query the caller may hand to a read-only cursor.
+message SafeSelect {
+  string sql = 1;                 // parameterised SQL with `?` placeholders; SELECT-only, has LIMIT
+  repeated string params = 2;     // bound values (user input lands here, NEVER in `sql`)
+  string table = 3;               // the single declared table queried
+  repeated string plan = 4;       // human-readable construction plan
+}
+
+// Stable reason codes (subset): empty, not-select, select-shape, unknown-table, unknown-column,
+// limit-required, limit-cap, multiple-statements, comment-unsupported, union-unsupported,
+// mutation-insert, mutation-update, mutation-delete, ddl-drop, ddl-alter, ddl-create,
+// no-mappable-intent, operand-type.
+message SqlRejection {
+  string code = 1;
+  string message = 2;
+}
+
+message BuildSqlRequest {
+  string question = 1;            // natural-language question
+  string schema = 2;             // declared schema id (e.g. "memories"); server-side allowlist
+  uint32 limit = 3;              // requested row cap (<= LIMIT_CAP); 0 => default
+}
+
+message BuildSqlResponse {
+  oneof result {
+    SafeSelect query = 1;        // built + self-validated safe query
+    SqlRejection rejected = 2;   // fail-closed rejection
+  }
+}
+
+service TextToSql {
+  // Construct: NL -> SafeSelect. Idempotent, side-effect-free (construction only; no execution).
+  rpc BuildSql(BuildSqlRequest) returns (BuildSqlResponse);
+}

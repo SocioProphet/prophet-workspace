@@ -1,0 +1,35 @@
+name: text-to-SQL constructor
+
+on:
+  pull_request:
+    paths:
+      - 'tools/text-to-sql/**'
+      - '.github/workflows/text-to-sql.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'tools/text-to-sql/**'
+      - '.github/workflows/text-to-sql.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  text-to-sql-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # Stdlib-only (sqlite3 fixture). Teeth both ways: constructed queries execute against a fixture
+      # mirroring the memoryd `memories` schema; unsafe/out-of-schema strings are rejected. Gating it
+      # means the WO-A3 text-to-SQL contract (#79) cannot silently rot — control that cannot fail.
+      - name: text-to-SQL conformance (safe subset + parameterised NL→SQL, teeth both ways)
+        working-directory: tools/text-to-sql
+        run: python3 tests/conformance_test.py
