@@ -14,11 +14,15 @@ validator is the teeth for that declaration. It enforces, fail-closed:
   tuple W = (S_dur, S_act, Theta, T, C, Pi, E). Missing one is rejected.
 - **No unknown components.** The component set is closed; an extra key (e.g. a
   bogus "Q") is rejected (mirrors the schema's additionalProperties:false).
-- **Every mechanismRef resolves.** Each component and each structural attribute
-  binds to an owning estate mechanism via `mechanismRef`. A ref outside the
-  known-mechanism registry (below) is DANGLING and is rejected. The registry is
-  a closed vocabulary of real L1 estate mechanisms, so the check is
-  deterministic and CI-safe (it does not depend on which repos are checked out).
+- **Every mechanismRef resolves AND is the right owner.** Each component and each
+  structural attribute binds to an owning estate mechanism via `mechanismRef`. A
+  ref outside the known-mechanism registry (below) is DANGLING and rejected; a ref
+  that IS in the registry but is not the mechanism DESIGNATED for the slot citing
+  it is CROSS-WIRED and rejected. The registry is a closed vocabulary of real L1
+  estate mechanisms and the per-slot binding map pins each construct to its owner,
+  so the check is deterministic and CI-safe (independent of which repos are checked
+  out). This is what stops a Theta<->T swap, a component pointing at another's
+  mechanism, or every component collapsing onto one ref.
 - **The four structural attributes are declared.** Order cycle S^1 + lift tau,
   the recursive Hopf tower H0..H3, the dual-sector decomposition V+ (manifest) /
   V- (latent), and the balance observable M(Psi).
@@ -51,6 +55,7 @@ INVALID = [
     ROOT / "examples/world-model-substrate.missing-component.invalid.json",
     ROOT / "examples/world-model-substrate.unknown-component.invalid.json",
     ROOT / "examples/world-model-substrate.dangling-ref.invalid.json",
+    ROOT / "examples/world-model-substrate.cross-wired-ref.invalid.json",
 ]
 
 MECHANISM_REF_RE = re.compile(r"^estate://[A-Za-z0-9._-]+/[A-Za-z0-9._/-]+$")
@@ -90,6 +95,61 @@ MECHANISM_REGISTRY = {
         "monodromy — falsification harness (ADR-0001 §9.7)",
 }
 
+# --- per-slot binding: which mechanism each construct is ALLOWED to cite ---
+# The registry above answers "is this ref a real L1 mechanism?". That is not
+# enough: a ref can be real yet be the WRONG owner for the slot citing it. The
+# reconciliation this PR closes is precisely Theta = order bundle, T = transition
+# algebra; if the two refs are merely "known" but interchangeable, a declaration
+# that swaps them (Theta -> sp-exec, T -> agent_coordinate_vector) sails through
+# and re-introduces the exact bug GAP-4 exists to kill. So each construct slot
+# binds to its designated owning mechanism (a small set where the estate
+# legitimately shares one file across two slots). A mechanismRef that is in the
+# registry but NOT designated for the slot citing it is CROSS-WIRED and fails
+# closed. This also kills the degenerate "point every component at one ref" and
+# any duplicate/cross-component wiring.
+COMPONENT_MECHANISMS = {
+    "S_dur": {"estate://prophet-workspace/tools/cypher-atomspace-gateway"},
+    "S_act": {
+        "estate://prophet-platform/apps/regis-acr-api/src/regis_acr_api/er_spine.py",
+        "estate://regis-entity-graph/schemas/node.schema.json",
+    },
+    "Theta": {"estate://ProCybernetica/procyber/semantic/agent_coordinate_vector.py"},
+    "T": {"estate://sp-orchestrator/crates/sp-exec/src/exec.rs"},
+    "C": {"estate://policy-fabric/contracts"},
+    "Pi": {"estate://ProCybernetica/procyber/semantic/semantic_algebra.py"},
+    "E": {"estate://prophet-workspace/tools/proof-artifact-spine"},
+}
+STRUCTURAL_MECHANISMS = {
+    "spec.orderCycle": {"estate://ProCybernetica/procyber/semantic/semantic_algebra.py"},
+    "spec.hopfTower": {
+        "estate://superconscious/docs/doctrine/"
+        "semantic-address-algebra-as-spectral-field-skeleton.v0.1.md"
+    },
+    "spec.dualSector": {"estate://ProCybernetica/procyber/semantic/spectral_grounding.py"},
+    "spec.balanceObservable": {"estate://ProCybernetica/procyber/semantic/spectral_grounding.py"},
+    "spec.monodromy": {"estate://superconscious/harness"},
+}
+# ctx string -> allowed refs, keyed by the ctx passed to check_mechanism_ref.
+SLOT_MECHANISMS: dict[str, set[str]] = {
+    **{f"components.{k}": v for k, v in COMPONENT_MECHANISMS.items()},
+    **STRUCTURAL_MECHANISMS,
+}
+
+
+def _assert_binding_maps_consistent() -> None:
+    """The binding maps must not silently drift from the registry: every bound
+    ref must be a real registry mechanism, and every registry mechanism must be
+    reachable from some slot (no dead entries). Fails closed on drift."""
+    bound: set[str] = set()
+    for ctx, refs in SLOT_MECHANISMS.items():
+        for ref in refs:
+            if ref not in MECHANISM_REGISTRY:
+                fail(f"binding map for {ctx} cites a ref not in the registry: {ref!r}")
+            bound.add(ref)
+    orphan = sorted(set(MECHANISM_REGISTRY) - bound)
+    if orphan:
+        fail(f"registry has mechanisms bound to no slot (dead entries): {orphan}")
+
 
 class ValidationError(Exception):
     pass
@@ -122,12 +182,17 @@ def no_extra(obj: dict[str, Any], allowed: set[str], ctx: str) -> None:
 
 
 def check_mechanism_ref(ref: str, ctx: str) -> None:
-    """A mechanismRef must be well-formed AND resolve to a known estate mechanism.
-    An unknown ref is dangling and fails closed."""
+    """A mechanismRef must be well-formed, resolve to a known estate mechanism,
+    AND be the mechanism DESIGNATED for the slot citing it. An unknown ref is
+    dangling; a known-but-wrong ref is cross-wired. Both fail closed."""
     if not MECHANISM_REF_RE.fullmatch(ref):
         fail(f"{ctx}.mechanismRef malformed (want estate://<repo>/<path>): {ref!r}")
     if ref not in MECHANISM_REGISTRY:
         fail(f"{ctx}.mechanismRef is dangling (not in the known-mechanism registry): {ref!r}")
+    allowed = SLOT_MECHANISMS.get(ctx)
+    if allowed is not None and ref not in allowed:
+        fail(f"{ctx}.mechanismRef is cross-wired: {ref!r} is a known mechanism but is not "
+             f"the one designated for {ctx} (expected one of {sorted(allowed)})")
 
 
 def check_verdict(obj: dict[str, Any], ctx: str) -> None:
@@ -266,6 +331,7 @@ def validate_schema(schema: Any) -> None:
 
 def main() -> int:
     try:
+        _assert_binding_maps_consistent()  # binding maps in lockstep with registry
         validate_schema(load(SCHEMA))     # schema is exercised, not just parsed
         validate_substrate(load(EXAMPLE))  # canonical example must pass
         for path in INVALID:
@@ -278,7 +344,7 @@ def main() -> int:
         print(f"ERR: {exc}", file=sys.stderr)
         return 2
     print("OK: WorldModelSubstrate validation passed "
-          "(schema in lockstep, 1 example verified, 3 invalid rejected)")
+          f"(schema in lockstep, 1 example verified, {len(INVALID)} invalid rejected)")
     return 0
 
 

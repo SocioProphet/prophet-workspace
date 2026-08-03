@@ -20,7 +20,7 @@ W = (S_dur, S_act, Θ, T, C, Π, E)
 
 plus four structural attributes — the primitive **order cycle S¹ + lift τ**, the recursive **Hopf tower H0..H3**, the **dual-sector decomposition V⁺ (manifest) / V⁻ (latent)**, and the **balance observable M(Ψ)**. Until now these lived only as prose, scattered across the superconscious doctrine, the ProCybernetica semantic algebra, the three-time model, and the receipt spine. There was **no single reconciled, checkable definition** — GAP-4.
 
-This page is that single definition, and it is backed by a machine-checkable descriptor contract (`schemas/world-model-substrate.schema.json`) with a fail-closed validator (`tools/validate_world_model_substrate.py`). A substrate declaration that names all seven components with resolvable mechanism bindings **verifies**; one missing a component, carrying an unknown component, or pointing at a dangling mechanism **is rejected**.
+This page is that single definition, and it is backed by a machine-checkable descriptor contract (`schemas/world-model-substrate.schema.json`) with a fail-closed validator (`tools/validate_world_model_substrate.py`). A substrate declaration that names all seven components with resolvable mechanism bindings **verifies**; one missing a component, carrying an unknown component, pointing at a dangling mechanism, or cross-wiring a component to another slot's mechanism (e.g. swapping Θ and T) **is rejected**.
 
 ---
 
@@ -88,10 +88,10 @@ Per ADR-0002 and ADR-0001 §9.7, the **literal Hopf-tower / dual-sector / M(Ψ) 
 
 ```sh
 python3 tools/validate_world_model_substrate.py
-# OK: WorldModelSubstrate validation passed (schema in lockstep, 1 example verified, 3 invalid rejected)
+# OK: WorldModelSubstrate validation passed (schema in lockstep, 1 example verified, 4 invalid rejected)
 ```
 
 - **Verifies:** `examples/world-model-substrate.example.json` — all seven components, valid mechanism bindings, four structural attributes.
-- **Rejected:** `…missing-component.invalid.json` (drops E), `…unknown-component.invalid.json` (adds a bogus `Q`), `…dangling-ref.invalid.json` (a `mechanismRef` outside the registry).
+- **Rejected:** `…missing-component.invalid.json` (drops E), `…unknown-component.invalid.json` (adds a bogus `Q`), `…dangling-ref.invalid.json` (a `mechanismRef` outside the registry), `…cross-wired-ref.invalid.json` (a `mechanismRef` that IS in the registry but is designated for a different slot — e.g. a Θ↔T swap).
 
 The receipt-spine and hash-chained integrity of E use **SHA-256, the FIPS-180-4 approved hash algorithm** (an algorithm choice, not a FIPS-140 module claim; see ADR-0002 §7).
