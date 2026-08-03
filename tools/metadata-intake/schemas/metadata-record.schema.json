@@ -1,0 +1,97 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.dev/metadata-standards/metadata-record.v0.1.schema.json",
+  "title": "SocioProphet Canonical Metadata Record v0.1",
+  "description": "The single canonical metadata record every artifact acquires at intake (Metadata Standards v0.1). Identity + integrity are immutable and sealed at acquisition; custody + enrichment grow append-only. Grounded in FRE 901/902, NIST SP 800-86, ISO/IEC 27037, HellGraph IDL v0.1, TriTRPC v1.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["identity", "integrity", "temporal", "provenance", "classification"],
+  "properties": {
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Assigned at intake, never modified. Immutable handle.",
+      "required": ["artifact_id", "corpus_id", "exhibit_id", "original_filename", "mime_type", "file_size_bytes", "artifact_class"],
+      "properties": {
+        "artifact_id": {"type": "string", "format": "uuid", "description": "UUID v7 (time-ordered)."},
+        "corpus_id": {"type": "string", "minLength": 1, "description": "Owning corpus, e.g. SP-FORENSICS-2026."},
+        "exhibit_id": {"type": "string", "pattern": "^AF-[0-9]{4,}$", "description": "Sequential exhibit id AF-NNNN, never reused."},
+        "original_filename": {"type": "string", "minLength": 1, "description": "Verbatim; typos/spaces preserved, not normalized."},
+        "mime_type": {"type": "string", "minLength": 1, "description": "IANA type by content inspection, not extension."},
+        "file_size_bytes": {"type": "integer", "minimum": 0, "description": "Exact byte count at acquisition; must match hash input."},
+        "artifact_class": {"$ref": "#/$defs/artifactClass"}
+      }
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Computed at acquisition and sealed. Any mismatch vs a recomputed hash is a custody break (IntegrityViolation).",
+      "required": ["hash_blake3", "hash_sha256", "canonicalization_spec", "serializer_version", "hash_computed_at_micros", "hash_computed_by", "integrity_status"],
+      "properties": {
+        "hash_blake3": {"type": "string", "pattern": "^[a-fA-F0-9]{64}$", "description": "BLAKE3-256 of raw bytes; primary fingerprint, computed before any conversion."},
+        "hash_sha256": {"type": "string", "pattern": "^[a-fA-F0-9]{64}$", "description": "SHA-256 of raw bytes; FRE 902(14) + external interop."},
+        "hash_md5": {"type": "string", "pattern": "^[a-fA-F0-9]{32}$", "description": "Legacy tool compat only; NOT used for integrity assertions."},
+        "canonicalization_spec": {"type": "string", "pattern": "^CANON-v[0-9]+\\.[0-9]+$"},
+        "serializer_version": {"type": "string", "minLength": 1},
+        "hash_computed_at_micros": {"type": "integer", "description": "Unix micros; MUST be the first timestamp in the custody chain (NIST SP 800-86: hash before analysis)."},
+        "hash_computed_by": {"type": "string", "minLength": 1, "description": "Tool id+version, e.g. exodus-intake-v0.1.0."},
+        "integrity_status": {"enum": ["Verified", "PendingVerification", "IntegrityViolation", "Unknown"]}
+      }
+    },
+    "temporal": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The three-time model (HellGraph TemporalScope + forensic). Times are distinct and must not be conflated.",
+      "required": ["txn_created", "observed_at_micros", "uploaded_at_micros"],
+      "properties": {
+        "txn_created": {"type": "integer", "description": "DB txn time (HellGraph txn_from)."},
+        "valid_from_micros": {"type": ["integer", "null"]},
+        "valid_to_micros": {"type": ["integer", "null"]},
+        "observed_at_micros": {"type": "integer", "description": "Forensic acquisition time."},
+        "uploaded_at_micros": {"type": "integer", "description": "Upload to platform storage; may differ if collected offline."},
+        "incident_date_range": {"type": ["string", "null"]}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Complete origin chain → HellGraph ProvenanceRef.",
+      "required": ["source_account", "source_platform", "source_path_or_id", "capture_method"],
+      "properties": {
+        "source_account": {"type": "string", "minLength": 1},
+        "source_platform": {"enum": ["GoogleDrive", "GmailThread", "iCloudDrive", "LocalFilesystem", "AppleDataArchive", "TerminalSession", "BrowserConsole", "NetworkCapture", "Other"]},
+        "source_path_or_id": {"type": "string", "minLength": 1},
+        "containing_folder": {"type": "string"},
+        "producing_tool": {"type": ["string", "null"]},
+        "capture_method": {"enum": ["LiveCapture", "PanicSave", "ScheduledExport", "ManualCopy", "AgentExport", "Unknown"]},
+        "parent_artifact_id": {"type": ["string", "null"], "description": "Derivation edge → ProvenanceRef.source_atom."},
+        "signer_atom": {"type": ["string", "null"]},
+        "chain_of_trust": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "classification": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Position in the evidence hierarchy; populated progressively through examination/analysis.",
+      "required": ["evidence_class", "evidence_grade", "security_label", "witness_retention"],
+      "properties": {
+        "evidence_class": {"enum": ["Primary", "Derived", "Duplicate", "Reference", "Unknown"]},
+        "evidence_grade": {"enum": ["E1", "E2", "E3", "E4", "E5"], "description": "E1 Speculative → E5 Corroborated."},
+        "layer_citations": {"type": "array", "items": {"type": "string", "pattern": "^L[0-9]{2}"}},
+        "hypothesis_ids": {"type": "array", "items": {"type": "string"}},
+        "null_hypothesis_ids": {"type": "array", "items": {"type": "string"}},
+        "counter_explanations": {"type": "array", "items": {"type": "string"}},
+        "security_label": {"enum": ["Public", "Internal", "Confidential", "Restricted", "LocalOnly"]},
+        "witness_retention": {"enum": ["LocalOnly", "ExportableToLegalCounsel", "ExportableUnderProtectiveOrder", "PublicRecord"]}
+      }
+    }
+  },
+  "$defs": {
+    "artifactClass": {
+      "enum": ["RawLog", "ConsolePaste", "Spindump", "BinaryPlist", "EmailThread", "LegalFiling",
+               "AnalysisReport", "DerivedReport", "AuditRecord", "NetworkCapture", "FirmwareDump",
+               "AppleDataArchive", "Other"]
+    },
+    "_sparql_note": "Cross-field rule (enforced by tools/validate_metadata.py, not expressible in pure JSON Schema): any record with evidence_grade >= E3 MUST have non-empty classification.null_hypothesis_ids (adversarial-review-by-design)."
+  }
+}
