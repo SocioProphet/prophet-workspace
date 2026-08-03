@@ -1,0 +1,39 @@
+name: Control Architecture (RCS/4D)
+
+on:
+  pull_request:
+    paths:
+      - 'schemas/control-architecture-declaration.schema.json'
+      - 'examples/control-architecture-declaration.example.json'
+      - 'examples/control-architecture-declaration.*.invalid.json'
+      - 'tools/validate_control_architecture.py'
+      - 'docs/adr/ADR-0003-rcs-4d-control-architecture-of-record.md'
+      - '.github/workflows/control-architecture.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'schemas/control-architecture-declaration.schema.json'
+      - 'examples/control-architecture-declaration.example.json'
+      - 'examples/control-architecture-declaration.*.invalid.json'
+      - 'tools/validate_control_architecture.py'
+      - 'docs/adr/ADR-0003-rcs-4d-control-architecture-of-record.md'
+      - '.github/workflows/control-architecture.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-control-architecture:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Validate ControlArchitectureDeclaration (RCS/4D conformance)
+        run: python3 tools/validate_control_architecture.py

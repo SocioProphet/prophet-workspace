@@ -1,0 +1,86 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.dev/schemas/control-architecture-declaration.schema.json",
+  "title": "ControlArchitectureDeclaration",
+  "description": "A declaration that binds the six canonical NIST RCS / 4D-RCS control nodes (ADR-0003) each to a real, resolvable estate mechanism. The teeth: all six nodes must be present, and every node's mechanismRef must resolve to an entry in spec.mechanisms (no dangling ref).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "apiVersion": {"const": "workspace.socioprophet.dev/v1"},
+    "kind": {"const": "ControlArchitectureDeclaration"},
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["declarationId", "createdAt", "referenceArchitecture", "adrRef"],
+      "properties": {
+        "declarationId": {"type": "string", "minLength": 1},
+        "createdAt": {"type": "string", "minLength": 1},
+        "referenceArchitecture": {"const": "NIST-RCS-4D"},
+        "adrRef": {"type": "string", "minLength": 1},
+        "labels": {
+          "type": "object",
+          "additionalProperties": {"type": "string"}
+        }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mechanisms", "nodes"],
+      "properties": {
+        "mechanisms": {
+          "type": "object",
+          "description": "Registry of estate mechanisms a node may bind to. Keys are mechanismRef tokens.",
+          "minProperties": 1,
+          "additionalProperties": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["repo", "ref", "kind"],
+            "properties": {
+              "repo": {"type": "string", "minLength": 1},
+              "ref": {"type": "string", "minLength": 1},
+              "kind": {"type": "string", "minLength": 1},
+              "crossRefs": {
+                "type": "array",
+                "items": {"type": "string", "minLength": 1}
+              }
+            }
+          }
+        },
+        "nodes": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "The six canonical RCS control nodes. All six are required; none may be omitted.",
+          "required": [
+            "ValueJudgment",
+            "WorldModel",
+            "KnowledgeDatabase",
+            "SensoryRecognition",
+            "TaskPlanner",
+            "TaskExecutor"
+          ],
+          "properties": {
+            "ValueJudgment": {"$ref": "#/$defs/node"},
+            "WorldModel": {"$ref": "#/$defs/node"},
+            "KnowledgeDatabase": {"$ref": "#/$defs/node"},
+            "SensoryRecognition": {"$ref": "#/$defs/node"},
+            "TaskPlanner": {"$ref": "#/$defs/node"},
+            "TaskExecutor": {"$ref": "#/$defs/node"}
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["mechanismRef", "rcsRole"],
+      "properties": {
+        "mechanismRef": {"type": "string", "minLength": 1},
+        "rcsRole": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}
