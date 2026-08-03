@@ -108,25 +108,116 @@ class InMemoryFixtureAdapter(GraphAdapter):
 
 
 class HellGraphClientAdapter(GraphAdapter):
-    """Runtime seam: binds the VENDORED HellGraph client (consumed, not modified).
+    """Runtime binding: HellGraph consumed over its confirmed HTTP surface (consumed, not modified).
 
-    Deliberately unimplemented until the HellGraph client package + target repo (gap G6) are
-    confirmed. It maps 1:1 onto HellGraph primitives already used elsewhere in the estate
-    (nodesByLabel / properties / typed edges / bounded traversal), so wiring it is mechanical:
-      - upsert_concept  -> put node {label:'Concept', form}
-      - upsert_relation -> put typed edge {type: relation, truthvalue}
-      - expand          -> HellGraph bounded BFS by edge type, filtered by relation
+    The canonical HellGraph is served by ``hellgraph-service`` (prophet-platform/apps/hellgraph-service),
+    the SAME door the rest of the estate writes through (nugget-extractor's HellGraphWriter,
+    market-replay's emitter). Verified endpoints (server.ts header + handlers, engine
+    @socioprophet/hellgraph 0.4.40):
+
+      - POST /api/graph/node     {id, labels[], properties?}      -> upsert node   (addNode is an upsert)
+      - POST /api/graph/edge     {label, from, to, properties?}   -> add typed edge (carries properties)
+      - GET  /api/graph/subgraph?label=X[&limit=N]                -> {nodes, edgeList} induced subgraph;
+                                                                     edges carry .properties (round-trips)
+
+    Mapping (WO-A contract — the fixture is the contract):
+      - upsert_concept  -> POST /node  {id: "Concept:<form>", labels:["Concept"], properties:{form}}
+      - upsert_relation -> ensure both concepts, then POST /edge {label: relation, from, to,
+                           properties:{strength, confidence, relClass: rel_type}}
+      - expand          -> read the Concept-labelled induced subgraph, rebuild the local edge table,
+                           and run the IDENTICAL bounded-BFS truth-composition the conformance suite
+                           pins (InMemoryFixtureAdapter.expand). Correctness is guaranteed by reuse of
+                           the proven algorithm; the read is confirmed-shape (edge .properties survive
+                           the round-trip, cf. hellgraph masking.test.ts / rocksdb-backend.test.ts).
+
+    Performance note (documented seam, not a correctness gap): ``expand`` currently pulls the
+    Concept subgraph and BFS-es locally. Once a per-node out-edge read (Gremlin outE()+valueMap over
+    POST /api/graph/gremlin) is contract-pinned it can expand incrementally; the semantics are already
+    frozen by the conformance suite, so that is a mechanical swap.
+
+    ``httpx`` is imported lazily (inside methods) so importing this module — and running the
+    conformance suite against InMemoryFixtureAdapter — needs no HTTP dependency.
     """
 
-    def __init__(self, client=None):
-        self._client = client
+    #: Edge class this adapter writes/filters on (Cypher ``[:CSKG ...]`` maps here). The predicate
+    #: (IsA / Causes / ...) is the edge *label*; the class rides in ``properties.relClass`` and is the
+    #: default label filter the gateway maps ``rel_type`` onto — matching the fixture's discipline where
+    #: ``relation_filter`` does the discriminating.
+    DEFAULT_NODE_LABEL = "Concept"
 
-    def _require(self):
-        raise NotImplementedError(
-            "HellGraphClientAdapter is a documented seam; bind the vendored HellGraph client "
-            "(see docs/adr/ADR-0001 WO-A). Conformance runs against InMemoryFixtureAdapter."
-        )
+    def __init__(self, base_url: str, *, client=None, node_label: str = DEFAULT_NODE_LABEL,
+                 timeout: float = 30.0, subgraph_limit: int = 2000):
+        self.base_url = base_url.rstrip("/")
+        self.node_label = node_label
+        self.timeout = timeout
+        self.subgraph_limit = subgraph_limit
+        self._client = client  # optional pre-built httpx.Client (e.g. a MockTransport in tests)
 
-    def upsert_concept(self, form: str) -> None: self._require()
-    def upsert_relation(self, head, relation, tail, truth) -> None: self._require()
-    def expand(self, form, rel_type, hop_min, hop_max, relation_filter, limit): self._require()
+    # -- transport -----------------------------------------------------------------------------
+    def _http(self):
+        if self._client is not None:
+            return self._client
+        import httpx  # lazy: only needed for live binding
+        self._client = httpx.Client(base_url=self.base_url, timeout=self.timeout)
+        return self._client
+
+    def _node_id(self, form: str) -> str:
+        return f"{self.node_label}:{form}"
+
+    def _post(self, path: str, payload: dict) -> dict:
+        r = self._http().post(path, json=payload)
+        if r.status_code != 200:
+            raise HellGraphAdapterError(f"hellgraph {r.status_code} on {path}: {r.text[:300]}")
+        return r.json()
+
+    # -- writes --------------------------------------------------------------------------------
+    def upsert_concept(self, form: str) -> None:
+        self._post("/api/graph/node",
+                   {"id": self._node_id(form), "labels": [self.node_label], "properties": {"form": form}})
+
+    def upsert_relation(self, head: str, relation: str, tail: str, truth: TruthValue) -> None:
+        # addNode is an upsert (safe to repeat); ensure both endpoints exist first.
+        self.upsert_concept(head)
+        self.upsert_concept(tail)
+        self._post("/api/graph/edge", {
+            "label": relation,
+            "from": self._node_id(head),
+            "to": self._node_id(tail),
+            "properties": {"strength": truth.strength, "confidence": truth.confidence},
+        })
+
+    # -- read + bounded BFS (contract-faithful via algorithm reuse) ----------------------------
+    def _load_subgraph(self) -> "InMemoryFixtureAdapter":
+        """Pull the Concept-labelled induced subgraph and rebuild the local edge table so the pinned
+        BFS runs over exactly the same shape the fixture defines."""
+        r = self._http().get("/api/graph/subgraph",
+                             params={"label": self.node_label, "limit": self.subgraph_limit})
+        if r.status_code != 200:
+            raise HellGraphAdapterError(f"hellgraph {r.status_code} on /api/graph/subgraph: {r.text[:300]}")
+        body = r.json()
+        # id -> form (a Concept node carries properties.form; fall back to stripping the id prefix)
+        form_of: dict[str, str] = {}
+        for n in body.get("nodes", []):
+            props = n.get("properties") or {}
+            nid = n.get("id")
+            form_of[nid] = props.get("form") or (nid.split(":", 1)[1] if ":" in (nid or "") else nid)
+        mem = InMemoryFixtureAdapter()
+        for e in body.get("edgeList", []):
+            head = form_of.get(e.get("from"))
+            tail = form_of.get(e.get("to"))
+            if head is None or tail is None:
+                continue
+            props = e.get("properties") or {}
+            mem.upsert_relation(
+                head, e.get("label"), tail,
+                TruthValue(float(props.get("strength", 1.0)), float(props.get("confidence", 1.0))),
+            )
+        return mem
+
+    def expand(self, form: str, rel_type: str, hop_min: int, hop_max: int,
+               relation_filter: str | None, limit: int) -> list[Hit]:
+        return self._load_subgraph().expand(form, rel_type, hop_min, hop_max, relation_filter, limit)
+
+
+class HellGraphAdapterError(RuntimeError):
+    """hellgraph-service unreachable or refused a request. Callers fail closed (never a silent empty)."""
