@@ -1,0 +1,37 @@
+name: Analysis Views (AV-1)
+
+on:
+  pull_request:
+    paths:
+      - 'tools/analysis-views/**'
+      - '.github/workflows/analysis-views.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'tools/analysis-views/**'
+      - '.github/workflows/analysis-views.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-analysis-views:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      - name: Install jsonschema
+        run: pip install jsonschema
+
+      - name: Validate analysis-view descriptors (teeth both ways)
+        run: python3 tools/analysis-views/validate_analysis_view.py
+
+      - name: AV-1 conformance tests
+        run: python3 tools/analysis-views/tests/av1_test.py

@@ -1,0 +1,48 @@
+{
+  "identity": {
+    "view_id": "av-view-9005",
+    "name": "External over-clearance",
+    "created_at_micros": 1754179260000000
+  },
+  "model": {
+    "kind": "LSA"
+  },
+  "source": {
+    "corpus_id": "corpus:partner-feed",
+    "base_relation": "event_ir.bags"
+  },
+  "transform": {
+    "seed": 1337,
+    "dim": 512,
+    "normalization": "tfidf"
+  },
+  "integrity": {
+    "hash_algo": "sha256",
+    "signed": false
+  },
+  "lifecycle": {
+    "freshness": {
+      "refresh_cadence": "manual",
+      "staleness_policy": "serve_stale"
+    },
+    "eviction": {
+      "policy": "none"
+    },
+    "reconstruction": {
+      "deterministic": false
+    }
+  },
+  "governance": {
+    "zone_path": [
+      "Landing",
+      "Examination"
+    ],
+    "access": {
+      "epistemic_ceiling": "Measured"
+    },
+    "provenance": {
+      "origin": "external",
+      "parent_corpus_id": "corpus:partner-feed"
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "identity": {
+    "view_id": "av-view-0003",
+    "name": "Corpus LDA topic view (K=64)",
+    "description": "Topic model over event bags; distinct from the 23x6 governance intent grid — this is a corpus-analytics view.",
+    "created_at_micros": 1754179210000000
+  },
+  "model": {"kind": "LDA"},
+  "source": {
+    "corpus_id": "corpus:cases-2026",
+    "base_relation": "event_ir.claim_bags"
+  },
+  "transform": {"seed": 2025, "k": 64, "normalization": "none"},
+  "integrity": {"hash_algo": "sha256", "signed": false},
+  "lifecycle": {
+    "freshness": {"refresh_cadence": "manual", "staleness_policy": "serve_stale"},
+    "eviction": {"policy": "none"},
+    "reconstruction": {"deterministic": true, "from_seed": true, "source_refs": ["corpus:cases-2026"]}
+  },
+  "governance": {
+    "zone_path": ["Landing", "Examination"],
+    "access": {"epistemic_ceiling": "Derived", "security_label": "internal"},
+    "provenance": {"origin": "internal", "parent_corpus_id": "corpus:cases-2026"}
+  }
+}
