@@ -32,7 +32,19 @@
         "notebookSessionId": {"type": "string"},
         "policyRef": {"type": "string", "minLength": 1},
         "evidenceCorrelationId": {"type": "string", "minLength": 1},
-        "outputDigest": {"type": "string", "pattern": "^sha256:[a-fA-F0-9]{64}$"},
+        "outputDigest": {"type": "string", "pattern": "^sha256:[a-fA-F0-9]{64}$", "description": "FIPS-authoritative SHA-256 digest of the output (FIPS 180-4 + FRE 902(14))."},
+        "outputDigestBlake3": {"type": "string", "pattern": "^blake3:[a-fA-F0-9]{64}$", "description": "MS-P3: ADVISORY BLAKE3 fingerprint of the output. NON-FIPS — never authoritative (outputDigest is). Optional."},
+        "temporal": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "MS-P3: the three-time model (Metadata Standards §3.3) — distinct, never conflated.",
+          "required": ["observed_at_micros", "txn_created", "uploaded_at_micros"],
+          "properties": {
+            "observed_at_micros": {"type": "integer", "description": "When the action was produced."},
+            "txn_created": {"type": "integer", "description": "DB/ledger transaction time."},
+            "uploaded_at_micros": {"type": "integer", "description": "Commit to the durable store."}
+          }
+        },
         "publicationRef": {"type": "string"},
         "shareScope": {"enum": ["private", "project", "group", "organization", "public"]}
       }
