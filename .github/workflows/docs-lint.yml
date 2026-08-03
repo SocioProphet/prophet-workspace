@@ -1,0 +1,22 @@
+# WO-I docs drift control — enforce the docs-as-code standard on every change to docs/ or the checker.
+name: docs-lint
+on:
+  pull_request:
+    paths: ["docs/**", "tools/validate_docs.py", "tools/tests/validate_docs_test.py", ".github/workflows/docs-lint.yml"]
+  push:
+    branches: [main]
+    paths: ["docs/**", "tools/validate_docs.py"]
+permissions:
+  contents: read
+jobs:
+  docs-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Docs lint self-test (teeth)
+        run: python3 tools/tests/validate_docs_test.py
+      - name: Docs drift control (metadata + links + coverage)
+        run: python3 tools/validate_docs.py
