@@ -1,0 +1,36 @@
+// triRPC IDL for the Cypher facade over the canonical graph (HellGraph). WO-A of ADR-0001.
+// One stable verb: Graph.QueryCypher. Clients (Sherlock Scout/Loom, agent-term CLI, UI) speak this;
+// the implementation (parser -> Sentinel -> translator -> HellGraph adapter) can change beneath it.
+syntax = "proto3";
+package trirpc.graph.v1;
+
+service Graph {
+  // Execute a SAFE-SUBSET Cypher query against the canonical graph. Rejects anything outside the
+  // subset (mutation, procedures, unbounded/over-cap hops, missing/over-cap LIMIT) with a stable code.
+  rpc QueryCypher(QueryCypherRequest) returns (QueryCypherResponse);
+}
+
+message QueryCypherRequest {
+  string query = 1;                 // safe-subset Cypher, e.g.
+                                    //   MATCH (h:Concept {form:$lemma})-[:CSKG*1..2]->(t) RETURN t.form LIMIT 25
+  map<string, string> params = 2;   // e.g. {"lemma": "rain"}
+}
+
+message TruthValue { double strength = 1; double confidence = 2; }
+
+message Row {
+  string value = 1;                 // the RETURNed <var>.<prop>
+  repeated string path = 2;         // relations traversed anchor->tail (the justification chain)
+  TruthValue truth = 3;             // composed truth along the path
+}
+
+message QueryCypherResponse {
+  repeated Row rows = 1;
+  repeated string plan = 2;         // human-readable execution plan (anchor / expand / return+limit)
+  uint32 row_count = 3;
+}
+
+// On rejection the transport returns an error carrying { code, message } where code is one of the
+// stable reason codes: mutation-*, procedure-call, where-unsupported, union-unsupported,
+// with-unsupported, unbounded-hops, hop-cap, limit-required, limit-cap, param-missing,
+// anchor-shape, rel-shape, tail-shape, match-shape, return-shape, policy-hop-cap, policy-limit-cap.
