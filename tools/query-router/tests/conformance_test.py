@@ -71,6 +71,18 @@ def main() -> int:
     check("graph route's constructed Cypher parses in cypher-atomspace-gateway",
           "MATCH" in cy and "LIMIT 25" in cy, cy)
 
+    # --- POSITIVE: the relational verb hands the SQL store a SAFE, parameterised query (WO-A3 #79) ---
+    ss = construct_query(c_sql, question="how many fact memories are there")
+    check("text-to-sql verb → parameterised SELECT-only (COUNT), value bound not interpolated",
+          ss.sql.upper().startswith("SELECT COUNT(*)") and ss.params == ["fact"]
+          and "DROP" not in ss.sql.upper(), f"{ss.sql} :: {ss.params}")
+
+    # --- POSITIVE: the vector verb hands Qdrant a {semantic_query, metadata_filter} (WO-A3 #80) ------
+    sqf = construct_query(c_vec, question="find fact memories about coastal erosion")
+    check("self-query verb → residual query + Qdrant-shaped filter over a declared field",
+          sqf.metadata_filter.get("must") == [{"key": "memory_class", "match": {"value": "fact"}}]
+          and "erosion" in sqf.semantic_query.lower(), str(sqf.to_dict()))
+
     # --- POSITIVE: semantic route commits when a query is clearly nearest one exemplar --------------
     space = PinnedSpace(dims=64)
     emb = FixtureEmbedder(space)

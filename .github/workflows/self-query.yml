@@ -1,0 +1,35 @@
+name: self-query constructor
+
+on:
+  pull_request:
+    paths:
+      - 'tools/self-query/**'
+      - '.github/workflows/self-query.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'tools/self-query/**'
+      - '.github/workflows/self-query.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  self-query-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # Stdlib-only (in-memory Qdrant-filter evaluator). Teeth both ways: NL constraints extract a
+      # Qdrant-shaped filter that selects the expected fixture points; undeclared-field / unsupported-
+      # operator filters are rejected. Gating it means the WO-A3 self-query contract (#80) cannot rot.
+      - name: self-query conformance (NL→metadata-filter, Qdrant shape, teeth both ways)
+        working-directory: tools/self-query
+        run: python3 tests/conformance_test.py

@@ -1,0 +1,51 @@
+// triRPC IDL for the vector self-query construction verb (WO-A3 of ADR-0001, RAG GAP #80).
+//
+// Contract: NL question + a DECLARED field schema -> {semantic_query, metadata_filter}, where the
+// filter is a Qdrant-acceptable {must/must_not} shape over declared fields + a supported operator
+// subset. The service MUST reject (never full-scan) undeclared fields / unsupported operators with a
+// stable reason code. Mirrors graph_query_cypher.proto (WO-A).
+syntax = "proto3";
+
+package prophet.query.selfquery.v1;
+
+// A Qdrant filter condition (one of match-value / match-any / range / is_empty).
+message Condition {
+  string key = 1;
+  // Encoded to match qdrant_index.py: {"match":{"value":..}} | {"match":{"any":[..]}} |
+  // {"range":{"gte":..,"lt":..}} | {"is_empty":{"key":..}}. Carried as canonical JSON.
+  string condition_json = 2;
+}
+
+message MetadataFilter {
+  repeated Condition must = 1;      // ANDed
+  repeated Condition must_not = 2;  // negated
+}
+
+message SelfQuery {
+  string semantic_query = 1;        // residual NL with filter phrases stripped
+  MetadataFilter metadata_filter = 2;
+  repeated string plan = 3;
+}
+
+// Stable reason codes: empty, unknown-field, unsupported-operator, enum-value, operand-type.
+message FilterRejection {
+  string code = 1;
+  string message = 2;
+}
+
+message BuildSelfQueryRequest {
+  string question = 1;
+  string schema = 2;               // declared field-schema id (e.g. "memorymesh-recall", "corpus")
+}
+
+message BuildSelfQueryResponse {
+  oneof result {
+    SelfQuery query = 1;
+    FilterRejection rejected = 2;
+  }
+}
+
+service SelfQueryConstructor {
+  // Construct: NL -> {semantic_query, metadata_filter}. Side-effect-free (construction only).
+  rpc BuildSelfQuery(BuildSelfQueryRequest) returns (BuildSelfQueryResponse);
+}
