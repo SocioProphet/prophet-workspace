@@ -1,0 +1,33 @@
+// Ledger.Push — the estate receipt-spine append verb (WO-B of ADR-0001).
+//
+// One append-only, tamper-evident, FIPS SHA-256 hash-chained ledger; many record types
+// (ProofArtifact, InferenceReceipt, CustodyEvent) share it through this single verb.
+// The Python reference implementation is ledger_push.py (handle_ledger_push).
+syntax = "proto3";
+
+package socioprophet.spine.v1;
+
+// A record's already-shaped, spine-agnostic fields. The spine owns recordType, ledgerSeq,
+// ledgerPrevHash and entryHash; a request MUST NOT set those (they are assigned by the verb).
+message LedgerPushRequest {
+  string record_type = 1;              // "ProofArtifact" | "InferenceReceipt" | "CustodyEvent" | ...
+  google.protobuf.Struct fields = 2;   // type-specific fields (dual-hashes, run package, event fields…)
+}
+
+message LedgerEntry {
+  string record_type      = 1;
+  uint64 ledger_seq       = 2;         // monotonic, assigned by the verb
+  string ledger_prev_hash = 3;         // links to the prior entry's entry_hash (genesis for seq 0)
+  string entry_hash       = 4;         // sha256:(prev_hash + canonical(body)) — FIPS 180-4
+  google.protobuf.Struct fields = 5;
+}
+
+message LedgerPushResponse {
+  LedgerEntry entry = 1;
+}
+
+// Fail-closed: a write failure or an illegal request (empty record_type, or fields colliding with a
+// spine-owned key) returns an error and appends NOTHING (AC-1: no entry ⇒ no receipt ⇒ no publish).
+service Ledger {
+  rpc Push(LedgerPushRequest) returns (LedgerPushResponse);
+}

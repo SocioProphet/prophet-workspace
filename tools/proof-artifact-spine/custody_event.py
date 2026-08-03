@@ -12,9 +12,7 @@ from __future__ import annotations
 import time
 from pathlib import Path
 
-from proof_artifact import (  # reuse the FIPS-approved chain + ledger primitives (one spine)
-    GENESIS_PREV, ProofArtifactError, _last_entry, canonical, chain_hash,
-)
+from proof_artifact import ProofArtifactError  # shared fail-closed type (one spine)
 
 RECORD_TYPE = "CustodyEvent"
 
@@ -77,27 +75,21 @@ def emit_custody_event(
     if event_type == "IntegrityViolation" and fields.get("custody_status") != "IntegrityViolation":
         raise CustodyEventError("status-mismatch", "IntegrityViolation event must set custody_status=IntegrityViolation")
 
-    ledger = Path(ledger)
-    prev = _last_entry(ledger)
-    prev_hash = prev["entryHash"] if prev else GENESIS_PREV
-    seq = (prev["ledgerSeq"] + 1) if prev else 0
     ts = timestamp_micros if timestamp_micros is not None else int(time.time() * 1_000_000)
-
-    body = {
-        "recordType": RECORD_TYPE,
-        "ledgerSeq": seq,
-        "ledgerPrevHash": prev_hash,
-        "eventType": event_type,
-        "artifactId": artifact_id,
-        "actorId": actor_id,
-        "actorType": actor_type,
-        "timestampMicros": ts,
-        "fields": {k: v for k, v in fields.items() if v not in (None,)},
-    }
-    body["entryHash"] = chain_hash(prev_hash + canonical(body))   # chain = SHA-256 (FIPS)
-    try:
-        with open(ledger, "a", encoding="utf-8") as f:
-            f.write(canonical(body) + "\n")
-    except OSError as e:
-        raise ProofArtifactError(f"ledger write failed: {e}") from e
-    return body
+    # One spine, one append verb: CustodyEvents share the FIPS SHA-256 chain with ProofArtifacts and
+    # InferenceReceipts via Ledger.Push. canonical() sorts keys, so this is byte-identical to the
+    # previous hand-rolled body.
+    from ledger_push import ledger_push
+    return ledger_push(
+        ledger,
+        record_type=RECORD_TYPE,
+        fields={
+            "eventType": event_type,
+            "artifactId": artifact_id,
+            "actorId": actor_id,
+            "actorType": actor_type,
+            "timestampMicros": ts,
+            "fields": {k: v for k, v in fields.items() if v not in (None,)},
+        },
+        error_cls=ProofArtifactError,
+    )

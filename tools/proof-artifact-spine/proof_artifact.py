@@ -99,17 +99,14 @@ def emit_proof_artifact(
 
     Raises ProofArtifactError if the ledger can't be written — the caller (publish/f_!) MUST treat that
     as a failed publish (AC-1: no receipt ⇒ no publish)."""
-    ledger = Path(ledger)
-    prev = _last_entry(ledger)
-    prev_hash = prev["entryHash"] if prev else GENESIS_PREV
-    seq = (prev["ledgerSeq"] + 1) if prev else 0
+    # Deferred import breaks the cycle: ledger_push imports the spine primitives from THIS module, so
+    # this module must not import ledger_push at load time. The shared append verb owns read-prev →
+    # seq → chain-hash → append; here we only SHAPE the ProofArtifact's fields.
+    from ledger_push import ledger_push
 
     now_micros = int(time.time() * 1_000_000)
     run_dict = run.to_dict()
-    body = {
-        "recordType": RECORD_TYPE,
-        "ledgerSeq": seq,
-        "ledgerPrevHash": prev_hash,
+    fields = {
         # Three-time model (Metadata Standards §3.3): observed = when the action was produced;
         # txn_created = ledger write; uploaded = commit to the durable ledger. Distinct, never conflated.
         "temporal": {
@@ -127,14 +124,8 @@ def emit_proof_artifact(
         "runPackage": run_dict,
         "inclusionRecord": inclusion_record or {},
     }
-    body["entryHash"] = chain_hash(prev_hash + canonical(body))   # chain = SHA-256 (FIPS)
-
-    try:
-        with open(ledger, "a", encoding="utf-8") as f:
-            f.write(canonical(body) + "\n")
-    except OSError as e:
-        raise ProofArtifactError(f"ledger write failed: {e}") from e
-    return body
+    # canonical() sorts keys, so routing through ledger_push yields a byte-identical entryHash.
+    return ledger_push(ledger, record_type=RECORD_TYPE, fields=fields, error_cls=ProofArtifactError)
 
 
 def verify_ledger(ledger: Path) -> tuple[bool, str]:
