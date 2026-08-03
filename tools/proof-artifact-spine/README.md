@@ -33,3 +33,8 @@ Productionising = routing emission through the shared ledger service behind the 
 verb (ADR-0001), so the InferenceReceipt and ProofArtifact streams share one physical ledger, and
 consolidating the emitter with `inference_receipt_emitter.py`. The mechanics here are byte-compatible with
 that emitter by design. See the WO register / assigned issues.
+
+
+## MS-P3 conformance (Metadata Standards v0.1)
+
+Aligned to the metadata standard: content hashes are **dual** (`{blake3, sha256}` — BLAKE3-256 primary per §3.2, SHA-256 for FRE 902(14)); the chain `entryHash` uses **BLAKE3**; and every receipt carries the **three-time** `temporal` block (`observed_at_micros` / `txn_created` / `uploaded_at_micros`, §3.3). Requires the `blake3` package (`requirements.txt`). Verified: `python3 tests/wo_b_test.py` → 14/14.

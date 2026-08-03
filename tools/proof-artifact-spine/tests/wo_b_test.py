@@ -51,7 +51,12 @@ def main() -> int:
         # --- happy path: publish emits a chained receipt ---
         r0 = publish(mkreq(), ledger)
         check("publish emits ProofArtifact seq 0", r0["ledgerSeq"] == 0 and r0["recordType"] == "ProofArtifact")
-        check("receipt carries input+output hashes", r0["inputHash"].startswith("sha256:") and r0["outputHash"].startswith("sha256:"))
+        check("receipt carries DUAL input+output hashes (blake3 primary + sha256)",
+              r0["inputHash"]["blake3"].startswith("blake3:") and r0["inputHash"]["sha256"].startswith("sha256:")
+              and r0["outputHash"]["blake3"].startswith("blake3:") and r0["outputHash"]["sha256"].startswith("sha256:"))
+        check("chain hash is BLAKE3 primary (Metadata Standards §3.2)", r0["entryHash"].startswith("blake3:"))
+        check("receipt carries the three-time temporal model",
+              all(k in r0["temporal"] for k in ("observed_at_micros", "txn_created", "uploaded_at_micros")))
         r1 = publish(mkreq(inputs="second fact"), ledger)
         check("second publish chains to first", r1["ledgerPrevHash"] == r0["entryHash"] and r1["ledgerSeq"] == 1)
 

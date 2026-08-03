@@ -19,12 +19,25 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
+import blake3  # noqa: E402 — BLAKE3-256 is the PRIMARY integrity fingerprint (Metadata Standards v0.1)
+
 RECORD_TYPE = "ProofArtifact"
-GENESIS_PREV = "sha256:" + "0" * 64   # first entry chains to genesis
+GENESIS_PREV = "blake3:" + "0" * 64   # first entry chains to genesis (chain hash = BLAKE3, primary)
+
+
+def blake3_hex(s: str) -> str:
+    """Primary integrity fingerprint (Metadata Standards §3.2: BLAKE3-256, before any conversion)."""
+    return "blake3:" + blake3.blake3(s.encode("utf-8")).hexdigest()
 
 
 def sha256(s: str) -> str:
+    """Secondary fingerprint — FRE 902(14) compatibility + external verifier interop."""
     return "sha256:" + hashlib.sha256(s.encode("utf-8")).hexdigest()
+
+
+def dual_hash(s: str) -> dict:
+    """The standard's dual-hash: BLAKE3 primary + SHA-256 for legal/interop. Both over the same bytes."""
+    return {"blake3": blake3_hex(s), "sha256": sha256(s)}
 
 
 def canonical(obj: dict) -> str:
@@ -71,6 +84,7 @@ def emit_proof_artifact(
     inputs: str,
     run: RunPackage,
     inclusion_record: dict | None = None,
+    observed_at_micros: int | None = None,
 ) -> dict:
     """Append a hash-chained ProofArtifact for a knowledge publish. Returns the receipt.
 
@@ -81,22 +95,30 @@ def emit_proof_artifact(
     prev_hash = prev["entryHash"] if prev else GENESIS_PREV
     seq = (prev["ledgerSeq"] + 1) if prev else 0
 
+    now_micros = int(time.time() * 1_000_000)
     run_dict = run.to_dict()
     body = {
         "recordType": RECORD_TYPE,
         "ledgerSeq": seq,
         "ledgerPrevHash": prev_hash,
-        "emittedAt": round(time.time(), 3),
+        # Three-time model (Metadata Standards §3.3): observed = when the action was produced;
+        # txn_created = ledger write; uploaded = commit to the durable ledger. Distinct, never conflated.
+        "temporal": {
+            "observed_at_micros": observed_at_micros if observed_at_micros is not None else now_micros,
+            "txn_created": now_micros,
+            "uploaded_at_micros": now_micros,
+        },
         "extent": extent,
         "phase": phase,
         "epistemicLevel": epistemic_level,   # e.g. Derived (external principals capped here — STAR-1)
         "agent": agent,
-        "inputHash": sha256(inputs),
-        "outputHash": sha256(canonical(run_dict)),
+        # Dual-hash (BLAKE3 primary + SHA-256) over the inputs and the canonical run package.
+        "inputHash": dual_hash(inputs),
+        "outputHash": dual_hash(canonical(run_dict)),
         "runPackage": run_dict,
         "inclusionRecord": inclusion_record or {},
     }
-    body["entryHash"] = sha256(prev_hash + canonical(body))
+    body["entryHash"] = blake3_hex(prev_hash + canonical(body))   # chain = BLAKE3 primary
 
     try:
         with open(ledger, "a", encoding="utf-8") as f:
@@ -126,7 +148,7 @@ def verify_ledger(ledger: Path) -> tuple[bool, str]:
                 return False, f"broken chain at seq {entry.get('ledgerSeq')}: prevHash mismatch"
             claimed = entry.get("entryHash")
             body = {k: v for k, v in entry.items() if k != "entryHash"}
-            recomputed = sha256(prev_hash + canonical(body))
+            recomputed = blake3_hex(prev_hash + canonical(body))   # chain = BLAKE3 primary
             if recomputed != claimed:
                 return False, f"tamper at seq {entry.get('ledgerSeq')}: entryHash mismatch"
             prev_hash = claimed
