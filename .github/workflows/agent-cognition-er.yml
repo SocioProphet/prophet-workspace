@@ -1,0 +1,37 @@
+name: Agent Cognition ER
+
+on:
+  pull_request:
+    paths:
+      - 'tools/agent-cognition-er/**'
+      - '.github/workflows/agent-cognition-er.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'tools/agent-cognition-er/**'
+      - '.github/workflows/agent-cognition-er.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-agent-cognition-er:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # Stdlib-only by design (no jsonschema): the validator carries the cross-field teeth, the
+      # memory-binding drift guard, and a schema-drift guard, so gating them means the
+      # AgentCognitionER contract cannot silently rot.
+      - name: Validate AgentCognitionER (model + memory-binding + schema-drift + fixtures both ways)
+        run: python3 tools/agent-cognition-er/validate_agent_cognition_er.py
+
+      - name: AgentCognitionER conformance (teeth both ways + per-tooth mutation)
+        run: python3 tools/agent-cognition-er/tests/conformance_test.py

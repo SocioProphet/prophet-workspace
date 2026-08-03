@@ -1,0 +1,10 @@
+{
+  "_comment": "REJECTED (T4): the PROVENANCE_RECORD includes a MODEL_VERSION but does not depends_on any DATASET_VERSION. A receipt that cannot name its data is not replayable.",
+  "entities": {
+    "PROVENANCE_RECORD": [{"record_id": "prov:1", "record_type": "ProofArtifact", "ledger_prev_hash": "sha256:00", "dataset_version": "ds:1", "model_version": "mv:1"}],
+    "MODEL_VERSION": [{"model_version_id": "mv:1", "content_hash": "sha256:dd"}]
+  },
+  "edges": [
+    ["prov:1", "includes", "mv:1"]
+  ]
+}

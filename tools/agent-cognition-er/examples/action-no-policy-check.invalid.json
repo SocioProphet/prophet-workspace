@@ -1,0 +1,12 @@
+{
+  "_comment": "REJECTED (T3): the ACTION is recorded_as an AUDIT_EVENT but is NOT gated_by any POLICY_CHECK. No action without lawful promotion.",
+  "entities": {
+    "AGENT": [{"agent_id": "agent:x", "passport_ref": "urn:passport:x"}],
+    "ACTION": [{"action_id": "act:1", "agent_id": "agent:x", "kind": "publish"}],
+    "AUDIT_EVENT": [{"event_id": "ae:1", "action_id": "act:1", "event_hash": "sha256:bb"}]
+  },
+  "edges": [
+    ["agent:x", "emits", "act:1"],
+    ["act:1", "recorded_as", "ae:1"]
+  ]
+}

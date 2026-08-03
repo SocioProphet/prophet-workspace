@@ -1,0 +1,82 @@
+{
+  "_comment": "A complete governed-cognition ER instance that is auditable-by-construction: the ACTION is gated_by a POLICY_CHECK and recorded_as an AUDIT_EVENT; the PROVENANCE_RECORD depends_on a DATASET_VERSION and includes a MODEL_VERSION; every memory item (OBSERVATION, GRAPH_ENTITY, VECTOR_CHUNK, BELIEF_STATE, PLAN) carries topic_set + span + domain.",
+  "entities": {
+    "AGENT": [
+      {"agent_id": "agent:sherlock-scout", "passport_ref": "urn:passport:sherlock-scout:v1"}
+    ],
+    "DECISION_CYCLE": [
+      {"cycle_id": "cycle:001", "agent_id": "agent:sherlock-scout", "started_at": "2026-08-03T12:00:00Z"}
+    ],
+    "OBSERVATION": [
+      {"observation_id": "obs:001", "cycle_id": "cycle:001",
+       "topic_set": ["baxter", "flooding"], "span": {"valid_from": "2026-08-03T11:00:00Z", "valid_to": null}, "domain": "cases"}
+    ],
+    "GRAPH_ENTITY": [
+      {"entity_id": "ge:baxter",
+       "topic_set": ["baxter"], "span": {"valid_from": "2026-08-03T11:00:00Z", "valid_to": null}, "domain": "cases"}
+    ],
+    "GRAPH_EDGE": [
+      {"edge_id": "gedge:001", "node1": "ge:baxter", "node2": "ge:helene", "relation": "affected_by"}
+    ],
+    "FAIR_OBJECT": [
+      {"object_id": "fo:001", "content_hash": "sha256:aaaa"}
+    ],
+    "FAIR_METADATA": [
+      {"metadata_id": "fm:001", "describes": "ge:baxter"}
+    ],
+    "PROVENANCE_RECORD": [
+      {"record_id": "prov:001", "record_type": "ProofArtifact", "ledger_prev_hash": "sha256:0000",
+       "dataset_version": "ds:001", "model_version": "mv:001"}
+    ],
+    "VECTOR_CHUNK": [
+      {"chunk_id": "vc:001", "object_id": "fo:001", "embedding_ref": "qdrant:point:001",
+       "topic_set": ["baxter"], "span": {"valid_from": "2026-08-03T11:00:00Z", "valid_to": null}, "domain": "cases"}
+    ],
+    "ACTION": [
+      {"action_id": "act:001", "agent_id": "agent:sherlock-scout", "kind": "publish"}
+    ],
+    "POLICY_CHECK": [
+      {"check_id": "pc:001", "action_id": "act:001", "outcome": "allow", "reason_code": "PURPOSE_ADMISSIBLE"}
+    ],
+    "AUDIT_EVENT": [
+      {"event_id": "ae:001", "action_id": "act:001", "event_hash": "sha256:bbbb"}
+    ],
+    "BELIEF_STATE": [
+      {"belief_id": "bs:001", "agent_id": "agent:sherlock-scout",
+       "topic_set": ["baxter", "flooding"], "span": {"valid_from": "2026-08-03T12:00:00Z", "valid_to": "2026-08-03T13:00:00Z"}, "domain": "session:001"}
+    ],
+    "PLAN": [
+      {"plan_id": "plan:001", "cycle_id": "cycle:001", "steps": ["retrieve", "ground", "answer"],
+       "topic_set": ["baxter"], "span": {"valid_from": "2026-08-03T12:00:00Z", "valid_to": null}, "domain": "cases"}
+    ],
+    "EVIDENCE_BUNDLE": [
+      {"bundle_id": "eb:001", "cycle_id": "cycle:001", "provenance_refs": ["prov:001"]}
+    ],
+    "DATASET_VERSION": [
+      {"dataset_version_id": "ds:001", "content_hash": "sha256:cccc"}
+    ],
+    "MODEL_VERSION": [
+      {"model_version_id": "mv:001", "content_hash": "sha256:dddd"}
+    ]
+  },
+  "edges": [
+    ["agent:sherlock-scout", "runs", "cycle:001"],
+    ["agent:sherlock-scout", "maintains", "bs:001"],
+    ["agent:sherlock-scout", "selects", "plan:001"],
+    ["agent:sherlock-scout", "emits", "act:001"],
+    ["agent:sherlock-scout", "evaluates", "pc:001"],
+    ["cycle:001", "consumes", "obs:001"],
+    ["cycle:001", "references", "eb:001"],
+    ["obs:001", "about", "ge:baxter"],
+    ["obs:001", "stored_as", "fo:001"],
+    ["ge:baxter", "linked_by", "gedge:001"],
+    ["ge:baxter", "described_by", "fm:001"],
+    ["fo:001", "generated_by", "prov:001"],
+    ["fo:001", "indexed_as", "vc:001"],
+    ["act:001", "gated_by", "pc:001"],
+    ["act:001", "recorded_as", "ae:001"],
+    ["act:001", "causes_updates", "ge:baxter"],
+    ["prov:001", "depends_on", "ds:001"],
+    ["prov:001", "includes", "mv:001"]
+  ]
+}

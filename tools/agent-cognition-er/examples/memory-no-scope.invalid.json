@@ -1,0 +1,7 @@
+{
+  "_comment": "REJECTED (T2): the OBSERVATION is a memory item but carries no topic_set / span / domain. Memory is scoped, never ambient.",
+  "entities": {
+    "OBSERVATION": [{"observation_id": "obs:1", "cycle_id": "cycle:1"}]
+  },
+  "edges": []
+}

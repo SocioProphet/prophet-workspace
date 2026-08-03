@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.dev/prophet-workspace/agent-cognition-er.v1.schema.json",
+  "title": "AgentCognitionER instance v1",
+  "description": "An instance of the governed-cognition entity/relation model (ER-1, companion to ADR-0002). The reference ER's literal tokens (AGENT, DECISION_CYCLE, OBSERVATION, GRAPH_ENTITY/EDGE, FAIR_OBJECT/METADATA, PROVENANCE_RECORD, VECTOR_CHUNK, ACTION, POLICY_CHECK, AUDIT_EVENT, BELIEF_STATE, PLAN, EVIDENCE_BUNDLE, DATASET_VERSION, MODEL_VERSION) originate in prophet-platform/apps/socioprophet-web/public/workbench/unified_cognitive_systems_map.html; this schema makes them a validatable contract. The cross-field TEETH (every ACTION gated_by POLICY_CHECK + recorded_as AUDIT_EVENT; every PROVENANCE_RECORD depends_on DATASET_VERSION + includes MODEL_VERSION; every memory item carries topic_set+span+domain) are enforced by validate_agent_cognition_er.py, not by JSON Schema alone. The enum lists here are drift-guarded against the Python model (agent_cognition_er.py) by validate_schema().",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["entities", "edges"],
+  "properties": {
+    "entities": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Entity records, keyed by ER entity type.",
+      "propertyNames": {
+        "enum": [
+          "AGENT", "DECISION_CYCLE", "OBSERVATION", "GRAPH_ENTITY", "GRAPH_EDGE",
+          "FAIR_OBJECT", "FAIR_METADATA", "PROVENANCE_RECORD", "VECTOR_CHUNK", "ACTION",
+          "POLICY_CHECK", "AUDIT_EVENT", "BELIEF_STATE", "PLAN", "EVIDENCE_BUNDLE",
+          "DATASET_VERSION", "MODEL_VERSION"
+        ]
+      },
+      "patternProperties": {
+        "^[A-Z_]+$": {
+          "type": "array",
+          "items": { "type": "object" }
+        }
+      }
+    },
+    "edges": {
+      "type": "array",
+      "description": "Typed edges [subject_id, predicate, object_id].",
+      "items": {
+        "type": "array",
+        "minItems": 3,
+        "maxItems": 3,
+        "prefixItems": [
+          { "type": "string", "minLength": 1 },
+          {
+            "type": "string",
+            "enum": [
+              "runs", "maintains", "selects", "emits", "evaluates", "consumes", "references",
+              "about", "stored_as", "linked_by", "described_by", "generated_by", "indexed_as",
+              "gated_by", "recorded_as", "causes_updates", "depends_on", "includes"
+            ]
+          },
+          { "type": "string", "minLength": 1 }
+        ]
+      }
+    }
+  }
+}
