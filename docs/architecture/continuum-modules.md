@@ -4,7 +4,7 @@
 - **Status:** active
 - **Last reviewed:** 2026-08-03
 - **Version:** 0.1
-- **Related ADRs:** [ADR-0001](../adr/ADR-0001-open-agent-continuum.md)
+- **Related ADRs:** [ADR-0001](../adr/ADR-0001-open-agent-continuum.md), [ADR-0002](../adr/ADR-0002-governed-cognition-functor.md)
 
 The owning page for every continuum runtime module. Each module lives under `tools/<module>/` with its own
 README + conformance suite; this page is the single index so no runtime object is undocumented.
@@ -24,6 +24,7 @@ README + conformance suite; this page is the single index so no runtime object i
 | `image-promotion-gate` | WO-G | SourceOS image validation gate — EvidenceBundle IS a ProofArtifact; fail-closed promotion + PolicyException | `python3 tests/wo_g_test.py` |
 | `analysis-views` | AV-1 | Registered governed LSA/LDA/LSI analysis-view descriptor (reproducibility seed+hashes) fused with WNZL zone_path + epistemic ceiling + provenance | `python3 tests/av1_test.py` |
 | `cskg-edge` | WO-A+ | Governance-bearing CSKG edge for the gateway: epistemic tier + defeasibility (commonsense is never authoritative), edge-level provenance, valid/observation-time typing (no transaction clock on the edge) | `python3 tools/cskg-edge/tests/cskg_edge_test.py` |
+| `temporal-retrieval-filter` | GAP-2 | Uniform temporal-correctness contract: schema-agnostic `TemporalRetrievalFilter` (`FieldMap` decouples any surface's field names) — suppress superseded, most-recent (max `valid_from`) wins; consumes regis#20's invariant (oracle-pinned), applies across RAG router / memory-mesh / search. ADR-0002 §8 GAP-2 (#84) | `python3 tools/temporal-retrieval-filter/tests/conformance_test.py` |
 
 ## Data flow
 
@@ -33,6 +34,7 @@ question
   → query-router  (logical + semantic route; graph→vector fallback; RouteDecision on the spine — WO-A2)
   → text-to-sql / self-query  (query construction: NL→safe parameterised SELECT + NL→Qdrant metadata filter — WO-A3)
   → cypher-atomspace-gateway  (intent-routed 1–2 hop retrieval, safe subset)
+  → temporal-retrieval-filter  (temporal correctness: suppress superseded, most-recent-fact wins — GAP-2)
   → sherlock-scout  (answer card: answer/evidence/citations/freshness/confidence/missing-info/next-actions)
   → grounded-assistant  (tech-support product surface: 5 grounded bots over the scout card; every answer evidence-backed + receipted — WO-D)
   → proof-artifact-spine  (hash-chained, replayable ProofArtifact — AC-1)
