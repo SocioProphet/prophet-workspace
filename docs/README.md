@@ -7,7 +7,7 @@
 
 This tree makes the Sherlock agent plane **operationally legible** — good enough for operators to run it, engineers to extend it, auditors to inspect it, evaluators to measure it, and support staff to trust it. Docs live beside the code and every runtime object has an owning page.
 
-Start here: **[ADR-0001 — The Open Agent Continuum](adr/ADR-0001-open-agent-continuum.md)** (the architecture-of-record unifying Sherlock, the SP-ARCH-004 workspace controller, and the receipt spine) and **[Program gaps & open obligations](PROGRAM_GAPS_AND_OPEN_OBLIGATIONS.md)** (the sequenced work orders).
+Start here: **[ADR-0001 — The Open Agent Continuum](adr/ADR-0001-open-agent-continuum.md)** (the architecture-of-record unifying Sherlock, the SP-ARCH-004 workspace controller, and the receipt spine), **[ADR-0002 — Governed Cognition as an Emergent Functor](adr/ADR-0002-governed-cognition-functor.md)** (the estate-wide 5-layer / 13-step conformance audit that generalises ADR-0001), and **[Program gaps & open obligations](PROGRAM_GAPS_AND_OPEN_OBLIGATIONS.md)** (the sequenced work orders).
 
 ## Structure
 
