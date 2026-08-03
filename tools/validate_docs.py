@@ -23,6 +23,9 @@ MANAGED_DIRS = ["adr", "ops", "architecture", "search", "agents", "cases", "eval
                 "security", "product", "reference"]
 MANAGED_ROOT_FILES = ["README.md", "PROGRAM_GAPS_AND_OPEN_OBLIGATIONS.md"]
 
+# The single owning index every `tools/<module>` must be named in (the coverage gate's fix target).
+COVERAGE_INDEX = "docs/architecture/continuum-modules.md"
+
 _OWNER = re.compile(r"(?im)^\s*[-*]?\s*\**owner\**\s*:", )
 _STATUS = re.compile(r"(?im)^\s*[-*]?\s*\**status\**\s*:")
 _REVIEW = re.compile(r"(?im)^\s*[-*]?\s*\**(last reviewed|date)\**\s*:")
@@ -67,7 +70,13 @@ def check_coverage(repo: Path, docs: Path) -> list[str]:
     modules = [p.name for p in tools.iterdir()
                if p.is_dir() and (p / "README.md").exists() and p.name != "tests"] if tools.is_dir() else []
     corpus = "\n".join(f.read_text() for f in managed_docs(docs))
-    return [f"coverage: continuum module {m!r} has no owning doc page (name it in the docs tree)"
+    # Fail-closed AND actionable: name the offending module and the exact one-line fix, so a human or
+    # agent resolves it in seconds instead of decoding a bare "no owning doc page" (prophet-workspace#76;
+    # motivated by #77/#89/#97, each of which added a tools/<module> and hit this gate).
+    return [f"coverage: continuum module {m!r} has no owning doc page. "
+            f"FIX: name {m!r} in {COVERAGE_INDEX} — add a table row like "
+            f"`| `{m}` | WO-? | <role> | <verify cmd> |`, or name it in the '## Data flow' block. "
+            f"The docs-lint gate stays red until every tools/<module> is listed there."
             for m in modules if m not in corpus]
 
 

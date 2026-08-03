@@ -60,6 +60,21 @@ def main() -> int:
         r4 = Path(d) / "uncovered"; build_repo(r4, module_covered=False)
         check("uncovered module fails (exit 1)", run(r4) == 1)
 
+        # coverage error is ACTIONABLE: names the offending module + the exact one-line fix, and is
+        # still fail-closed on a genuinely-unnamed module (prophet-workspace#76; motivated by #77/#89/#97).
+        r5 = Path(d) / "actionable"
+        (r5 / "tools" / "widgetron").mkdir(parents=True)
+        (r5 / "tools" / "widgetron" / "README.md").write_text("# widgetron\n")
+        arch = r5 / "docs" / "architecture"; arch.mkdir(parents=True)
+        (arch / "continuum-modules.md").write_text("# component map\n" + META + "no module named here\n")
+        errs = vd.check_coverage(r5, r5 / "docs")
+        msg = "\n".join(errs)
+        check("coverage flags the uncovered module", len(errs) == 1)
+        check("coverage message names the offending module", "widgetron" in msg)
+        check("coverage message points to the fix file", "docs/architecture/continuum-modules.md" in msg)
+        check("coverage message gives the exact fix (FIX:)", "FIX:" in msg)
+        check("coverage still fail-closed on unnamed module (exit 1)", run(r5) == 1)
+
         # unit: metadata + link checks directly
         errs = vd.check_metadata(Path("x.md"), "# t\nno header here\n")
         check("check_metadata flags owner/status/date", len(errs) == 1 and "owner" in errs[0])
