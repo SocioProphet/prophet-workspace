@@ -1,0 +1,24 @@
+{
+  "seed_id": "seed:operator/deploy-bad-provenance",
+  "archetype": "deployment_twin",
+  "ontology_slice": ["Artifact", "Host", "Policy"],
+  "goal_schema": "schema:deployment_goal:v1",
+  "organs_allowed": ["graph_retrieval", "policy_check", "workflow", "tool_exec"],
+  "retrieval_profile": {
+    "graph": true,
+    "hybrid": true,
+    "multimodal": false,
+    "self_reflective": true,
+    "recursive": true
+  },
+  "memory_profile": {
+    "episodic": "read_write",
+    "semantic": "read_write_scoped",
+    "procedural": "read",
+    "provenance": "read_write"
+  },
+  "policy_profile": ["policy:deploy/base"],
+  "provider_profile": ["provider:artifact_store"],
+  "federation_profile": "same_domain_only",
+  "approval_profile": {}
+}

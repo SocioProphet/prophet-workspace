@@ -1,0 +1,35 @@
+name: Genesis Seed
+
+on:
+  pull_request:
+    paths:
+      - 'schemas/genesis-seed.schema.json'
+      - 'examples/genesis-seed.example.json'
+      - 'examples/genesis-seed.*.invalid.json'
+      - 'tools/validate_genesis_seed.py'
+      - '.github/workflows/genesis-seed.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'schemas/genesis-seed.schema.json'
+      - 'examples/genesis-seed.example.json'
+      - 'examples/genesis-seed.*.invalid.json'
+      - 'tools/validate_genesis_seed.py'
+      - '.github/workflows/genesis-seed.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-genesis-seed:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Validate GenesisSeed contract
+        run: python3 tools/validate_genesis_seed.py
