@@ -31,6 +31,7 @@ README + conformance suite; this page is the single index so no runtime object i
 question
   → workspace-controller  (S¹ mount + S² ceiling; reachability)
   → query-router  (logical + semantic route; graph→vector fallback; RouteDecision on the spine — WO-A2)
+  → text-to-sql / self-query  (query construction: NL→safe parameterised SELECT + NL→Qdrant metadata filter — WO-A3)
   → cypher-atomspace-gateway  (intent-routed 1–2 hop retrieval, safe subset)
   → sherlock-scout  (answer card: answer/evidence/citations/freshness/confidence/missing-info/next-actions)
   → grounded-assistant  (tech-support product surface: 5 grounded bots over the scout card; every answer evidence-backed + receipted — WO-D)
