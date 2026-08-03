@@ -1,0 +1,22 @@
+{
+  "apiVersion": "workspace.socioprophet.dev/v1",
+  "kind": "WorldModelSubstrate",
+  "metadata": {
+    "substrateId": "world-model-substrate:missing-E",
+    "createdAt": "2026-08-03T00:00:00Z"
+  },
+  "spec": {
+    "components": {
+      "S_dur": {"role": "durable state", "mechanismRef": "estate://prophet-workspace/tools/cypher-atomspace-gateway", "verdict": "HAVE"},
+      "S_act": {"role": "active state", "mechanismRef": "estate://prophet-platform/apps/regis-acr-api/src/regis_acr_api/er_spine.py", "verdict": "PARTIAL"},
+      "Theta": {"role": "order bundle", "mechanismRef": "estate://ProCybernetica/procyber/semantic/agent_coordinate_vector.py", "verdict": "PARTIAL"},
+      "T": {"role": "transition algebra", "mechanismRef": "estate://sp-orchestrator/crates/sp-exec/src/exec.rs", "verdict": "PARTIAL"},
+      "C": {"role": "constraint family", "mechanismRef": "estate://policy-fabric/contracts", "verdict": "PARTIAL"},
+      "Pi": {"role": "projection family", "mechanismRef": "estate://ProCybernetica/procyber/semantic/semantic_algebra.py", "verdict": "HAVE"}
+    },
+    "orderCycle": {"present": true, "liftOperator": "tau", "mechanismRef": "estate://ProCybernetica/procyber/semantic/semantic_algebra.py", "verdict": "PARTIAL"},
+    "hopfTower": {"levels": ["H0", "H1", "H2", "H3"], "mechanismRef": "estate://superconscious/docs/doctrine/semantic-address-algebra-as-spectral-field-skeleton.v0.1.md", "verdict": "PARTIAL"},
+    "dualSector": {"manifest": "V+", "latent": "V-", "mechanismRef": "estate://ProCybernetica/procyber/semantic/spectral_grounding.py", "verdict": "PARTIAL"},
+    "balanceObservable": {"symbol": "M(Psi)", "mechanismRef": "estate://ProCybernetica/procyber/semantic/spectral_grounding.py", "verdict": "PARTIAL"}
+  }
+}

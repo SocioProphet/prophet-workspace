@@ -1,0 +1,81 @@
+{
+  "apiVersion": "workspace.socioprophet.dev/v1",
+  "kind": "WorldModelSubstrate",
+  "metadata": {
+    "substrateId": "world-model-substrate:estate:v1",
+    "createdAt": "2026-08-03T00:00:00Z",
+    "labels": {"layer": "L1", "adr": "ADR-0002", "gap": "GAP-4"}
+  },
+  "spec": {
+    "components": {
+      "S_dur": {
+        "role": "durable state — canonical persisted world state (durable/transaction axis)",
+        "mechanismRef": "estate://prophet-workspace/tools/cypher-atomspace-gateway",
+        "verdict": "HAVE",
+        "evidence": "AtomSpace canonical store behind the Cypher-subset facade (ADR-0001 §6); HellGraph store"
+      },
+      "S_act": {
+        "role": "active state — working/valid-time projection of durable state (bitemporal, three-time model)",
+        "mechanismRef": "estate://prophet-platform/apps/regis-acr-api/src/regis_acr_api/er_spine.py",
+        "verdict": "PARTIAL",
+        "evidence": "valid_time/system_time in er_spine.py + regis-entity-graph node.schema.json; third (decision) axis absent, no uniform temporal filter (GAP-2, pw#84)"
+      },
+      "Theta": {
+        "role": "order bundle Theta — the order structure / order cycle S^1 + lift tau over the semantic coordinate",
+        "mechanismRef": "estate://ProCybernetica/procyber/semantic/agent_coordinate_vector.py",
+        "verdict": "PARTIAL",
+        "evidence": "11-axis AgentCoordinateVector (exactly-one-primary) carries the order structure; literal S^1 order-cycle/monodromy framing is doctrine-only (GAP-4)"
+      },
+      "T": {
+        "role": "transition algebra T — the transition operators that carry W from state to state",
+        "mechanismRef": "estate://sp-orchestrator/crates/sp-exec/src/exec.rs",
+        "verdict": "PARTIAL",
+        "evidence": "transitions live in the orchestrator/agent DAG (sp-exec), not yet a declared algebra over W"
+      },
+      "C": {
+        "role": "constraint family C — the admissibility constraints the substrate must respect",
+        "mechanismRef": "estate://policy-fabric/contracts",
+        "verdict": "PARTIAL",
+        "evidence": "expressed as policy contracts (L3 membrane) rather than a first-class substrate constraint algebra over W"
+      },
+      "Pi": {
+        "role": "projection family Pi — the lift/ground projections between abstraction layers",
+        "mechanismRef": "estate://ProCybernetica/procyber/semantic/semantic_algebra.py",
+        "verdict": "HAVE",
+        "evidence": "lift dashv ground adjunction (semantic_algebra.py §8); doc SEMANTIC_COORDINATE_ALGEBRA.md"
+      },
+      "E": {
+        "role": "evidence layer E — the append-only, tamper-evident receipt spine over every state change",
+        "mechanismRef": "estate://prophet-workspace/tools/proof-artifact-spine",
+        "verdict": "HAVE",
+        "evidence": "hash-chained ProofArtifact publish()=f_! (AC-1, fail-closed, pw#38); part of the four-arm receipt spine (ADR-0002 §7)"
+      }
+    },
+    "orderCycle": {
+      "present": true,
+      "liftOperator": "tau (lift dashv ground)",
+      "mechanismRef": "estate://ProCybernetica/procyber/semantic/semantic_algebra.py",
+      "verdict": "PARTIAL"
+    },
+    "hopfTower": {
+      "levels": ["H0", "H1", "H2", "H3"],
+      "mechanismRef": "estate://superconscious/docs/doctrine/semantic-address-algebra-as-spectral-field-skeleton.v0.1.md",
+      "verdict": "PARTIAL"
+    },
+    "dualSector": {
+      "manifest": "V+",
+      "latent": "V-",
+      "mechanismRef": "estate://ProCybernetica/procyber/semantic/spectral_grounding.py",
+      "verdict": "PARTIAL"
+    },
+    "balanceObservable": {
+      "symbol": "M(Psi)",
+      "mechanismRef": "estate://ProCybernetica/procyber/semantic/spectral_grounding.py",
+      "verdict": "PARTIAL"
+    },
+    "monodromy": {
+      "mechanismRef": "estate://superconscious/harness",
+      "verdict": "PARTIAL"
+    }
+  }
+}

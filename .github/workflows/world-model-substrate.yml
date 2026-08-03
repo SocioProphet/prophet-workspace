@@ -1,0 +1,35 @@
+name: World-Model Substrate
+
+on:
+  pull_request:
+    paths:
+      - 'schemas/world-model-substrate.schema.json'
+      - 'examples/world-model-substrate.example.json'
+      - 'examples/world-model-substrate.*.invalid.json'
+      - 'tools/validate_world_model_substrate.py'
+      - '.github/workflows/world-model-substrate.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'schemas/world-model-substrate.schema.json'
+      - 'examples/world-model-substrate.example.json'
+      - 'examples/world-model-substrate.*.invalid.json'
+      - 'tools/validate_world_model_substrate.py'
+      - '.github/workflows/world-model-substrate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-world-model-substrate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Validate WorldModelSubstrate contract (ADR-0002 L1 / GAP-4)
+        run: python3 tools/validate_world_model_substrate.py
