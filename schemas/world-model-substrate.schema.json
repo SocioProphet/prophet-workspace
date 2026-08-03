@@ -1,0 +1,126 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.dev/prophet-workspace/world-model-substrate.v1.schema.json",
+  "title": "WorldModelSubstrate v1",
+  "description": "ADR-0002 §4 (L1) / GAP-4: the single reconciled, checkable declaration of the Layer-1 temporal-topological World-Model substrate W = (S_dur, S_act, Theta, T, C, Pi, E). A substrate declaration must name ALL seven components, each bound to an owning estate mechanism (mechanismRef, drawn from the known-mechanism registry), and must declare the four structural attributes of the substrate (order cycle S^1 + lift tau, the recursive Hopf tower H0..H3, the dual-sector decomposition V+ manifest / V- latent, and the balance observable M(Psi)). A declaration missing a component, carrying an unknown component, or pointing at a mechanismRef outside the registry (dangling) is rejected fail-closed. Canonical symbol assignment (reconciled from the ADR-0002 L1 table): Theta = order bundle (order structure / order cycle S^1 + lift tau); T = transition algebra.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "apiVersion": {"const": "workspace.socioprophet.dev/v1"},
+    "kind": {"const": "WorldModelSubstrate"},
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["substrateId", "createdAt"],
+      "properties": {
+        "substrateId": {"type": "string", "minLength": 1},
+        "createdAt": {"type": "string", "format": "date-time"},
+        "labels": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["components", "orderCycle", "hopfTower", "dualSector", "balanceObservable"],
+      "properties": {
+        "components": {
+          "type": "object",
+          "description": "All seven components of W = (S_dur, S_act, Theta, T, C, Pi, E). Exactly these keys; no more, no fewer.",
+          "additionalProperties": false,
+          "required": ["S_dur", "S_act", "Theta", "T", "C", "Pi", "E"],
+          "properties": {
+            "S_dur": {"$ref": "#/$defs/component"},
+            "S_act": {"$ref": "#/$defs/component"},
+            "Theta": {"$ref": "#/$defs/component"},
+            "T": {"$ref": "#/$defs/component"},
+            "C": {"$ref": "#/$defs/component"},
+            "Pi": {"$ref": "#/$defs/component"},
+            "E": {"$ref": "#/$defs/component"}
+          }
+        },
+        "orderCycle": {
+          "type": "object",
+          "description": "The primitive order cycle S^1 with lift tau (the circle / monodromy framing of the order structure).",
+          "additionalProperties": false,
+          "required": ["present", "liftOperator", "mechanismRef"],
+          "properties": {
+            "present": {"type": "boolean"},
+            "liftOperator": {"type": "string", "minLength": 1},
+            "mechanismRef": {"$ref": "#/$defs/mechanismRef"},
+            "verdict": {"$ref": "#/$defs/verdict"}
+          }
+        },
+        "hopfTower": {
+          "type": "object",
+          "description": "The recursive Hopf tower H0..H3.",
+          "additionalProperties": false,
+          "required": ["levels", "mechanismRef"],
+          "properties": {
+            "levels": {
+              "type": "array",
+              "items": {"enum": ["H0", "H1", "H2", "H3"]},
+              "minItems": 4,
+              "maxItems": 4,
+              "uniqueItems": true
+            },
+            "mechanismRef": {"$ref": "#/$defs/mechanismRef"},
+            "verdict": {"$ref": "#/$defs/verdict"}
+          }
+        },
+        "dualSector": {
+          "type": "object",
+          "description": "The dual-sector decomposition: V+ manifest, V- latent.",
+          "additionalProperties": false,
+          "required": ["manifest", "latent", "mechanismRef"],
+          "properties": {
+            "manifest": {"const": "V+"},
+            "latent": {"const": "V-"},
+            "mechanismRef": {"$ref": "#/$defs/mechanismRef"},
+            "verdict": {"$ref": "#/$defs/verdict"}
+          }
+        },
+        "balanceObservable": {
+          "type": "object",
+          "description": "The balance observable M(Psi) over the world-model state Psi.",
+          "additionalProperties": false,
+          "required": ["symbol", "mechanismRef"],
+          "properties": {
+            "symbol": {"const": "M(Psi)"},
+            "mechanismRef": {"$ref": "#/$defs/mechanismRef"},
+            "verdict": {"$ref": "#/$defs/verdict"}
+          }
+        },
+        "monodromy": {
+          "type": "object",
+          "description": "Optional: the exact-twist / monodromy framing on the order cycle.",
+          "additionalProperties": false,
+          "required": ["mechanismRef"],
+          "properties": {
+            "mechanismRef": {"$ref": "#/$defs/mechanismRef"},
+            "verdict": {"$ref": "#/$defs/verdict"}
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "verdict": {"enum": ["HAVE", "PARTIAL", "GAP"]},
+    "mechanismRef": {
+      "type": "string",
+      "description": "estate://<repo>/<path> reference to an owning estate mechanism. The validator additionally rejects any ref not in the known-mechanism registry (dangling refs fail closed).",
+      "pattern": "^estate://[A-Za-z0-9._-]+/[A-Za-z0-9._/-]+$"
+    },
+    "component": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["role", "mechanismRef", "verdict"],
+      "properties": {
+        "role": {"type": "string", "minLength": 1},
+        "mechanismRef": {"$ref": "#/$defs/mechanismRef"},
+        "verdict": {"$ref": "#/$defs/verdict"},
+        "evidence": {"type": "string"}
+      }
+    }
+  }
+}
