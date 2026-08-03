@@ -1,0 +1,38 @@
+[
+  {
+    "schema_version": "regis.search.temporal_fact.v0.1",
+    "fact_id": "urn:regis:fact:abc-corp:has_ceo:john-smith",
+    "entity": "urn:regis:entity:org:abc-corp",
+    "relation": "HAS_CEO",
+    "value": "John Smith",
+    "valid_from": "2019-06-01T00:00:00Z",
+    "valid_to": "2025-01-15T00:00:00Z",
+    "superseded_by": "urn:regis:fact:abc-corp:has_ceo:jenna-brown",
+    "superseded_at": "2025-01-15T00:00:00Z",
+    "source_edge_ref": "urn:regis:epistemic-edge:abc-corp.has_ceo.john-smith",
+    "claims_canonical_truth": false,
+    "provenance": {
+      "source_event_ids": ["evt:pressrel:2019-06-01:abc-appoints-smith"],
+      "artifact_ids": ["artifact:doc:abc-2019-annual-report"],
+      "ledger_refs": ["urn:regis:acr:decision-ledger:abc-corp:ceo-transition-2025"]
+    }
+  },
+  {
+    "schema_version": "regis.search.temporal_fact.v0.1",
+    "fact_id": "urn:regis:fact:abc-corp:has_ceo:jenna-brown",
+    "entity": "urn:regis:entity:org:abc-corp",
+    "relation": "HAS_CEO",
+    "value": "Jenna Brown",
+    "valid_from": "2025-01-15T00:00:00Z",
+    "valid_to": null,
+    "superseded_by": null,
+    "superseded_at": null,
+    "source_edge_ref": "urn:regis:epistemic-edge:abc-corp.has_ceo.jenna-brown",
+    "claims_canonical_truth": false,
+    "provenance": {
+      "source_event_ids": ["evt:pressrel:2025-01-15:abc-appoints-brown"],
+      "artifact_ids": ["artifact:doc:abc-2025-ceo-transition-8k"],
+      "ledger_refs": ["urn:regis:acr:decision-ledger:abc-corp:ceo-transition-2025"]
+    }
+  }
+]
