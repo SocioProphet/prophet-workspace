@@ -1,5 +1,10 @@
 # Sherlock / Open Agent Continuum — Documentation (docs-as-code)
 
+- **Owner:** @mdheller
+- **Status:** active
+- **Last reviewed:** 2026-08-03
+- **Version:** 0.2
+
 This tree makes the Sherlock agent plane **operationally legible** — good enough for operators to run it, engineers to extend it, auditors to inspect it, evaluators to measure it, and support staff to trust it. Docs live beside the code and every runtime object has an owning page.
 
 Start here: **[ADR-0001 — The Open Agent Continuum](adr/ADR-0001-open-agent-continuum.md)** (the architecture-of-record unifying Sherlock, the SP-ARCH-004 workspace controller, and the receipt spine) and **[Program gaps & open obligations](PROGRAM_GAPS_AND_OPEN_OBLIGATIONS.md)** (the sequenced work orders).
