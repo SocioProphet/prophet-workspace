@@ -1,0 +1,13 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.dev/prophet-workspace/labor/receipt-ref.v0.1.schema.json",
+  "title": "ReceiptRef v0.1",
+  "description": "A pointer into the estate receipt spine (WO-B proof-artifact-spine, ADR-0001). Every labor-network stage carries one: a stage that cannot resolve to a verified ProofArtifact on the hash-chained ledger is not a real stage (AC-1, the receipt law). This is a REFERENCE only — the spine is consumed, not reinvented.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["ledger_seq", "entry_hash"],
+  "properties": {
+    "ledger_seq": {"type": "integer", "minimum": 0, "description": "ProofArtifact.ledgerSeq on the spine."},
+    "entry_hash": {"type": "string", "pattern": "^sha256:[a-f0-9]{64}$", "description": "ProofArtifact.entryHash (FIPS-180-4 SHA-256)."}
+  }
+}

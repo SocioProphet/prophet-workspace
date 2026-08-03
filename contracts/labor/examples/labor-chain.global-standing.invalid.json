@@ -1,0 +1,89 @@
+{
+  "request": {
+    "record_type": "LaborRequest",
+    "request_id": "labor-request:va-oit/rfp-portfolio-audit-001",
+    "requester": "user:charles",
+    "request_type": "RFP",
+    "objective": "Independent audit of the VA OIT portfolio operating system.",
+    "compensation_disclosed": true,
+    "comp_exempt": false,
+    "schedule": "6 weeks",
+    "deadline": "2026-09-15T00:00:00Z",
+    "evaluation_criteria": [
+      {
+        "criterion": "relevant_domain_evidence",
+        "weight": 0.3
+      },
+      {
+        "criterion": "execution_competence",
+        "weight": 0.25
+      },
+      {
+        "criterion": "availability_fit",
+        "weight": 0.15
+      },
+      {
+        "criterion": "understanding_clarity",
+        "weight": 0.15
+      },
+      {
+        "criterion": "reliability_fulfillment",
+        "weight": 0.1
+      },
+      {
+        "criterion": "compensation_terms_fit",
+        "weight": 0.05
+      }
+    ]
+  },
+  "response": {
+    "record_type": "LaborResponse",
+    "response_id": "labor-response:va-oit/rfp-portfolio-audit-001/team-sherlock",
+    "request_ref": "labor-request:va-oit/rfp-portfolio-audit-001",
+    "responder": "team:sherlock-auditors",
+    "approach": "Provenance-first audit over the receipt spine with counter-tests.",
+    "terms": "Fixed scope, milestone billing.",
+    "proposed_pricing": "fixed:USD",
+    "is_team_bid": true
+  },
+  "evidence": [
+    {
+      "record_type": "Evidence",
+      "evidence_id": "labor-evidence:va-oit/audit-methodology",
+      "response_ref": "labor-response:va-oit/rfp-portfolio-audit-001/team-sherlock",
+      "artifact_refs": [
+        "ledger:seq:4021",
+        "gkn:cred:sherlock-forensics-mastery-02"
+      ],
+      "evidence_grade": "E4",
+      "null_hypothesis_ids": [
+        "nh:audit-bias",
+        "nh:selection-effect"
+      ]
+    }
+  ],
+  "fulfillment": {
+    "record_type": "Fulfillment",
+    "fulfillment_id": "labor-fulfillment:va-oit/rfp-portfolio-audit-001",
+    "award_ref": "labor-response:va-oit/rfp-portfolio-audit-001/team-sherlock",
+    "evidence_refs": [
+      "labor-evidence:va-oit/audit-methodology"
+    ],
+    "milestones": [
+      {
+        "id": "m1",
+        "proof_ref": "ledger:seq:4055",
+        "approved": true
+      }
+    ],
+    "completion_status": "delivered"
+  },
+  "trust": {
+    "record_type": "TrustBinding",
+    "trust_id": "labor-trust:va-oit/rfp-portfolio-audit-001/completion",
+    "subject": "team:sherlock-auditors",
+    "fulfillment_ref": "labor-fulfillment:va-oit/rfp-portfolio-audit-001",
+    "event_type": "completion",
+    "standing_ref": "gkn:standing:global:user:alice"
+  }
+}

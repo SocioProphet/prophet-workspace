@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.dev/prophet-workspace/labor/labor-response.v0.1.schema.json",
+  "title": "LaborResponse v0.1",
+  "description": "A structured proposal answering a LaborRequest (charter v0.1 §3). Introduces supply into the network. Team bids and cooperative responses are first-class (LN-016). request_ref MUST point to a LaborRequest (chain integrity, enforced in labor_contract.py).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["record_type", "response_id", "request_ref", "responder", "approach", "terms", "proposed_pricing"],
+  "properties": {
+    "record_type": {"const": "LaborResponse"},
+    "response_id": {"type": "string", "pattern": "^labor-response:[a-z0-9][a-z0-9:._/@-]{1,160}$"},
+    "request_ref": {"type": "string", "pattern": "^labor-request:[a-z0-9][a-z0-9:._/@-]{1,160}$"},
+    "responder": {"type": "string", "pattern": "^(user|agent|team|org):[A-Za-z0-9._-]+$"},
+    "approach": {"type": "string", "minLength": 1},
+    "terms": {"type": "string", "minLength": 1},
+    "proposed_pricing": {"type": "string", "minLength": 1},
+    "is_team_bid": {"type": "boolean", "default": false, "description": "LN-016: team/cooperative responses are first-class."},
+    "receipt_ref": {"$ref": "https://schemas.socioprophet.dev/prophet-workspace/labor/receipt-ref.v0.1.schema.json"}
+  }
+}

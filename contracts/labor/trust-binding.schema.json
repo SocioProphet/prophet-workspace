@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.dev/prophet-workspace/labor/trust-binding.v0.1.schema.json",
+  "title": "TrustBinding v0.1",
+  "description": "A reputation update on the labor network's trust ledger (charter v0.1 §3 Trust event; LN-017). The charter's core operating statement: reputation is fulfillment history tied to real requests, NOT popularity or follower counts. THEREFORE: trust binds to a guild-scoped GKN Standing Vector reference (guild-knowledge-network) — epistemic standing, min-threshold, guild-scoped — and NOT to a raw scalar. LN-009: no universal candidate / global employability score. The `extra` bag MUST NOT carry a popularity scalar (popularity/followers/likes/score/global_score/…) — enforced in labor_contract.py; the feed/vanity model is rejected by construction.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["record_type", "trust_id", "subject", "fulfillment_ref", "event_type", "standing_ref"],
+  "properties": {
+    "record_type": {"const": "TrustBinding"},
+    "trust_id": {"type": "string", "pattern": "^labor-trust:[a-z0-9][a-z0-9:._/@-]{1,160}$"},
+    "subject": {"type": "string", "pattern": "^(user|agent|team|org):[A-Za-z0-9._-]+$"},
+    "fulfillment_ref": {"type": "string", "pattern": "^labor-fulfillment:[a-z0-9][a-z0-9:._/@-]{1,160}$"},
+    "event_type": {"enum": ["award", "completion", "reference", "dispute", "appeal", "correction"], "description": "LN-017: the trust ledger records these events with provenance."},
+    "standing_ref": {"type": "string", "pattern": "^gkn:standing:guild:[a-z0-9-]+:(user|agent):[A-Za-z0-9._-]+$", "description": "A guild-scoped GKN Standing Vector reference. Guild-scoped by construction — a Master in guild:forensics is a Reader elsewhere until they earn standing there. This is what makes trust epistemic, not a global vanity number."},
+    "extra": {"type": "object", "description": "Optional provenance annotations. MUST NOT contain a popularity scalar (rejected by labor_contract.py)."},
+    "receipt_ref": {"$ref": "https://schemas.socioprophet.dev/prophet-workspace/labor/receipt-ref.v0.1.schema.json"}
+  }
+}
