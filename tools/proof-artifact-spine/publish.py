@@ -87,10 +87,11 @@ def publish(req: PublishRequest, ledger: Path) -> dict:
 def replay(receipt: dict) -> dict:
     """Reconstruct the run from its ProofArtifact and re-verify the output hash — the auditor path
     ('load a package, show plan -> tool_calls -> outputs -> policy'). Raises if the package was tampered."""
-    from proof_artifact import sha256
+    from proof_artifact import dual_hash
     run = receipt["runPackage"]
-    if sha256(canonical(run)) != receipt["outputHash"]:
-        raise PublishDenied("replay-mismatch", "run package does not match the receipt outputHash")
+    # Re-verify against the PRIMARY (BLAKE3) content hash; sha256 is also stored for legal/interop.
+    if dual_hash(canonical(run))["blake3"] != receipt["outputHash"]["blake3"]:
+        raise PublishDenied("replay-mismatch", "run package does not match the receipt outputHash (blake3)")
     return {"plan": run["plan"], "tool_calls": run["tool_calls"],
             "outputs": run["outputs"], "policy_report": run["policy_report"],
             "verified": True, "seq": receipt["ledgerSeq"]}
