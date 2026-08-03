@@ -1,0 +1,11 @@
+{
+  "_comment": "Tiny CSKG fixture (ConceptNet/ATOMIC-style) for WO-A conformance. head-relation-tail (+optional truth).",
+  "triples": [
+    {"head": "rain",    "relation": "IsA",    "tail": "weather",    "strength": 0.9, "confidence": 0.9},
+    {"head": "rain",    "relation": "Causes", "tail": "flood",      "strength": 0.8, "confidence": 0.7},
+    {"head": "weather", "relation": "IsA",    "tail": "phenomenon", "strength": 0.9, "confidence": 0.8},
+    {"head": "flood",   "relation": "Causes", "tail": "damage",     "strength": 0.85, "confidence": 0.6},
+    {"head": "dog",     "relation": "IsA",    "tail": "animal",     "strength": 0.95, "confidence": 0.95},
+    {"head": "animal",  "relation": "IsA",    "tail": "organism",   "strength": 0.9, "confidence": 0.9}
+  ]
+}
