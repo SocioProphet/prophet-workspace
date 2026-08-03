@@ -19,25 +19,34 @@ import time
 from dataclasses import dataclass, field
 from pathlib import Path
 
-import blake3  # noqa: E402 — BLAKE3-256 is the PRIMARY integrity fingerprint (Metadata Standards v0.1)
+import blake3  # ADVISORY (non-FIPS) fingerprint only
 
 RECORD_TYPE = "ProofArtifact"
-GENESIS_PREV = "blake3:" + "0" * 64   # first entry chains to genesis (chain hash = BLAKE3, primary)
-
-
-def blake3_hex(s: str) -> str:
-    """Primary integrity fingerprint (Metadata Standards §3.2: BLAKE3-256, before any conversion)."""
-    return "blake3:" + blake3.blake3(s.encode("utf-8")).hexdigest()
+# FIPS: the hash CHAIN and the AUTHORITATIVE integrity assertion use SHA-256 (FIPS 180-4 approved).
+# BLAKE3 is NOT FIPS-validated → retained only as an advisory/performance fingerprint in the dual-hash,
+# never as the chain or the authoritative hash. (This supersedes MS-P3's BLAKE3 chain.)
+CHAIN_ALGO = "sha256"
+GENESIS_PREV = CHAIN_ALGO + ":" + "0" * 64   # first entry chains to genesis (FIPS-approved chain)
 
 
 def sha256(s: str) -> str:
-    """Secondary fingerprint — FRE 902(14) compatibility + external verifier interop."""
+    """FIPS 180-4 SHA-256 — AUTHORITATIVE integrity fingerprint + chain hash + FRE 902(14)."""
     return "sha256:" + hashlib.sha256(s.encode("utf-8")).hexdigest()
 
 
+def blake3_hex(s: str) -> str:
+    """ADVISORY fingerprint only (fast). NON-FIPS — never the chain or the authoritative hash."""
+    return "blake3:" + blake3.blake3(s.encode("utf-8")).hexdigest()
+
+
+def chain_hash(s: str) -> str:
+    """The tamper-evident chain hash — FIPS-approved (SHA-256)."""
+    return sha256(s)
+
+
 def dual_hash(s: str) -> dict:
-    """The standard's dual-hash: BLAKE3 primary + SHA-256 for legal/interop. Both over the same bytes."""
-    return {"blake3": blake3_hex(s), "sha256": sha256(s)}
+    """Dual fingerprint: SHA-256 (FIPS, authoritative) + BLAKE3 (advisory/performance). Same bytes."""
+    return {"sha256": sha256(s), "blake3": blake3_hex(s)}
 
 
 def canonical(obj: dict) -> str:
@@ -112,13 +121,13 @@ def emit_proof_artifact(
         "phase": phase,
         "epistemicLevel": epistemic_level,   # e.g. Derived (external principals capped here — STAR-1)
         "agent": agent,
-        # Dual-hash (BLAKE3 primary + SHA-256) over the inputs and the canonical run package.
+        # Dual-hash: SHA-256 (FIPS, authoritative) + BLAKE3 (advisory) over inputs + canonical run pkg.
         "inputHash": dual_hash(inputs),
         "outputHash": dual_hash(canonical(run_dict)),
         "runPackage": run_dict,
         "inclusionRecord": inclusion_record or {},
     }
-    body["entryHash"] = blake3_hex(prev_hash + canonical(body))   # chain = BLAKE3 primary
+    body["entryHash"] = chain_hash(prev_hash + canonical(body))   # chain = SHA-256 (FIPS)
 
     try:
         with open(ledger, "a", encoding="utf-8") as f:
@@ -148,7 +157,7 @@ def verify_ledger(ledger: Path) -> tuple[bool, str]:
                 return False, f"broken chain at seq {entry.get('ledgerSeq')}: prevHash mismatch"
             claimed = entry.get("entryHash")
             body = {k: v for k, v in entry.items() if k != "entryHash"}
-            recomputed = blake3_hex(prev_hash + canonical(body))   # chain = BLAKE3 primary
+            recomputed = chain_hash(prev_hash + canonical(body))   # chain = SHA-256 (FIPS)
             if recomputed != claimed:
                 return False, f"tamper at seq {entry.get('ledgerSeq')}: entryHash mismatch"
             prev_hash = claimed

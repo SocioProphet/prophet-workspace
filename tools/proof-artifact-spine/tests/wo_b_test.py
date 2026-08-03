@@ -54,7 +54,7 @@ def main() -> int:
         check("receipt carries DUAL input+output hashes (blake3 primary + sha256)",
               r0["inputHash"]["blake3"].startswith("blake3:") and r0["inputHash"]["sha256"].startswith("sha256:")
               and r0["outputHash"]["blake3"].startswith("blake3:") and r0["outputHash"]["sha256"].startswith("sha256:"))
-        check("chain hash is BLAKE3 primary (Metadata Standards §3.2)", r0["entryHash"].startswith("blake3:"))
+        check("chain hash is SHA-256 (FIPS-approved, supersedes blake3)", r0["entryHash"].startswith("sha256:"))
         check("receipt carries the three-time temporal model",
               all(k in r0["temporal"] for k in ("observed_at_micros", "txn_created", "uploaded_at_micros")))
         r1 = publish(mkreq(inputs="second fact"), ledger)
