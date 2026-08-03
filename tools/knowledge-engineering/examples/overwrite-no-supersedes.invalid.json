@@ -1,0 +1,122 @@
+{
+  "apiVersion": "ke.socioprophet.dev/v1",
+  "kind": "KnowledgeEngineeringWorkspace",
+  "metadata": {
+    "workspaceId": "ke:ws:contacts-intel-2026-08-03",
+    "createdAt": "2026-08-03T00:00:00Z",
+    "owner": "@mdheller"
+  },
+  "spec": {
+    "documentSet": [
+      {
+        "docId": "doc:contacts-charter.txt",
+        "docType": "TXT",
+        "wordCount": 850
+      }
+    ],
+    "entityTypes": [],
+    "relationTypes": [],
+    "dictionaries": [
+      {
+        "dictionaryId": "dict:contacts",
+        "mode": "governed",
+        "entries": [
+          {
+            "conceptRef": "systema:concept:contact-lists",
+            "prefLabel": "Contact Lists",
+            "roleLabel": "ContactLists",
+            "roleKind": "ENTITY_TYPE",
+            "sourceAnchor": {
+              "sourceRef": "SocioProphet/prophet-workspace:doc:contacts-charter.txt#L12-19",
+              "sourceKind": "source_capture",
+              "extractionConfidence": "C",
+              "reviewState": "manually_reviewed",
+              "quoteBoundary": "operational_translation"
+            },
+            "promotionState": "reviewed_definition",
+            "revision": [
+              {
+                "revisionNote": "Learned candidate promoted from regis semantic-role annotation.",
+                "revisionDate": "2026-08-03"
+              }
+            ],
+            "version": 1,
+            "supersedes": null,
+            "status": "superseded",
+            "provenance": {
+              "class": "learned",
+              "receiptRef": "sha256:b535acc9bbcc0c9f6ffffaa5d42196c778d71dce4dbc48ff1eeabea88c45732d",
+              "learnedBy": {
+                "predictor": "ppmi-svd-skipgram@0.1.0",
+                "evidence": "context-coherence cosine=0.83 across 41 occurrences",
+                "sourceCorpusRef": "corpus:SP-CONTACTS-2026"
+              }
+            }
+          },
+          {
+            "conceptRef": "systema:concept:contact-lists",
+            "prefLabel": "Contact Lists",
+            "roleLabel": "ContactLists",
+            "roleKind": "ENTITY_TYPE",
+            "sourceAnchor": {
+              "sourceRef": "authored:@mdheller:2026-08-03:contact-lists-operational-definition",
+              "sourceKind": "human_authored_definition",
+              "extractionConfidence": "A",
+              "reviewState": "independently_verified",
+              "quoteBoundary": "operational_translation"
+            },
+            "promotionState": "operational_definition",
+            "revision": [
+              {
+                "revisionNote": "Learned candidate promoted from regis semantic-role annotation.",
+                "revisionDate": "2026-08-03"
+              },
+              {
+                "revisionNote": "Human overwrite by @mdheller: tightened operational definition to exclude device address books; supersedes learned v1 (retained).",
+                "revisionDate": "2026-08-03"
+              }
+            ],
+            "version": 2,
+            "supersedes": "systema:concept:contact-lists@1",
+            "status": "approved",
+            "provenance": {
+              "class": "human_authored",
+              "receiptRef": "sha256:d2d8661c09b38d443eee1bb1387dd3834fe99b893266db139f6084562c7142cc",
+              "author": {
+                "id": "@mdheller",
+                "authoredAt": "2026-08-03T01:00:00Z"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "rules": [],
+    "versions": [
+      {
+        "versionId": "ke:ver:contacts-v2",
+        "createdAt": "2026-08-03T01:05:00Z",
+        "note": "Human overwrite version: @mdheller supersedes the learned entry; prior retained as v1 (superseded).",
+        "receiptRef": "sha256:c6b21330afcc1913f6583c24442370c23a642fe807ec3e2dc00ddfd922c440ce"
+      }
+    ],
+    "authorship": [
+      {
+        "eventId": "ke:auth:overwrite-contact-lists-0001",
+        "op": "overwrite",
+        "target": {
+          "targetKind": "dictionary_term",
+          "ref": "systema:concept:contact-lists"
+        },
+        "author": {
+          "id": "@mdheller",
+          "authoredAt": "2026-08-03T01:00:00Z"
+        },
+        "version": 2,
+        "supersedes": null,
+        "receiptRef": "sha256:e934fc51f4f7f5d57f2e91ee820fb7db327d86fd0b75dd0a74e5fce0ebe42aec",
+        "provenanceClass": "human_authored"
+      }
+    ]
+  }
+}
