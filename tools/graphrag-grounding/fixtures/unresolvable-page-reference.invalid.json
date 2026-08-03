@@ -1,0 +1,26 @@
+{
+  "name": "page reference not in the index → REJECTED (unresolvable)",
+  "expect": "REJECTED",
+  "reason_contains": "unresolvable page references",
+  "floor": 0.5,
+  "qa_floor": 0.3,
+  "index": {
+    "sources": {
+      "hardy-wright-intro-theory-of-numbers": {"title": "Hardy & Wright", "pages": [38, 39, 40, 41, 42]}
+    }
+  },
+  "gold": {
+    "answer": "√2 is irrational by the parity argument.",
+    "pages": [{"source_id": "hardy-wright-intro-theory-of-numbers", "page": 40}]
+  },
+  "answer": {
+    "question": "Prove that the square root of 2 is not rational.",
+    "answer": "√2 is irrational; assume p/q lowest terms, p²=2q², contradiction.",
+    "grounded": true,
+    "confidence": 0.88,
+    "citations": [
+      {"claim": "The proof.", "page_ref": {"source_id": "hardy-wright-intro-theory-of-numbers", "page": 999}},
+      {"claim": "Ghost source.", "page_ref": {"source_id": "nonexistent-textbook", "page": 5}}
+    ]
+  }
+}

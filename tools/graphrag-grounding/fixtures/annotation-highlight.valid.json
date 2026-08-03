@@ -1,0 +1,16 @@
+{
+  "name": "annotation (highlight+note+tags) → provenance-sealed KG node/edge",
+  "kind": "annotation",
+  "annotation": {
+    "id": "ann:sqrt2-descent-001",
+    "doc_id": "doc:hardy-wright-intro-theory-of-numbers",
+    "source_id": "hardy-wright-intro-theory-of-numbers",
+    "page": 40,
+    "span": {"start": 120, "end": 640},
+    "highlighted_text": "There is no rational number whose square is 2.",
+    "note": "Theorem 43 — the canonical parity / infinite-descent proof. Anchor for the √2 fixture.",
+    "tags": ["irrationality", "number-theory", "proof"],
+    "author": "@mdheller",
+    "created_at": "2026-08-03T00:00:00Z"
+  }
+}
