@@ -1,0 +1,54 @@
+// triRPC IDL for the RAG Routing layer — Route.Decide (WO-A2 of ADR-0001, Open Agent Continuum).
+//
+// Sits IN FRONT of Graph.QueryCypher (graph_query_cypher.proto): Route.Decide turns a natural-language
+// question into a backend + construction verb (the reference architecture's Routing stage), then the
+// caller invokes the store-specific construction verb (Graph.QueryCypher for graph, text-to-sql for
+// relational, self-query for vector). Every decision is emitted as a hash-chained RouteDecision on the
+// shared receipt spine (proof-artifact-spine), so routing is replayable and tamper-evident.
+
+syntax = "proto3";
+
+package socioprophet.workspace.route.v0;
+
+service Route {
+  // Decide which backend serves a question. Fail-closed: an out-of-contract question is ABSTAINED
+  // (status set, backend empty), never silently defaulted.
+  rpc Decide(RouteRequest) returns (RouteReply);
+}
+
+message RouteRequest {
+  string query = 1;                 // the natural-language question
+  repeated float query_vec = 2;     // optional: query embedded in the PINNED space (enables semantic route)
+  repeated string available = 3;    // backends currently serveable (enables the graph→vector fallback edge)
+  RouteMethod method = 4;           // LOGICAL (default) or SEMANTIC
+}
+
+enum RouteMethod {
+  METHOD_UNSPECIFIED = 0;
+  LOGICAL = 1;                      // signal-rule (v0.1) / LLM router picks the source
+  SEMANTIC = 2;                     // cosine-to-exemplar-prompt in the pinned space
+}
+
+message RouteReply {
+  string backend = 1;               // "relational" | "graph" | "vector" (empty when abstained)
+  string construction_verb = 2;     // "text-to-sql" | "cypher" | "self-query"
+  string method = 3;                // which router decided
+  map<string, double> scores = 4;   // per-backend signal counts (logical) or cosine (semantic)
+  Fallback fallback = 5;            // set when the diagram's Graph DB → Vector DB edge fired
+  RouteStatus status = 6;
+  string reason_code = 7;           // stable abstain code when status=ABSTAINED
+  string entry_hash = 8;            // sha256 (FIPS-180-4) of the emitted RouteDecision ledger entry
+}
+
+message Fallback {
+  string from = 1;
+  string to = 2;
+  string reason = 3;                // e.g. "backend-unavailable"
+}
+
+enum RouteStatus {
+  STATUS_UNSPECIFIED = 0;
+  ROUTED = 1;
+  ABSTAINED = 2;                    // fail-closed: empty-query | route-no-backend | route-ambiguous |
+                                    // embedding-space-mismatch | route-unavailable
+}

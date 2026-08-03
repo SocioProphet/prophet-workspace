@@ -1,0 +1,39 @@
+name: Query Router
+
+on:
+  pull_request:
+    paths:
+      - 'tools/query-router/**'
+      - 'tools/cypher-atomspace-gateway/**'
+      - 'tools/proof-artifact-spine/**'
+      - '.github/workflows/query-router.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'tools/query-router/**'
+      - 'tools/cypher-atomspace-gateway/**'
+      - 'tools/proof-artifact-spine/**'
+      - '.github/workflows/query-router.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  router-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # Stdlib-only. The router CONSUMES the sibling WO-A gateway parser and WO-B spine ledger, so this
+      # suite also guards those seams (the paths above re-trigger it if either dependency changes).
+      # Gating it means the WO-A2 routing contract cannot silently rot — control that cannot fail.
+      - name: Query-router conformance (logical + semantic route, fallback, #602 pin, teeth both ways)
+        working-directory: tools/query-router
+        run: python3 tests/conformance_test.py
