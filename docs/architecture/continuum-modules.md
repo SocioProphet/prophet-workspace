@@ -43,3 +43,16 @@ operated via sherlock-shell (Matrix rooms) and agent-term (CLI); reflexively gov
 The receipt spine's **inference arm** is live in production (receipt-gateway, prophet-platform
 #1233/#1237). Runtime bindings for the rest (live HellGraph, Agent-S guest runner, live Synapse, shared
 `Ledger.Push`) are tracked under epic #33.
+
+## Adding a `tools/<module>`
+
+Adding a new `tools/<module>/` (any directory with a `README.md`)? **Name it here in the same PR** — add a
+row to the table above and, where it fits, a line in the `## Data flow` block. The `docs-lint` CI gate
+(`tools/validate_docs.py` coverage check) fails closed until every module is named on this page, so no
+runtime object ships undocumented. This convention exists because PRs #77, #89, and #97 each added a module
+and hit the gate after the fact (prophet-workspace#76). Run it locally before you push:
+
+```sh
+python3 tools/validate_docs.py            # coverage + metadata + link drift; exit 1 = fix before pushing
+python3 tools/tests/validate_docs_test.py # the gate's own self-test (teeth)
+```
