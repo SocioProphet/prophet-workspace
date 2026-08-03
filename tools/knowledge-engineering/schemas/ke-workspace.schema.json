@@ -1,0 +1,332 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.dev/prophet-workspace/ke-workspace.v1.schema.json",
+  "title": "KnowledgeEngineeringWorkspace v1",
+  "description": "The estate's sovereign Knowledge-Engineering + Dictionary-Engineering workbench contract — an IBM-Watson-Knowledge-Studio equivalent, governed. This is a COMPOSITION LAYER, not a new term schema: a KE Workspace binds documentSet -> annotations (CONSUMED from the regis-entity-graph semantic-role output, SemanticTokenTree #22/#27) -> entityTypes + relationTypes (REFERENCED into the governed registries: regis entity-class #16 / semantic-role-kind #22 / ontogenesis OWL/SHACL Domains) -> dictionaries whose entries are governed Systema Concept Entries (CONSUMED from ontogenesis Platform/Systema; source-anchored, promotion-state-lifecycled, revisioned — NOT static lookup lists) -> rules -> versions -> modelRef (rule-based + ML). Every artifact carries a provenance class {learned | human_authored | imported}; every promotion (annotation -> type/dictionary entry) and every human authorship event (add/overwrite/annotate/define) is receipted (proof-artifact-spine sha256: OR knowledge-state-lifecycle urn:srcos:receipt:; SHA-256 = FIPS-180-4 algorithm) and versioned by supersession (prior ConceptRevision retained). The teeth (validate_ke_workspace.py) enforce, both ways: a static-match dictionary entry (NO sourceAnchor / lifecycle skipped) is REJECTED (learn-don't-match); a type/rule referencing a type not in the governed registry is REJECTED; an annotation promoted with no receipt is REJECTED; a human overwrite with no author or no receipt is REJECTED.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["apiVersion", "kind", "metadata", "spec"],
+  "properties": {
+    "apiVersion": { "const": "ke.socioprophet.dev/v1" },
+    "kind": { "const": "KnowledgeEngineeringWorkspace" },
+    "metadata": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["workspaceId", "createdAt", "owner"],
+      "properties": {
+        "workspaceId": { "type": "string", "minLength": 1 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "owner": { "type": "string", "pattern": "^@[A-Za-z0-9-]+$", "description": "Owning author handle (e.g. @mdheller)." },
+        "labels": { "type": "object", "additionalProperties": { "type": "string" } }
+      }
+    },
+    "spec": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["documentSet", "entityTypes", "relationTypes", "dictionaries", "rules", "versions"],
+      "properties": {
+        "documentSet": {
+          "type": "array",
+          "description": "The corpus under annotation. WKS-supported doc types; keep docs small (~1-2k words).",
+          "items": { "$ref": "#/$defs/DocumentRef" }
+        },
+        "annotations": {
+          "type": "array",
+          "description": "Annotations CONSUMED from the regis-entity-graph semantic-role output (SemanticTokenTree token role, #22/#27) as candidate entity/relation/dictionary terms. A promoted annotation MUST carry a promotion receipt (KE-T4).",
+          "items": { "$ref": "#/$defs/Annotation" }
+        },
+        "entityTypes": {
+          "type": "array",
+          "description": "Entity-type bindings REFERENCED into the governed registries (regis entity-class #16, ontogenesis OWL/SHACL Domains). Consumed, not redefined (KE-T2).",
+          "items": { "$ref": "#/$defs/TypeBinding" }
+        },
+        "relationTypes": {
+          "type": "array",
+          "description": "Relation/role-type bindings REFERENCED into the governed registries (regis semantic-role-kind #22, epistemic-edge). Consumed, not redefined (KE-T2).",
+          "items": { "$ref": "#/$defs/TypeBinding" }
+        },
+        "dictionaries": {
+          "type": "array",
+          "description": "Governed dictionaries. mode MUST be 'governed'; a 'static_match' lookup dictionary is REJECTED (KE-T1, learn-don't-match). Each entry BINDS a governed Systema Concept Entry.",
+          "items": { "$ref": "#/$defs/Dictionary" }
+        },
+        "rules": {
+          "type": "array",
+          "description": "Rule-based extractor rules. Each referenced entity/relation type MUST resolve to a governed binding in this workspace (KE-T3).",
+          "items": { "$ref": "#/$defs/Rule" }
+        },
+        "versions": {
+          "type": "array",
+          "description": "Named workspace snapshot/version points. Each is receipted.",
+          "items": { "$ref": "#/$defs/Version" }
+        },
+        "authorship": {
+          "type": "array",
+          "description": "Governed human authorship events. The user is a first-class author: add/overwrite/annotate/define an entity-type, relation-type, dictionary-entry (Systema concept) or rule. Each event is author-attributed + versioned + receipted, and overwrites the learned layer by SUPERSESSION (prior ConceptRevision retained).",
+          "items": { "$ref": "#/$defs/AuthorshipEvent" }
+        },
+        "modelRef": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "The two models a KE version compiles to (WKS): a rule-based model + an ML model.",
+          "properties": {
+            "ruleBasedRef": { "type": "string", "description": "Governed id of the compiled rule-based model." },
+            "mlModelRef": { "type": "string", "description": "Governed id (e.g. analysis-views / ModelManifest) of the trained ML model." }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "Provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "The provenance class carried by EVERY governed artifact. learned = produced by a context predictor and source-anchored (learn-don't-match); human_authored = authored by a first-class human author; imported = brought in from a governed external source. A receiptRef is always required (KE-T7/KE-T8).",
+      "required": ["class", "receiptRef"],
+      "properties": {
+        "class": { "enum": ["learned", "human_authored", "imported"] },
+        "receiptRef": { "$ref": "#/$defs/ReceiptRef" },
+        "learnedBy": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "REQUIRED when class=learned. The learned context predictor + its structural evidence that a term recurs coherently — NOT a static membership test (feedback_learn_dont_match_dictionaries).",
+          "required": ["predictor", "evidence"],
+          "properties": {
+            "predictor": { "type": "string", "minLength": 1, "description": "e.g. ppmi-svd-skipgram@0.1.0, kgram-tfidf-lsa, lsa-lda-divergence." },
+            "evidence": { "type": "string", "minLength": 1, "description": "Structural basis (context-coherence cosine, cross-domain concentration, k-gram TF-IDF persistence). Information structure, never a raw value." },
+            "sourceCorpusRef": { "type": "string", "description": "Governed corpus id the term was learned from." }
+          }
+        },
+        "author": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "REQUIRED when class=human_authored. The first-class human author.",
+          "required": ["id", "authoredAt"],
+          "properties": {
+            "id": { "type": "string", "pattern": "^@[A-Za-z0-9-]+$", "description": "Author handle (e.g. @mdheller)." },
+            "authoredAt": { "type": "string", "format": "date-time" }
+          }
+        },
+        "importedFrom": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "REQUIRED when class=imported. A governed external source (never a raw wordlist).",
+          "required": ["source", "license"],
+          "properties": {
+            "source": { "type": "string", "minLength": 1 },
+            "license": { "type": "string", "minLength": 1, "description": "MIT/Apache-only estate policy." }
+          }
+        }
+      }
+    },
+    "ReceiptRef": {
+      "type": "string",
+      "description": "Reference to a governed receipt: a proof-artifact-spine ProofArtifact entryHash (sha256:<64hex>) OR a knowledge-state-lifecycle receipt id (urn:srcos:receipt:...). SHA-256 = FIPS-180-4 algorithm. KE-T8.",
+      "pattern": "^(sha256:[a-f0-9]{64}|urn:srcos:receipt:[A-Za-z0-9._:-]+)$"
+    },
+    "DocumentRef": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["docId", "docType"],
+      "properties": {
+        "docId": { "type": "string", "minLength": 1 },
+        "docType": { "enum": ["CSV", "TXT", "PDF", "DOC", "DOCX", "HTML", "ZIP"], "description": "WKS-supported doc types (KE-T9)." },
+        "wordCount": { "type": "integer", "minimum": 0, "description": "Keep docs small (~1-2k words); a text doc over 2000 words is REJECTED (KE-T9)." }
+      }
+    },
+    "TypeBinding": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A binding that REFERENCES a governed entity/relation type in an estate registry — it does not redefine it (consume-not-fork). The validator recomputes membership against the pinned governed registries (KE-T2).",
+      "required": ["bindingId", "registryRef", "provenance"],
+      "properties": {
+        "bindingId": { "type": "string", "minLength": 1 },
+        "registryRef": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["schemaId", "member"],
+          "properties": {
+            "schemaId": { "type": "string", "minLength": 1, "description": "The governed registry schema $id (e.g. https://socioprophet.org/schemas/regis/ner/entity-class.schema.json)." },
+            "member": { "type": "string", "minLength": 1, "description": "The member within that registry's governed enum (e.g. ORG, RELATION)." }
+          }
+        },
+        "provenance": { "$ref": "#/$defs/Provenance" }
+      }
+    },
+    "Dictionary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["dictionaryId", "mode", "entries"],
+      "properties": {
+        "dictionaryId": { "type": "string", "minLength": 1 },
+        "mode": { "const": "governed", "description": "MUST be 'governed'. A 'static_match' (WKS-style lookup) dictionary is REJECTED (KE-T1, learn-don't-match)." },
+        "entries": { "type": "array", "items": { "$ref": "#/$defs/DictionaryEntry" } }
+      }
+    },
+    "DictionaryEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A governed dictionary entry that BINDS a Systema Concept Entry (ontogenesis Platform/Systema — CONSUMED, authoritative source). It carries the governance PROJECTION the workbench teeth check against the Systema SHACL gate: a mandatory sourceAnchor (absence ⇒ a bare word/tag ⇒ static-match ⇒ REJECT, KE-T1), a promotionState from the Systema lifecycle, revision history (retained), and a provenance class. There is deliberately NO matchList/lookup/wordlist field: membership is decided by the source-anchored, learned/authored concept, not by literal string matching.",
+      "required": ["conceptRef", "prefLabel", "promotionState", "sourceAnchor", "provenance"],
+      "properties": {
+        "conceptRef": { "type": "string", "minLength": 1, "description": "The bound Systema conceptId IRI (e.g. systema:concept:dictionary-doctrine). Authoritative record lives in ontogenesis." },
+        "prefLabel": { "type": "string", "minLength": 1, "description": "skos:prefLabel of the Systema entry." },
+        "roleLabel": { "type": "string", "pattern": "^[A-Z][A-Za-z0-9]*$", "description": "Optional learned role symbol (regis SemanticRole.label convention, ContactLists) linking this dictionary entry to an annotation role." },
+        "roleKind": { "enum": ["ACTION", "ENTITY_TYPE", "RELATION", "QUANTIFIER", "POSSESSION", "MODIFIER", "CONTEXT"], "description": "Optional link to the regis semantic-role-kind (#22) this entry types." },
+        "sourceAnchor": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "The Systema SourceAnchor projection — the learn-don't-match witness. REQUIRED: a dictionary entry with no sourceAnchor is a static word/tag, not a governed concept (KE-T1).",
+          "required": ["sourceRef", "extractionConfidence", "reviewState"],
+          "properties": {
+            "sourceRef": { "type": "string", "minLength": 1, "description": "Governed source id/path the concept is anchored to." },
+            "sourceKind": { "type": "string" },
+            "extractionConfidence": { "enum": ["A", "B", "C", "D", "E"], "description": "Systema extractionConfidence." },
+            "reviewState": { "enum": ["unreviewed", "candidate", "manually_reviewed", "independently_verified", "rejected", "contested"], "description": "Systema reviewState." },
+            "quoteBoundary": { "enum": ["exact", "near_verbatim", "paraphrase", "operational_translation", "analogy", "unsupported"] }
+          }
+        },
+        "promotionState": {
+          "enum": ["observed_term", "extracted_candidate", "source_anchored", "reviewed_definition", "operational_definition", "implementation_linked", "tested_doctrine", "public_standard", "deprecated", "contested"],
+          "description": "The Systema promotion lifecycle. Advancing past 'reviewed_definition' requires a reviewed sourceAnchor (KE-T1: no skipping the lifecycle)."
+        },
+        "implementationSurface": {
+          "type": "array",
+          "description": "Systema implementationSurface — cross-repo binding {ownerRepo, surfacePath}. Required for implementation_linked+ (KE-T1).",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["ownerRepo"],
+            "properties": {
+              "ownerRepo": { "type": "string", "minLength": 1 },
+              "surfacePath": { "type": "string" }
+            }
+          }
+        },
+        "revision": {
+          "type": "array",
+          "description": "Systema ConceptRevision history (retained — a supersession never deletes prior revisions).",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["revisionNote", "revisionDate"],
+            "properties": {
+              "revisionNote": { "type": "string", "minLength": 1 },
+              "revisionDate": { "type": "string" }
+            }
+          }
+        },
+        "version": { "type": "integer", "minimum": 1, "description": "Workbench version counter over this conceptRef (max active = current)." },
+        "supersedes": { "type": ["string", "null"], "description": "conceptRef@version of the prior entry this supersedes (prior retained)." },
+        "status": { "enum": ["candidate", "approved", "superseded", "tombstoned"], "description": "Workbench activation state; exactly one active (non-superseded/tombstoned) version per conceptRef = max version (KE-T7)." },
+        "provenance": { "$ref": "#/$defs/Provenance" }
+      }
+    },
+    "Annotation": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A reasoning-chain annotation CONSUMED from the regis semantic-role output (SemanticTokenTree token role, #22/#27), promoted through the governed KE loop into a candidate entity/relation/dictionary term.",
+      "required": ["annotationId", "source", "role"],
+      "properties": {
+        "annotationId": { "type": "string", "minLength": 1 },
+        "source": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["utteranceId", "tokenId", "span"],
+          "properties": {
+            "utteranceId": { "type": "string", "minLength": 1 },
+            "tokenId": { "type": "integer", "minimum": 0 },
+            "span": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["start", "end"],
+              "properties": {
+                "start": { "type": "integer", "minimum": 0 },
+                "end": { "type": "integer", "minimum": 0 }
+              }
+            }
+          }
+        },
+        "role": {
+          "type": "object",
+          "additionalProperties": false,
+          "description": "Mirrors the regis SemanticRole: closed kind + OPEN LEARNED label + structural evidence.",
+          "required": ["label", "kind"],
+          "properties": {
+            "label": { "type": "string", "pattern": "^[A-Z][A-Za-z0-9]*$" },
+            "kind": { "enum": ["ACTION", "ENTITY_TYPE", "RELATION", "QUANTIFIER", "POSSESSION", "MODIFIER", "CONTEXT"] },
+            "confidence": { "type": "number", "minimum": 0, "maximum": 1 },
+            "evidence": { "type": "string", "description": "Structural basis (dep=dobj, head=show)." }
+          }
+        },
+        "promotedTo": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "description": "If the annotation was promoted, what it became. A non-null promotedTo REQUIRES promotionReceiptRef (KE-T4).",
+          "required": ["targetKind", "ref"],
+          "properties": {
+            "targetKind": { "enum": ["entity_type", "relation_type", "dictionary_term"] },
+            "ref": { "type": "string", "minLength": 1, "description": "bindingId / conceptRef the annotation was promoted into." }
+          }
+        },
+        "promotionReceiptRef": { "anyOf": [ { "$ref": "#/$defs/ReceiptRef" }, { "type": "null" } ] }
+      }
+    },
+    "Rule": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A rule-based extractor rule. entityTypeRefs/relationTypeRefs MUST resolve to governed bindings in this workspace (KE-T3), which in turn resolve to the governed registries (KE-T2).",
+      "required": ["ruleId", "provenance"],
+      "properties": {
+        "ruleId": { "type": "string", "minLength": 1 },
+        "pattern": { "type": "string", "description": "The rule pattern (information structure)." },
+        "entityTypeRefs": { "type": "array", "items": { "type": "string" }, "description": "bindingIds of entity-type bindings this rule references." },
+        "relationTypeRefs": { "type": "array", "items": { "type": "string" }, "description": "bindingIds of relation-type bindings this rule references." },
+        "provenance": { "$ref": "#/$defs/Provenance" }
+      }
+    },
+    "Version": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["versionId", "receiptRef"],
+      "properties": {
+        "versionId": { "type": "string", "minLength": 1 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "note": { "type": "string" },
+        "receiptRef": { "$ref": "#/$defs/ReceiptRef" }
+      }
+    },
+    "AuthorshipEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A governed human authorship event — the user acting as a first-class author over the learned layer. author + version + receiptRef are ALWAYS required (KE-T6). An 'overwrite' MUST carry 'supersedes' (prior ConceptRevision retained, KE-T5).",
+      "required": ["eventId", "op", "target", "author", "version", "receiptRef", "provenanceClass"],
+      "properties": {
+        "eventId": { "type": "string", "minLength": 1 },
+        "op": { "enum": ["add", "overwrite", "annotate", "define"] },
+        "target": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["targetKind", "ref"],
+          "properties": {
+            "targetKind": { "enum": ["entity_type", "relation_type", "dictionary_term", "rule"] },
+            "ref": { "type": "string", "minLength": 1 }
+          }
+        },
+        "author": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["id", "authoredAt"],
+          "properties": {
+            "id": { "type": "string", "pattern": "^@[A-Za-z0-9-]+$" },
+            "authoredAt": { "type": "string", "format": "date-time" }
+          }
+        },
+        "version": { "type": "integer", "minimum": 1 },
+        "supersedes": { "type": ["string", "null"], "description": "ref@version of the prior artifact this overwrite supersedes (prior retained). REQUIRED for op=overwrite (KE-T5)." },
+        "receiptRef": { "$ref": "#/$defs/ReceiptRef" },
+        "provenanceClass": { "const": "human_authored" }
+      }
+    }
+  }
+}

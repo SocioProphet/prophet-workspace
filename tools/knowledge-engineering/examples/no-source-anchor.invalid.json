@@ -1,0 +1,152 @@
+{
+  "apiVersion": "ke.socioprophet.dev/v1",
+  "kind": "KnowledgeEngineeringWorkspace",
+  "metadata": {
+    "workspaceId": "ke:ws:contacts-intel-2026-08-03",
+    "createdAt": "2026-08-03T00:00:00Z",
+    "owner": "@mdheller"
+  },
+  "spec": {
+    "documentSet": [
+      {
+        "docId": "doc:contacts-charter.txt",
+        "docType": "TXT",
+        "wordCount": 850
+      },
+      {
+        "docId": "doc:contacts-corpus.zip",
+        "docType": "ZIP"
+      }
+    ],
+    "annotations": [
+      {
+        "annotationId": "anno:utt-0007:tok-3",
+        "source": {
+          "utteranceId": "utt-2026-08-03-0007",
+          "tokenId": 3,
+          "span": {
+            "start": 12,
+            "end": 19
+          }
+        },
+        "role": {
+          "label": "ContactLists",
+          "kind": "ENTITY_TYPE",
+          "confidence": 0.82,
+          "evidence": "head=lists"
+        },
+        "promotedTo": {
+          "targetKind": "dictionary_term",
+          "ref": "systema:concept:contact-lists"
+        },
+        "promotionReceiptRef": "sha256:bb1fbb34efee01967d79fc1c7b2fb7ad55c7e464d9bf87b2aaf0dd0154ce4c5c"
+      }
+    ],
+    "entityTypes": [
+      {
+        "bindingId": "et:org",
+        "registryRef": {
+          "schemaId": "https://socioprophet.org/schemas/regis/ner/entity-class.schema.json",
+          "member": "ORG"
+        },
+        "provenance": {
+          "class": "learned",
+          "receiptRef": "sha256:d0931a3f60e54985fe3605b3859f255b115dd6ebc6bc0b6c14e15720a35b4a6f",
+          "learnedBy": {
+            "predictor": "ner-mention-head@0.1.0",
+            "evidence": "NER mention cluster; org-suffix collocation across 37 docs",
+            "sourceCorpusRef": "corpus:SP-CONTACTS-2026"
+          }
+        }
+      }
+    ],
+    "relationTypes": [
+      {
+        "bindingId": "rt:relation",
+        "registryRef": {
+          "schemaId": "https://socioprophet.org/schemas/regis/nlu/semantic-role-kind.schema.json",
+          "member": "RELATION"
+        },
+        "provenance": {
+          "class": "learned",
+          "receiptRef": "sha256:939184f4e322c587b448d66566f6abeb77bb4ffb31972209523749df87329af8",
+          "learnedBy": {
+            "predictor": "semantic-role-kind@0.1.0",
+            "evidence": "dep=prep 'in' binds container relation; span-alignment #27"
+          }
+        }
+      }
+    ],
+    "dictionaries": [
+      {
+        "dictionaryId": "dict:contacts",
+        "mode": "governed",
+        "entries": [
+          {
+            "conceptRef": "systema:concept:contact-lists",
+            "prefLabel": "Contact Lists",
+            "roleLabel": "ContactLists",
+            "roleKind": "ENTITY_TYPE",
+            "promotionState": "reviewed_definition",
+            "implementationSurface": [
+              {
+                "ownerRepo": "SocioProphet/prophet-workspace",
+                "surfacePath": "tools/knowledge-engineering/README.md"
+              }
+            ],
+            "revision": [
+              {
+                "revisionNote": "Learned candidate promoted from regis semantic-role annotation utt-0007:tok-3.",
+                "revisionDate": "2026-08-03"
+              }
+            ],
+            "version": 1,
+            "supersedes": null,
+            "status": "approved",
+            "provenance": {
+              "class": "learned",
+              "receiptRef": "sha256:bb1fbb34efee01967d79fc1c7b2fb7ad55c7e464d9bf87b2aaf0dd0154ce4c5c",
+              "learnedBy": {
+                "predictor": "ppmi-svd-skipgram@0.1.0",
+                "evidence": "context-coherence cosine=0.83 across 41 occurrences; single stable word-sense (learn, don't match)",
+                "sourceCorpusRef": "corpus:SP-CONTACTS-2026"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "rules": [
+      {
+        "ruleId": "rule:org-owns-contactlists",
+        "pattern": "ORG (poss) ContactLists",
+        "entityTypeRefs": [
+          "et:org"
+        ],
+        "relationTypeRefs": [
+          "rt:relation"
+        ],
+        "provenance": {
+          "class": "learned",
+          "receiptRef": "sha256:f8620d9c049fdea4c91e2ca4244496246b63bd659fa5dda45e8a9fc33c4509c6",
+          "learnedBy": {
+            "predictor": "grasp-rule-induction@0.1.0",
+            "evidence": "recurring dependency motif poss(ORG, lists) in 12 utterances"
+          }
+        }
+      }
+    ],
+    "versions": [
+      {
+        "versionId": "ke:ver:contacts-v1",
+        "createdAt": "2026-08-03T00:05:00Z",
+        "note": "First governed snapshot: 1 entity type, 1 relation type, 1 learned Systema dictionary entry, 1 rule.",
+        "receiptRef": "sha256:c6b21330afcc1913f6583c24442370c23a642fe807ec3e2dc00ddfd922c440ce"
+      }
+    ],
+    "modelRef": {
+      "ruleBasedRef": "ke:model:contacts-rulebased-v1",
+      "mlModelRef": "analysis-views:av:contacts-lda-v1"
+    }
+  }
+}
