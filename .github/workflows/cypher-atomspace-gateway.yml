@@ -1,0 +1,39 @@
+name: Cypher/AtomSpace Gateway
+
+on:
+  pull_request:
+    paths:
+      - 'tools/cypher-atomspace-gateway/**'
+      - '.github/workflows/cypher-atomspace-gateway.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'tools/cypher-atomspace-gateway/**'
+      - '.github/workflows/cypher-atomspace-gateway.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  gateway-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # Both suites are stdlib-only: the safe-subset parser + gateway (conformance) and the live
+      # HellGraph binding (fake transport by default — httpx is imported lazily, so no HTTP dep and
+      # no live service is required in CI). Gating them means the WO-A contract cannot silently rot.
+      - name: Gateway conformance (safe subset + bounded traversal, teeth both ways)
+        working-directory: tools/cypher-atomspace-gateway
+        run: python3 tests/conformance_test.py
+
+      - name: HellGraph binding conformance (live adapter honours the fixture contract)
+        working-directory: tools/cypher-atomspace-gateway
+        run: python3 tests/hellgraph_binding_test.py
