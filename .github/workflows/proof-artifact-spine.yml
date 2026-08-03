@@ -1,0 +1,46 @@
+name: Proof-Artifact Spine
+
+on:
+  pull_request:
+    paths:
+      - 'tools/proof-artifact-spine/**'
+      - '.github/workflows/proof-artifact-spine.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'tools/proof-artifact-spine/**'
+      - '.github/workflows/proof-artifact-spine.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  spine-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # blake3 is the advisory (non-FIPS) fingerprint in the dual-hash; the chain itself is SHA-256.
+      - name: Install spine requirements
+        run: python3 -m pip install -r tools/proof-artifact-spine/requirements.txt
+
+      # Gate the spine's OWN conformance so the receipt law (AC-1), the FIPS/MS-P4 custody model, and the
+      # Ledger.Push consolidation cannot silently rot. Each suite has teeth both ways.
+      - name: WO-B — publish=f_! is fail-closed + tamper-evident
+        working-directory: tools/proof-artifact-spine
+        run: python3 tests/wo_b_test.py
+
+      - name: MS-P4 — 14-type CustodyEvent shares the FIPS chain
+        working-directory: tools/proof-artifact-spine
+        run: python3 tests/wo_msp4_test.py
+
+      - name: Ledger.Push — one append verb; three record types on one physical ledger
+        working-directory: tools/proof-artifact-spine
+        run: python3 tests/wo_b_ledger_push_test.py
