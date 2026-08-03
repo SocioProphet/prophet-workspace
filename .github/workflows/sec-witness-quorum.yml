@@ -39,8 +39,8 @@ jobs:
         with:
           python-version: '3.x'
 
-      - name: Install crypto dependency (FIPS ECDSA P-256 quorum)
-        run: python3 -m pip install 'cryptography>=42.0.0'
+      - name: Install crypto dependency (FIPS ECDSA P-256 quorum) + spine deps (blake3/jsonschema)
+        run: python3 -m pip install 'cryptography>=42.0.0' -r tools/proof-artifact-spine/requirements.txt
 
       - name: Validate SEC-2 witness-quorum contract (schema lockstep + structure)
         run: python3 tools/validate_sec_witness_quorum.py

@@ -35,5 +35,8 @@ jobs:
         with:
           python-version: '3.x'
 
+      - name: Install spine deps (blake3 + jsonschema — the validator imports proof_artifact)
+        run: python3 -m pip install -r tools/proof-artifact-spine/requirements.txt
+
       - name: Validate SEC-1 Event-IR contract (schema lockstep + teeth + canonical encoding)
         run: python3 tools/validate_sec_event_ir.py
