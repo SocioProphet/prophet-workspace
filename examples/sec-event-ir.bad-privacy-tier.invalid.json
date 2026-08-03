@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "event_id": "evt:local-1",
+  "time": "2026-08-03T14:22:05.123Z",
+  "kind": "FILE_WRITE",
+  "subject": {
+    "scope": "host/workstation-01",
+    "labels": { "surface": "H2", "topic": "LDA_11" }
+  },
+  "facts": { "path": "/etc/hosts", "bytes": 42 },
+  "provenance": {
+    "collector": "ebpf-file-probe",
+    "toolchain": "ebpf@0.4.2",
+    "inputs": [],
+    "privacy": { "tier": "public" }
+  }
+}

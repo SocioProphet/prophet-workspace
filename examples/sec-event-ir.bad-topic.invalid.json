@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "event_id": "evt:bad-topic-1",
+  "time": "2026-08-03T14:22:05.123Z",
+  "kind": "EDITOR_LSP_MSG",
+  "subject": {
+    "scope": "repo/prophet-workspace",
+    "labels": { "surface": "H4", "topic": "LDA_24" }
+  },
+  "facts": { "method": "textDocument/didChange", "uri": "file:///src/main.py" },
+  "provenance": {
+    "collector": "tree-sitter-lower",
+    "toolchain": "tree-sitter-python@0.21",
+    "inputs": [],
+    "privacy": { "tier": "local_only" }
+  }
+}

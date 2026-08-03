@@ -1,0 +1,18 @@
+{
+  "schema_version": "1.0",
+  "event_id": "evt:extra-1",
+  "time": "2026-08-03T14:22:05.123Z",
+  "kind": "PROCESS_EXEC",
+  "subject": {
+    "scope": "host/workstation-01",
+    "labels": { "surface": "H1", "topic": "LDA_09" }
+  },
+  "facts": { "argv": ["/bin/ls", "-la"], "pid": 4242 },
+  "provenance": {
+    "collector": "ebpf-exec-probe",
+    "toolchain": "ebpf@0.4.2",
+    "inputs": [],
+    "privacy": { "tier": "local_only" }
+  },
+  "surprise": "this field is not in the contract"
+}

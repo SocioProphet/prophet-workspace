@@ -1,0 +1,83 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.ai/prophet-workspace/sec-witness-quorum.schema.json",
+  "title": "SEC-2 Witness Quorum",
+  "description": "A k-of-N witness quorum signature block attached to a ProofArtifact — the immune system's promotion rule (a claim is promotable only when a threshold of independent witnesses have signed it). FIPS posture: the signing primitive is ECDSA over NIST P-256 with SHA-256 (FIPS 186-4 / 140-3 approvable). FROST/Schnorr over ed25519 is NOT FIPS-approved and is deliberately NOT used here; see docs/SEC-2-witness-quorum.md. Strict (additionalProperties:false) so unknown fields fail closed.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "scheme", "threshold", "committed", "signed_payload_hash", "roster", "signatures", "fips_posture"],
+  "properties": {
+    "schema_version": { "type": "string", "pattern": "^1\\.[0-9]+$" },
+    "scheme": {
+      "description": "Threshold scheme. Independent per-witness FIPS ECDSA signatures verified against a k-of-N policy (a true multisig quorum, NOT an aggregated threshold signature).",
+      "type": "string",
+      "const": "ecdsa-p256-quorum"
+    },
+    "threshold": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["k", "n"],
+      "properties": {
+        "k": { "description": "Quorum size required to promote (default 2).", "type": "integer", "minimum": 1 },
+        "n": { "description": "Roster size (number of enrolled witnesses).", "type": "integer", "minimum": 1 }
+      }
+    },
+    "committed": {
+      "description": "What the witnesses signed: the identity of the ProofArtifact being witnessed. Binds the quorum to a specific ledger entry.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["record_type", "entry_hash"],
+      "properties": {
+        "record_type": { "type": "string", "const": "ProofArtifact" },
+        "entry_hash": { "type": "string", "pattern": "^sha256:[a-f0-9]{64}$" }
+      }
+    },
+    "signed_payload_hash": {
+      "description": "sha256 of canonical(committed) — the exact bytes each witness signed.",
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "roster": {
+      "description": "The enrolled witness set (public keys). len(roster) must equal threshold.n; witness_id values must be unique.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["witness_id", "alg", "public_key_spki_b64"],
+        "properties": {
+          "witness_id": { "type": "string", "minLength": 1 },
+          "alg": { "type": "string", "const": "ECDSA_P256_SHA256" },
+          "public_key_spki_b64": {
+            "description": "Base64 of the DER SubjectPublicKeyInfo (X.509) of the witness's P-256 public key.",
+            "type": "string",
+            "minLength": 32
+          }
+        }
+      }
+    },
+    "signatures": {
+      "description": "Collected witness signatures. Verification counts DISTINCT valid witness_ids against threshold.k (fail-closed: fewer than k, or any signature from a witness not on the roster, or a tampered payload, denies promotion).",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["witness_id", "sig_b64"],
+        "properties": {
+          "witness_id": { "type": "string", "minLength": 1 },
+          "sig_b64": {
+            "description": "Base64 of the DER-encoded ECDSA signature over signed_payload (canonical(committed)).",
+            "type": "string",
+            "minLength": 16
+          }
+        }
+      }
+    },
+    "fips_posture": {
+      "description": "Human-readable FIPS statement, mirroring how the spine made BLAKE3 advisory.",
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

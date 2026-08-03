@@ -18,6 +18,10 @@ README + conformance suite; this page is the single index so no runtime object i
 | `sherlock-shell` | WO-E | Matrix room controller — room powers projected from the mount table; receipted provisioning | `python3 tests/wo_e_test.py` |
 | `agent-term` | WO-F | Command palette (`Alias.Resolve`) + computer-use controller: never the host, disposable-VM-only, Sentinel-gated, evidence-bearing | `python3 tests/wo_f_test.py` |
 | `fibration-node` | WO-H | Semantic-Fibration node model: S¹/S²/S³, descent (glue/degrade/block), FIB-9 decay, truth-survives-the-loop | `python3 tests/wo_h_test.py` |
+| `metadata-intake` | MS-P2 | Canonical metadata-record at intake (hash-first BLAKE3+SHA-256, three-time, classification), validated + Intake CustodyEvent | `python3 tests/wo_msp2_test.py` |
+| `zone-lifecycle` | MS-P5 | WNZL Dirt-to-Diamond zone lifecycle: one owning zone, gated promotion, demotion, retirement-not-destruction | `python3 tests/wo_msp5_test.py` |
+| `artifact-registry` | MS-P6 | evidence_grade E1–E5 ⟷ epistemic-ceiling ladder + AC-01..12 artifact-class registry with per-class enrichment/zone routing | `python3 tests/wo_msp6_test.py` |
+| `image-promotion-gate` | WO-G | SourceOS image validation gate — EvidenceBundle IS a ProofArtifact; fail-closed promotion + PolicyException | `python3 tests/wo_g_test.py` |
 
 ## Data flow
 

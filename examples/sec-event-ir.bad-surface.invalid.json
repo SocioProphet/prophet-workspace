@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "event_id": "evt:bad-surface-1",
+  "time": "2026-08-03T14:22:05.123Z",
+  "kind": "BOOT_ATTEST",
+  "subject": {
+    "scope": "host/workstation-01",
+    "labels": { "surface": "H8", "topic": "LDA_03" }
+  },
+  "facts": { "pcr0": "sha256:deadbeef", "measured_boot": true },
+  "provenance": {
+    "collector": "boot-attestor",
+    "toolchain": "tpm2@5.2",
+    "inputs": [],
+    "privacy": { "tier": "proof_only" }
+  }
+}

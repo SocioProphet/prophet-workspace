@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.ai/prophet-workspace/sec-event-ir.schema.json",
+  "title": "SEC-1 Event-IR",
+  "description": "Normalized, typed sensor-event intermediate representation for the Agentic SecOps Immune System. A collector lowers a raw signal (Tree-sitter parse, eBPF probe, TLS handshake, LSP message, boot attestation, ...) into one Event-IR record. Event-IR is the observe-layer feedstock for ProofArtifact claims (tools/proof-artifact-spine): versioned, deterministically canonically encodable (same encoder as the spine), provenance-explicit, privacy-labelled. Strict (additionalProperties:false) so unknown fields fail closed here, not silently downstream.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "event_id", "time", "kind", "subject", "facts", "provenance"],
+  "properties": {
+    "schema_version": {
+      "description": "Contract version. MAJOR.MINOR; a MAJOR bump is a breaking change to this shape.",
+      "type": "string",
+      "pattern": "^1\\.[0-9]+$"
+    },
+    "event_id": {
+      "description": "Stable identifier for this event. Recommended content-address form sha256:<64hex> (derived from the canonical encoding of the event minus event_id), but any non-empty opaque id is accepted so collectors can carry a native id.",
+      "type": "string",
+      "minLength": 1
+    },
+    "time": {
+      "description": "Observation time, RFC3339 / ISO-8601 UTC date-time (e.g. 2026-08-03T14:22:05.123Z). Wall-clock of the collector; monotonic/logical clocks belong in facts when needed.",
+      "type": "string",
+      "format": "date-time",
+      "minLength": 20
+    },
+    "kind": {
+      "description": "Normalized event kind. Open enum by design (the SecOps taxonomy grows); a MINOR bump adds members. Tree-sitter/LSP lowering emits EDITOR_LSP_MSG / SOURCE_EDIT.",
+      "type": "string",
+      "enum": [
+        "NET_TLS_HANDSHAKE",
+        "NET_CONNECT",
+        "DNS_QUERY",
+        "FILE_WRITE",
+        "FILE_READ",
+        "PROCESS_EXEC",
+        "POLICY_CHANGE",
+        "PRIVILEGE_CHANGE",
+        "BOOT_ATTEST",
+        "KEY_USE",
+        "AUTH_ATTEMPT",
+        "MOUNT_CHANGE",
+        "CONFIG_READ",
+        "EDITOR_LSP_MSG",
+        "SOURCE_EDIT"
+      ]
+    },
+    "subject": {
+      "description": "What the event is about: the governed scope plus the immune-system labels (which host surface, which governance-lane topic).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope", "labels"],
+      "properties": {
+        "scope": {
+          "description": "The governed extent the event was observed within (e.g. 'host/workstation-01', 'workspace/cases/p1', 'repo/prophet-workspace').",
+          "type": "string",
+          "minLength": 1
+        },
+        "labels": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["surface", "topic"],
+          "properties": {
+            "surface": {
+              "description": "Host surface H1..H7 the event was observed on (the WNZL/immune-system surface partition).",
+              "type": "string",
+              "enum": ["H1", "H2", "H3", "H4", "H5", "H6", "H7"]
+            },
+            "topic": {
+              "description": "Governance-lane topic LDA_01..LDA_23 (the estate's 23-topic LDA taxonomy).",
+              "type": "string",
+              "pattern": "^LDA_(0[1-9]|1[0-9]|2[0-3])$"
+            }
+          }
+        }
+      }
+    },
+    "facts": {
+      "description": "Kind-specific observed facts (the payload). Open object at this contract version; per-kind fact schemas are a documented seam (see docs/SEC-1-event-ir.md 'Tree-sitter -> Event-IR lowering').",
+      "type": "object",
+      "additionalProperties": true
+    },
+    "provenance": {
+      "description": "How this event came to exist. Explicit and required: no anonymous events enter the immune system.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["collector", "toolchain", "inputs", "privacy"],
+      "properties": {
+        "collector": {
+          "description": "The sensor/agent that emitted the event (e.g. 'ebpf-file-probe', 'tree-sitter-lower', 'tls-observer').",
+          "type": "string",
+          "minLength": 1
+        },
+        "toolchain": {
+          "description": "The toolchain/version that produced it (e.g. 'ebpf@0.4.2', 'tree-sitter-python@0.21').",
+          "type": "string",
+          "minLength": 1
+        },
+        "inputs": {
+          "description": "Content-addressed refs to the raw inputs the event was derived from (sha256:<hex> or opaque refs). May be empty for events with no upstream artifact, but the field is required (explicit empty, never absent).",
+          "type": "array",
+          "items": { "type": "string", "minLength": 1 },
+          "uniqueItems": true
+        },
+        "privacy": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["tier"],
+          "properties": {
+            "tier": {
+              "description": "Privacy tier gating how far this event may travel: local_only (never leaves the host), proof_only (only its hash/claim may be published), share_aggregate (may contribute to aggregated statistics).",
+              "type": "string",
+              "enum": ["local_only", "proof_only", "share_aggregate"]
+            }
+          }
+        }
+      }
+    }
+  }
+}

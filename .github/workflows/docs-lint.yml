@@ -2,10 +2,11 @@
 name: docs-lint
 on:
   pull_request:
-    paths: ["docs/**", "tools/validate_docs.py", "tools/tests/validate_docs_test.py", ".github/workflows/docs-lint.yml"]
+    # tools/** included so a new tools/<module> triggers the coverage check (else it goes silently red)
+    paths: ["docs/**", "tools/**", ".github/workflows/docs-lint.yml"]
   push:
     branches: [main]
-    paths: ["docs/**", "tools/validate_docs.py"]
+    paths: ["docs/**", "tools/**"]
 permissions:
   contents: read
 jobs:

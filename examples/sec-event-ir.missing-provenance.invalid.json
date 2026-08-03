@@ -1,0 +1,11 @@
+{
+  "schema_version": "1.0",
+  "event_id": "evt:no-prov-1",
+  "time": "2026-08-03T14:22:05.123Z",
+  "kind": "POLICY_CHANGE",
+  "subject": {
+    "scope": "host/workstation-01",
+    "labels": { "surface": "H5", "topic": "LDA_01" }
+  },
+  "facts": { "policy": "egress-default-deny", "from": "warn", "to": "enforce" }
+}
