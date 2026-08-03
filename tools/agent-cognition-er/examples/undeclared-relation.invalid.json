@@ -1,0 +1,10 @@
+{
+  "_comment": "REJECTED (T5): the edge [act:1 -runs-> cycle:1] uses a known predicate but is not a DECLARED relation (only AGENT runs DECISION_CYCLE). Edges must be typed against the contract.",
+  "entities": {
+    "ACTION": [{"action_id": "act:1", "agent_id": "agent:x", "kind": "publish"}],
+    "DECISION_CYCLE": [{"cycle_id": "cycle:1", "agent_id": "agent:x", "started_at": "2026-08-03T12:00:00Z"}]
+  },
+  "edges": [
+    ["act:1", "runs", "cycle:1"]
+  ]
+}

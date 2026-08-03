@@ -1,0 +1,12 @@
+{
+  "_comment": "REJECTED (T3): the ACTION is gated_by a POLICY_CHECK but is NOT recorded_as any AUDIT_EVENT. No promotion without a receipt.",
+  "entities": {
+    "AGENT": [{"agent_id": "agent:x", "passport_ref": "urn:passport:x"}],
+    "ACTION": [{"action_id": "act:1", "agent_id": "agent:x", "kind": "publish"}],
+    "POLICY_CHECK": [{"check_id": "pc:1", "action_id": "act:1", "outcome": "allow", "reason_code": "OK"}]
+  },
+  "edges": [
+    ["agent:x", "emits", "act:1"],
+    ["act:1", "gated_by", "pc:1"]
+  ]
+}
