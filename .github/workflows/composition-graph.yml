@@ -1,0 +1,35 @@
+name: Composition Graph
+
+on:
+  pull_request:
+    paths:
+      - 'schemas/composition-graph.schema.json'
+      - 'examples/composition-graph.example.json'
+      - 'examples/composition-graph.*.invalid.json'
+      - 'tools/validate_composition_graph.py'
+      - '.github/workflows/composition-graph.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'schemas/composition-graph.schema.json'
+      - 'examples/composition-graph.example.json'
+      - 'examples/composition-graph.*.invalid.json'
+      - 'tools/validate_composition_graph.py'
+      - '.github/workflows/composition-graph.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  validate-composition-graph:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Validate CompositionGraph contract
+        run: python3 tools/validate_composition_graph.py

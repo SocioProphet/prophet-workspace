@@ -1,0 +1,188 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.dev/prophet-workspace/composition-graph.v0.1.schema.json",
+  "title": "CompositionGraph v0.1",
+  "description": "The ORCHESTRATION artifact of the Open Agent Continuum (ADR-0001): how many governed agents/organs compose into ONE bounded, receipted workflow DAG. Where GenesisSeed (schemas/genesis-seed.schema.json) is the formation charter of a SINGLE twin, a CompositionGraph is the plural — a Triune/AUM-style DAG whose nodes are seeded agent-roles with a capability envelope, a time-box and a danger class, whose edges are data/control dependencies, and whose gates are references to the policy/eval/quorum machinery the estate already owns. Consume-not-fork: each node's seed_ref binds a GenesisSeed (which instantiates a WorkspaceMountTable, f*); gates reference Sentinel policy + SEC-2 witness-quorum; the whole run is a hash-chained ProofArtifact on the proof-artifact-spine (f_!, AC-1); tool_exec nodes route through agent-term's disposable-VM controller; the epistemic ceiling is computed by tools/workspace-controller. Grounded in the Agentic Composition/Orchestration + Inception Framework intake (2026-08-03) and the estate's receipt/epistemic/loops-vs-DAGs laws.",
+  "type": "object",
+  "additionalProperties": false,
+  "$comment": "Cross-field rules enforced by tools/validate_composition_graph.py (not expressible in pure JSON Schema): (1) node_id unique; edges/gates reference declared node_ids; (2) graph-level control flow is ACYCLIC — a cycle is legal ONLY inside a node declared loop:true carrying budget.max_iterations (loops-vs-DAGs-governed: DAG=acyclic identity, loop=correction bounded+convergent+fail-closed); (3) a loop node MUST carry budget.max_iterations, a non-loop node MUST NOT; (4) fail-closed actuation — any node with danger_class 'high' or a mutating/host provider (provider:kubernetes | provider:host | *host_update*) MUST be covered by a quorum gate; (5) kill_switch, receipt per_node/run, and append-only provenance are pinned as consts below AND re-checked here so the two cannot silently drift.",
+  "required": [
+    "graph_id",
+    "federation_profile",
+    "revocation",
+    "receipt_profile",
+    "nodes",
+    "edges",
+    "gates"
+  ],
+  "properties": {
+    "graph_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable unique identifier and version, e.g. composition:deploy-pipeline/v1. A composition is a versioned artifact (changes require provenance)."
+    },
+    "federation_profile": {
+      "enum": ["none", "same_domain_only", "cross_domain_reviewed"],
+      "description": "Whether/how nodes may cooperate with peer twins across domains. A composition cannot self-declare unbounded federation — start same-domain only (ADR federation gate). Same closed enum as GenesisSeed."
+    },
+    "revocation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["scope", "kill_switch"],
+      "description": "Blast-radius containment. kill_switch MUST be true — a composition without an instant mass-terminate path is a bug (the swarm's A2A REVOKE + kill-by-label).",
+      "properties": {
+        "scope": {
+          "enum": ["label", "grant", "both"],
+          "description": "How termination is addressed: by node label (process/pod), by A2A grant, or both."
+        },
+        "kill_switch": {
+          "const": true,
+          "description": "MUST be true — mandatory instant mass-terminate (enforced here AND in tools/validate_composition_graph.py)."
+        }
+      }
+    },
+    "receipt_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["per_node", "run", "provenance"],
+      "description": "Receipting posture. A composition run IS a ProofArtifact (WO-B, AC-1): every publishing node is receipted and the run carries a hash-chained receipt; provenance is append-only.",
+      "properties": {
+        "per_node": {
+          "const": true,
+          "description": "MUST be true — every publishing node emits a receipt (AC-1)."
+        },
+        "run": {
+          "const": true,
+          "description": "MUST be true — the composition run emits a run-level ProofArtifact (AC-1)."
+        },
+        "provenance": {
+          "const": "append_only",
+          "description": "MUST be append_only — provenance is never rewritten (spec 7.4 / AC-1)."
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "minItems": 1,
+      "description": "The agent-roles composed by this graph. Each is an instance of a GenesisSeed (seed_ref) with a capability envelope, a time-box and a danger class.",
+      "items": { "$ref": "#/$defs/node" }
+    },
+    "edges": {
+      "type": "array",
+      "description": "Data/control dependencies between nodes. Graph-level edges MUST be acyclic (see $comment); the only legal cycles are bounded loop nodes.",
+      "items": { "$ref": "#/$defs/edge" }
+    },
+    "gates": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Policy/eval/quorum gates that must pass. Gates REFERENCE the estate's engines (Sentinel policy, SEC-2 witness-quorum) — they are not a new engine.",
+      "items": { "$ref": "#/$defs/gate" }
+    }
+  },
+  "$defs": {
+    "node": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["node_id", "seed_ref", "organs", "danger_class", "ttl_seconds"],
+      "properties": {
+        "node_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Unique within the graph."
+        },
+        "seed_ref": {
+          "type": "string",
+          "minLength": 1,
+          "description": "The GenesisSeed (schemas/genesis-seed.schema.json) that FORMS this node's twin, e.g. seed:operator/deploy-v1. The node instantiates the seed; it does not re-declare its profiles (consume-not-fork)."
+        },
+        "archetype": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Optional free-text role label (collector/curator/retriever/generator/verifier/…) until the organ-mesh archetype enum formalises (post-WO-D)."
+        },
+        "organs": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "The capability modules this node exercises — a subset of its seed's organs_allowed (resolved at bind time)."
+        },
+        "danger_class": {
+          "enum": ["low", "medium", "high"],
+          "description": "Side-effect risk. 'high' forces quorum-gate coverage (fail-closed actuation)."
+        },
+        "ttl_seconds": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "The node's bounded lifetime — every node is time-boxed (systemd RuntimeMaxSec / k8s ttlSecondsAfterFinished). No unbounded residency."
+        },
+        "loop": {
+          "type": "boolean",
+          "description": "If true, this node runs a bounded correction loop (rewrite→retrieve→generate→evaluate→gate) and MUST carry budget.max_iterations; the only legal cycle in the graph. Defaults to false."
+        },
+        "budget": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["max_iterations"],
+          "description": "Iteration budget for a loop node. Required iff loop:true (enforced by the validator).",
+          "properties": {
+            "max_iterations": {
+              "type": "integer",
+              "minimum": 1,
+              "description": "Hard upper bound on loop iterations — a loop must be bounded and convergent."
+            }
+          }
+        },
+        "provider_profile": {
+          "type": "array",
+          "minItems": 0,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "External service bindings this node may use, e.g. provider:kubernetes. A mutating/host provider forces quorum-gate coverage (same rule as GenesisSeed's host_mutation gate)."
+        },
+        "approval": {
+          "type": "object",
+          "minProperties": 0,
+          "additionalProperties": { "enum": ["required", "optional", "not_required"] },
+          "description": "What requires human review/co-signature for this node, keyed by action kind, e.g. {\"host_mutation\": \"required\"}."
+        }
+      }
+    },
+    "edge": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["from", "to", "kind"],
+      "properties": {
+        "from": { "type": "string", "minLength": 1, "description": "Source node_id." },
+        "to": { "type": "string", "minLength": 1, "description": "Target node_id." },
+        "kind": {
+          "enum": ["data", "control"],
+          "description": "data = output feeds input; control = ordering/gating dependency."
+        }
+      }
+    },
+    "gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["gate_id", "kind", "applies_to"],
+      "properties": {
+        "gate_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Reference to the concrete gate, e.g. policy:deploy/base, eval:rag/faithfulness, quorum:human/2of3 (Sentinel / SEC-2 witness-quorum)."
+        },
+        "kind": {
+          "enum": ["policy", "eval", "quorum"],
+          "description": "policy = Sentinel/OPA allow/deny; eval = quality threshold; quorum = human co-signature (SEC-2 witness-quorum)."
+        },
+        "applies_to": {
+          "type": "array",
+          "minItems": 1,
+          "uniqueItems": true,
+          "items": { "type": "string", "minLength": 1 },
+          "description": "node_ids this gate covers. Every id must be a declared node."
+        }
+      }
+    }
+  }
+}

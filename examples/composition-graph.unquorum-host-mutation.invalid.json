@@ -1,0 +1,102 @@
+{
+  "graph_id": "composition:deploy-pipeline/v1",
+  "federation_profile": "same_domain_only",
+  "revocation": {
+    "scope": "both",
+    "kill_switch": true
+  },
+  "receipt_profile": {
+    "per_node": true,
+    "run": true,
+    "provenance": "append_only"
+  },
+  "nodes": [
+    {
+      "node_id": "collect",
+      "seed_ref": "seed:operator/collect-v1",
+      "archetype": "collector",
+      "organs": [
+        "graph_retrieval"
+      ],
+      "danger_class": "low",
+      "ttl_seconds": 600
+    },
+    {
+      "node_id": "plan",
+      "seed_ref": "seed:operator/plan-v1",
+      "archetype": "planner",
+      "organs": [
+        "planner",
+        "policy_check"
+      ],
+      "danger_class": "low",
+      "ttl_seconds": 600
+    },
+    {
+      "node_id": "synthesize",
+      "seed_ref": "seed:operator/synthesize-v1",
+      "archetype": "generator",
+      "organs": [
+        "generator",
+        "verifier"
+      ],
+      "danger_class": "medium",
+      "ttl_seconds": 900,
+      "loop": true,
+      "budget": {
+        "max_iterations": 4
+      }
+    },
+    {
+      "node_id": "deploy",
+      "seed_ref": "seed:operator/deploy-v1",
+      "archetype": "deployment_twin",
+      "organs": [
+        "tool_exec",
+        "workflow"
+      ],
+      "danger_class": "high",
+      "ttl_seconds": 900,
+      "provider_profile": [
+        "provider:kubernetes",
+        "provider:artifact_store"
+      ],
+      "approval": {
+        "host_mutation": "required"
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "collect",
+      "to": "plan",
+      "kind": "data"
+    },
+    {
+      "from": "plan",
+      "to": "synthesize",
+      "kind": "data"
+    },
+    {
+      "from": "synthesize",
+      "to": "deploy",
+      "kind": "control"
+    }
+  ],
+  "gates": [
+    {
+      "gate_id": "policy:deploy/base",
+      "kind": "policy",
+      "applies_to": [
+        "deploy"
+      ]
+    },
+    {
+      "gate_id": "eval:rag/faithfulness",
+      "kind": "eval",
+      "applies_to": [
+        "synthesize"
+      ]
+    }
+  ]
+}
