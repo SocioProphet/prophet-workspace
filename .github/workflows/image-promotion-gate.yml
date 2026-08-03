@@ -1,0 +1,33 @@
+name: Image Promotion Gate (WO-G)
+
+on:
+  pull_request:
+    paths:
+      - 'tools/image-promotion-gate/**'
+      - 'tools/proof-artifact-spine/**'
+      - '.github/workflows/image-promotion-gate.yml'
+  push:
+    branches:
+      - main
+    paths:
+      - 'tools/image-promotion-gate/**'
+      - 'tools/proof-artifact-spine/**'
+      - '.github/workflows/image-promotion-gate.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  wo-g-conformance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+      - name: Install spine deps (blake3 — advisory dual-hash)
+        run: python3 -m pip install -r tools/proof-artifact-spine/requirements.txt
+      - name: WO-G promotion-gate conformance (teeth both ways)
+        run: python3 tools/image-promotion-gate/tests/wo_g_test.py
