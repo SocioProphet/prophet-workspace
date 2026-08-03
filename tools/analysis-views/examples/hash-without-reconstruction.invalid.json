@@ -1,0 +1,54 @@
+{
+  "identity": {
+    "view_id": "av-view-9002",
+    "name": "Unreproducible hash",
+    "created_at_micros": 1754179230000000
+  },
+  "model": {
+    "kind": "LSA"
+  },
+  "source": {
+    "corpus_id": "corpus:cases-2026",
+    "base_relation": "event_ir.bags"
+  },
+  "transform": {
+    "seed": 1337,
+    "dim": 512,
+    "normalization": "tfidf"
+  },
+  "integrity": {
+    "hash_algo": "sha256",
+    "output_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000009",
+    "signed": false
+  },
+  "lifecycle": {
+    "freshness": {
+      "window_seconds": 3600,
+      "refresh_cadence": "interval",
+      "staleness_policy": "degrade"
+    },
+    "eviction": {
+      "policy": "none"
+    },
+    "reconstruction": {
+      "deterministic": false,
+      "from_seed": false,
+      "source_refs": [
+        "corpus:cases-2026"
+      ]
+    }
+  },
+  "governance": {
+    "zone_path": [
+      "Landing",
+      "Examination"
+    ],
+    "access": {
+      "epistemic_ceiling": "Derived"
+    },
+    "provenance": {
+      "origin": "internal",
+      "parent_corpus_id": "corpus:cases-2026"
+    }
+  }
+}

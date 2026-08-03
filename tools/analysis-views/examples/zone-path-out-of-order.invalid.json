@@ -1,0 +1,47 @@
+{
+  "identity": {
+    "view_id": "av-view-9003",
+    "name": "Backwards zones",
+    "created_at_micros": 1754179240000000
+  },
+  "model": {
+    "kind": "LDA"
+  },
+  "source": {
+    "corpus_id": "corpus:cases-2026",
+    "base_relation": "event_ir.claim_bags"
+  },
+  "transform": {
+    "seed": 2025,
+    "k": 64
+  },
+  "integrity": {
+    "hash_algo": "sha256",
+    "signed": false
+  },
+  "lifecycle": {
+    "freshness": {
+      "refresh_cadence": "manual",
+      "staleness_policy": "serve_stale"
+    },
+    "eviction": {
+      "policy": "none"
+    },
+    "reconstruction": {
+      "deterministic": false
+    }
+  },
+  "governance": {
+    "zone_path": [
+      "Integration",
+      "Landing"
+    ],
+    "access": {
+      "epistemic_ceiling": "Derived"
+    },
+    "provenance": {
+      "origin": "internal",
+      "parent_corpus_id": "corpus:cases-2026"
+    }
+  }
+}

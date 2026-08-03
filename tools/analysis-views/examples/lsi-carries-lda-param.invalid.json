@@ -1,0 +1,52 @@
+{
+  "identity": {
+    "view_id": "av-view-9001",
+    "name": "LSI with stray k",
+    "created_at_micros": 1754179220000000
+  },
+  "model": {
+    "kind": "LSI"
+  },
+  "source": {
+    "corpus_id": "corpus:cases-2026",
+    "base_relation": "event_ir.doc_term"
+  },
+  "transform": {
+    "seed": 4242,
+    "rank": 256,
+    "k": 64
+  },
+  "integrity": {
+    "hash_algo": "sha256",
+    "signed": false
+  },
+  "lifecycle": {
+    "freshness": {
+      "refresh_cadence": "manual",
+      "staleness_policy": "serve_stale"
+    },
+    "eviction": {
+      "policy": "none"
+    },
+    "reconstruction": {
+      "deterministic": true,
+      "from_seed": true,
+      "source_refs": [
+        "corpus:cases-2026"
+      ]
+    }
+  },
+  "governance": {
+    "zone_path": [
+      "Landing",
+      "Examination"
+    ],
+    "access": {
+      "epistemic_ceiling": "Derived"
+    },
+    "provenance": {
+      "origin": "internal",
+      "parent_corpus_id": "corpus:cases-2026"
+    }
+  }
+}

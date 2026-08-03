@@ -1,0 +1,31 @@
+{
+  "identity": {
+    "view_id": "av-view-0001",
+    "name": "Corpus LSA dense-vector view",
+    "description": "Dense TF-IDF LSA space over the case corpus event bags (GENESYS Ring-Zero defaults).",
+    "created_at_micros": 1754179200000000
+  },
+  "model": {"kind": "LSA"},
+  "source": {
+    "corpus_id": "corpus:cases-2026",
+    "base_relation": "event_ir.bags",
+    "catalog_refs": ["catalog:prophet-core/cases"],
+    "event_ir_source": "sec1:event-ir/cases"
+  },
+  "transform": {"seed": 1337, "dim": 512, "normalization": "tfidf"},
+  "integrity": {
+    "hash_algo": "sha256",
+    "output_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000001",
+    "signed": false
+  },
+  "lifecycle": {
+    "freshness": {"window_seconds": 3600, "refresh_cadence": "interval", "staleness_policy": "degrade"},
+    "eviction": {"policy": "ttl", "max_entries": 100000},
+    "reconstruction": {"deterministic": true, "from_seed": true, "source_refs": ["corpus:cases-2026", "sec1:event-ir/cases"]}
+  },
+  "governance": {
+    "zone_path": ["Landing", "Examination", "Integration"],
+    "access": {"epistemic_ceiling": "Measured", "security_label": "internal", "lattice_labels": ["purpose:analysis", "retention:standard"]},
+    "provenance": {"origin": "internal", "parent_corpus_id": "corpus:cases-2026"}
+  }
+}

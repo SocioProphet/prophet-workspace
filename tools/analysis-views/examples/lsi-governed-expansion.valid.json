@@ -1,0 +1,38 @@
+{
+  "identity": {
+    "view_id": "av-view-0002",
+    "name": "Governed LSI index with unitary rank bump",
+    "description": "SVD index promoted to Governed; a rank_bump expansion admitted only because the atlas is fully fibered.",
+    "created_at_micros": 1754179205000000
+  },
+  "model": {"kind": "LSI"},
+  "source": {
+    "corpus_id": "corpus:cases-2026",
+    "base_relation": "event_ir.doc_term",
+    "catalog_refs": ["catalog:prophet-core/cases"]
+  },
+  "transform": {
+    "seed": 4242,
+    "rank": 256,
+    "normalization": "l2",
+    "expansion": {"kind": "rank_bump", "from": 256, "to": 272}
+  },
+  "integrity": {
+    "hash_algo": "sha256",
+    "output_hash": "sha256:0000000000000000000000000000000000000000000000000000000000000002",
+    "manifest_hash": "sha256:00000000000000000000000000000000000000000000000000000000000000aa",
+    "signed": true
+  },
+  "lifecycle": {
+    "freshness": {"window_seconds": 7200, "refresh_cadence": "interval", "staleness_policy": "block_stale"},
+    "eviction": {"policy": "lru", "max_entries": 50000},
+    "reconstruction": {"deterministic": true, "from_seed": true, "source_refs": ["corpus:cases-2026"]}
+  },
+  "governance": {
+    "zone_path": ["Landing", "Examination", "Integration", "Governed"],
+    "access": {"epistemic_ceiling": "Proved", "security_label": "governed", "lattice_labels": ["purpose:disclosure", "clearance:analyst"]},
+    "provenance": {"origin": "internal", "parent_corpus_id": "corpus:cases-2026", "signer": "cosign:analyst-quorum", "chain_of_trust": ["frost:2-of-3"]}
+  },
+  "coverage": {"ratio": 1.0, "charts_total": 6, "charts_with_proofs": 6},
+  "stability": {"npmi": 0.42, "sv_delta": 0.008}
+}

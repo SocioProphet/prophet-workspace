@@ -1,0 +1,61 @@
+{
+  "identity": {
+    "view_id": "av-view-9006",
+    "name": "Premature expansion",
+    "created_at_micros": 1754179270000000
+  },
+  "model": {
+    "kind": "LSI"
+  },
+  "source": {
+    "corpus_id": "corpus:cases-2026",
+    "base_relation": "event_ir.doc_term"
+  },
+  "transform": {
+    "seed": 4242,
+    "rank": 256,
+    "expansion": {
+      "kind": "rank_bump",
+      "from": 256,
+      "to": 288
+    }
+  },
+  "integrity": {
+    "hash_algo": "sha256",
+    "signed": false
+  },
+  "lifecycle": {
+    "freshness": {
+      "refresh_cadence": "manual",
+      "staleness_policy": "serve_stale"
+    },
+    "eviction": {
+      "policy": "none"
+    },
+    "reconstruction": {
+      "deterministic": false
+    }
+  },
+  "governance": {
+    "zone_path": [
+      "Landing",
+      "Examination"
+    ],
+    "access": {
+      "epistemic_ceiling": "Derived"
+    },
+    "provenance": {
+      "origin": "internal",
+      "parent_corpus_id": "corpus:cases-2026"
+    }
+  },
+  "coverage": {
+    "ratio": 0.83,
+    "charts_total": 6,
+    "charts_with_proofs": 5
+  },
+  "stability": {
+    "npmi": 0.31,
+    "sv_delta": 0.02
+  }
+}

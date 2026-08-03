@@ -1,0 +1,163 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://socioprophet.ai/schemas/analysis-view.schema.json",
+  "title": "RegisteredAnalysisView",
+  "description": "AV-1 (issue #60): an LSA/LSI/LDA semantic space registered as a GOVERNED, Noria-style materialized analysis view over a base corpus. The descriptor pins the reproducible transform (GENESYS Ring-Zero: seed + output hash) AND the governance the view must respect (WNZL zone_path MS-P5, epistemic access WO-C, provenance WO-B). Distinct from the 768-dim embedding plane; distinct from the 23x6 governance intent grid.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["identity", "model", "source", "transform", "integrity", "lifecycle", "governance"],
+  "properties": {
+    "identity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["view_id", "name", "created_at_micros"],
+      "properties": {
+        "view_id": {"type": "string", "pattern": "^av-view-[0-9]{4}$", "description": "Stable registry id AV-VIEW-NNNN."},
+        "name": {"type": "string", "minLength": 1},
+        "description": {"type": "string"},
+        "created_at_micros": {"type": "integer", "minimum": 0}
+      }
+    },
+    "model": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind"],
+      "properties": {
+        "kind": {"type": "string", "enum": ["LSA", "LSI", "LDA"], "description": "LSA=dense TF-IDF vector; LSI=SVD index (rank); LDA=topic model (k)."}
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["corpus_id", "base_relation"],
+      "properties": {
+        "corpus_id": {"type": "string", "minLength": 1},
+        "base_relation": {"type": "string", "minLength": 1, "description": "The Noria base the view materializes over (e.g. event-ir bags, catalog table)."},
+        "catalog_refs": {"type": "array", "items": {"type": "string"}},
+        "event_ir_source": {"type": "string", "description": "Optional Event-IR (SEC-1) stream feeding the view."}
+      }
+    },
+    "transform": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["seed"],
+      "properties": {
+        "seed": {"type": "integer", "description": "Pinned RNG seed — closed-space reproducibility (GENESYS Ring-Zero)."},
+        "dim": {"type": "integer", "minimum": 1, "description": "LSA dense dimension."},
+        "rank": {"type": "integer", "minimum": 1, "description": "LSI SVD rank."},
+        "k": {"type": "integer", "minimum": 1, "description": "LDA topic count."},
+        "normalization": {"type": "string", "enum": ["tfidf", "l2", "none"]},
+        "expansion": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["kind", "from", "to"],
+          "description": "A unitary basis expansion (LSI rank bump / LDA topic split-merge). Gated by the emergence criterion.",
+          "properties": {
+            "kind": {"type": "string", "enum": ["rank_bump", "topic_split", "topic_merge"]},
+            "from": {"type": "integer", "minimum": 0},
+            "to": {"type": "integer", "minimum": 0}
+          }
+        }
+      }
+    },
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["hash_algo", "signed"],
+      "properties": {
+        "hash_algo": {"type": "string", "enum": ["sha256", "blake3"]},
+        "output_hash": {"type": "string", "description": "Hash of the materialized artifacts (index/model)."},
+        "manifest_hash": {"type": "string", "description": "Hash of the signed spaces.manifest.json."},
+        "signed": {"type": "boolean"}
+      }
+    },
+    "lifecycle": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["freshness", "eviction", "reconstruction"],
+      "properties": {
+        "freshness": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "window_seconds": {"type": "integer", "minimum": 0},
+            "refresh_cadence": {"type": "string", "enum": ["on_write", "interval", "manual"]},
+            "staleness_policy": {"type": "string", "enum": ["serve_stale", "block_stale", "degrade"]}
+          }
+        },
+        "eviction": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["policy"],
+          "properties": {
+            "policy": {"type": "string", "enum": ["none", "ttl", "lru"]},
+            "max_entries": {"type": "integer", "minimum": 0}
+          }
+        },
+        "reconstruction": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["deterministic"],
+          "properties": {
+            "deterministic": {"type": "boolean"},
+            "from_seed": {"type": "boolean"},
+            "source_refs": {"type": "array", "items": {"type": "string"}}
+          }
+        }
+      }
+    },
+    "governance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["zone_path", "access", "provenance"],
+      "properties": {
+        "zone_path": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "enum": ["Discovery", "Landing", "Examination", "Integration", "Governed", "Diamond"]},
+          "description": "WNZL Dirt-to-Diamond ownership path (MS-P5). Must be strictly in canonical order."
+        },
+        "access": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["epistemic_ceiling"],
+          "properties": {
+            "epistemic_ceiling": {"type": "string", "enum": ["Speculative", "Derived", "Measured", "Proved"], "description": "WO-C level a consumer may read this view at."},
+            "security_label": {"type": "string"},
+            "lattice_labels": {"type": "array", "items": {"type": "string"}, "description": "Purpose/clearance/retention lattice labels (Ring-Zero permission lattice)."}
+          }
+        },
+        "provenance": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["origin", "parent_corpus_id"],
+          "properties": {
+            "origin": {"type": "string", "enum": ["internal", "external"]},
+            "parent_corpus_id": {"type": "string", "minLength": 1},
+            "signer": {"type": "string"},
+            "chain_of_trust": {"type": "array", "items": {"type": "string"}}
+          }
+        }
+      }
+    },
+    "coverage": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "GENESYS emergence input: the atlas/section coverage of the base before a basis expansion.",
+      "properties": {
+        "ratio": {"type": "number", "minimum": 0, "maximum": 1},
+        "charts_total": {"type": "integer", "minimum": 0},
+        "charts_with_proofs": {"type": "integer", "minimum": 0}
+      }
+    },
+    "stability": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "GENESYS emergence input: topic/singular-value stability before expansion.",
+      "properties": {
+        "npmi": {"type": "number"},
+        "sv_delta": {"type": "number"}
+      }
+    }
+  }
+}
