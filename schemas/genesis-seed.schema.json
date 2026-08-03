@@ -1,0 +1,110 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://schemas.socioprophet.dev/prophet-workspace/genesis-seed.v0.1.schema.json",
+  "title": "GenesisSeed v0.1",
+  "description": "The reusable FORMATION artifact of the Open Agent Continuum (ADR-0001): a signed, typed operating charter that Inception binds into a live twin. Genesis is compile-time and reusable; Inception is runtime and contextual. A seed is NOT a free-form prompt — it declares role archetype, ontology slice, allowed organs, and the retrieval/memory/policy/provider/federation/approval profiles a twin may operate within. Consume-not-fork: a seed's organs_allowed/provider_profile INSTANTIATE into a WorkspaceMountTable (schemas/workspace-mount-table.schema.json, f*); its policy_profile is served by Sentinel; its provenance memory is the ProofArtifact spine (tools/proof-artifact-spine, f_!); its epistemic ceiling is computed by tools/workspace-controller. Grounded in the inception spec (2026-03-09) Genesis/Inception/K3 sections and the estate's receipt/epistemic laws.",
+  "type": "object",
+  "additionalProperties": false,
+  "$comment": "Cross-field rules enforced by tools/validate_genesis_seed.py (not expressible in pure JSON Schema): (1) memory_profile.provenance MUST be append_only [also pinned by the schema const below — checked both ways]; (2) if provider_profile contains any mutating/host provider (provider:kubernetes | provider:host | *host_update*), approval_profile.host_mutation MUST be 'required' — fail-closed actuation (spec non-negotiable #1, ADR actuation gate).",
+  "required": [
+    "seed_id",
+    "archetype",
+    "ontology_slice",
+    "goal_schema",
+    "organs_allowed",
+    "retrieval_profile",
+    "memory_profile",
+    "policy_profile",
+    "provider_profile",
+    "federation_profile",
+    "approval_profile"
+  ],
+  "properties": {
+    "seed_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Stable unique identifier and version, e.g. seed:operator/deploy-v1. A seed is a versioned artifact (changes require provenance)."
+    },
+    "archetype": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Role archetype: research_twin | operator_twin | auditor_twin | deployment_twin | synthesis_twin | ..."
+    },
+    "ontology_slice": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Subset of the canonical ontology visible to the twin by default (the mounted cover, S1)."
+    },
+    "goal_schema": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Reference to the expected intent + success-criteria schema this seed's twins accept."
+    },
+    "organs_allowed": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Permitted capability modules / tool classes (retriever, planner, verifier, tool_exec, policy_check, workflow, ...). This is the twin's capability envelope — it instantiates into a mount table."
+    },
+    "retrieval_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["graph", "hybrid", "multimodal", "self_reflective", "recursive"],
+      "description": "Which retrieval families (organs/operating modes) the twin may select — NOT mutually exclusive whole-system categories.",
+      "properties": {
+        "graph": { "type": "boolean" },
+        "hybrid": { "type": "boolean" },
+        "multimodal": { "type": "boolean" },
+        "self_reflective": { "type": "boolean" },
+        "recursive": { "type": "boolean" }
+      }
+    },
+    "memory_profile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["episodic", "semantic", "procedural", "provenance"],
+      "description": "Read/write posture per memory stratum. Provenance memory is APPEND-ONLY by law (spec 7.4 + AC-1): a later correction references, never erases, the earlier state.",
+      "properties": {
+        "episodic": { "$ref": "#/$defs/memoryMode" },
+        "semantic": { "$ref": "#/$defs/memoryMode" },
+        "procedural": { "$ref": "#/$defs/memoryMode" },
+        "provenance": {
+          "const": "append_only",
+          "description": "MUST be append_only — provenance is never rewritten (enforced here AND in tools/validate_genesis_seed.py)."
+        }
+      }
+    },
+    "policy_profile": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 },
+      "description": "Required policy modules (safety/data-access/delegation/actuation/regional/review) served by Sentinel/OPA, e.g. policy:deploy/base, policy:human_gate/high_risk."
+    },
+    "provider_profile": {
+      "type": "array",
+      "minItems": 0,
+      "uniqueItems": true,
+      "items": { "type": "string", "minLength": 1 },
+      "description": "External service bindings the twin may use, e.g. provider:kubernetes, provider:artifact_store. A mutating/host provider forces approval_profile.host_mutation == required (fail-closed actuation)."
+    },
+    "federation_profile": {
+      "enum": ["none", "same_domain_only", "cross_domain_reviewed"],
+      "description": "Whether/how peer twins may cooperate. A seed cannot self-declare unbounded federation — start same-domain only (ADR federation gate)."
+    },
+    "approval_profile": {
+      "type": "object",
+      "minProperties": 0,
+      "additionalProperties": { "enum": ["required", "optional", "not_required"] },
+      "description": "What requires human review/co-signature, keyed by action kind, e.g. {\"host_mutation\": \"required\"}."
+    }
+  },
+  "$defs": {
+    "memoryMode": {
+      "enum": ["none", "read", "read_write", "read_write_scoped", "append_only"]
+    }
+  }
+}
